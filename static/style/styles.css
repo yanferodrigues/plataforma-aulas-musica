@@ -1097,6 +1097,7 @@ footer {
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.3s, box-shadow 0.3s;
+  appearance: none;
   -webkit-appearance: none;
 }
 .form-input::placeholder { color: transparent; }
