@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil — MUSILAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../setup/static/style/styles.css" />
+</head>
+<body>
+
+<div class="db-layout">
+
+  <!-- ═══════════ SIDEBAR ═══════════════════════════ -->
+  <aside class="db-sidebar" id="sidebar">
+    <div class="db-sidebar-logo">
+      <a href="index.html">
+        <img src="../setup/static/assets/logo-musilab.png" alt="MUSILAB" class="sidebar-logo-img" />
+        <span>MUSI<em>LAB</em></span>
+      </a>
+    </div>
+
+    <nav class="db-nav">
+      <p class="db-nav-section-label">Principal</p>
+      <a href="dashboard.html" class="db-nav-link">
+        <span class="db-nav-icon">🏠</span> Início
+      </a>
+      <a href="modules.html" class="db-nav-link">
+        <span class="db-nav-icon">🎵</span> Módulos
+      </a>
+      <a href="progress.html" class="db-nav-link">
+        <span class="db-nav-icon">📈</span> Meu Progresso
+      </a>
+      <a href="achievements.html" class="db-nav-link">
+        <span class="db-nav-icon">🏆</span> Conquistas
+      </a>
+
+      <p class="db-nav-section-label">Conta</p>
+      <a href="profile.html" class="db-nav-link active">
+        <span class="db-nav-icon">👤</span> Perfil
+      </a>
+      <a href="settings.html" class="db-nav-link">
+        <span class="db-nav-icon">⚙️</span> Configurações
+      </a>
+      <a href="login.html" class="db-nav-link">
+        <span class="db-nav-icon">🚪</span> Sair
+      </a>
+    </nav>
+
+    <div class="db-sidebar-foot">
+      <div class="db-user-card">
+        <div class="db-avatar">Y</div>
+        <div>
+          <p class="db-user-name">Yan Vieira</p>
+          <p class="db-user-plan">Plano Pro</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN ═══════════════════════════════ -->
+  <main class="db-main">
+
+    <header class="db-topbar">
+      <h1 class="db-topbar-title">Perfil</h1>
+      <div class="db-topbar-actions">
+        <a href="#" class="db-icon-btn" aria-label="Notificações">
+          🔔 <span class="badge"></span>
+        </a>
+      </div>
+    </header>
+
+    <div class="db-content">
+      <div class="profile-layout">
+
+        <!-- Card lateral -->
+        <div class="profile-card">
+          <div class="profile-avatar-big">Y</div>
+          <p class="profile-card-name">Yan Vieira</p>
+          <p class="profile-card-email">yanfelipe678@gmail.com</p>
+          <span class="profile-card-plan">PRO</span>
+
+          <button
+            style="width:100%;padding:11px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-md);color:var(--text-secondary);font-family:var(--font-ui);font-size:13px;cursor:pointer;transition:var(--transition);margin-bottom:24px;"
+            onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--text-primary)'"
+            onmouseout="this.style.borderColor='var(--glass-border)';this.style.color='var(--text-secondary)'"
+          >
+            Alterar foto
+          </button>
+
+          <div class="profile-stats">
+            <div>
+              <p class="profile-stat-val">34h</p>
+              <p class="profile-stat-lbl">Estudadas</p>
+            </div>
+            <div>
+              <p class="profile-stat-val">42</p>
+              <p class="profile-stat-lbl">Aulas</p>
+            </div>
+            <div>
+              <p class="profile-stat-val">4</p>
+              <p class="profile-stat-lbl">Conquistas</p>
+            </div>
+            <div>
+              <p class="profile-stat-val">7🔥</p>
+              <p class="profile-stat-lbl">Sequência</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulário -->
+        <div>
+          <form id="profile-form" novalidate>
+
+            <div class="settings-card">
+              <p class="settings-card-title">Informações pessoais</p>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="first_name">Nome</label>
+                  <input type="text" id="first_name" name="first_name" value="Yan" autocomplete="given-name" />
+                </div>
+                <div class="field">
+                  <label for="last_name">Sobrenome</label>
+                  <input type="text" id="last_name" name="last_name" value="Vieira" autocomplete="family-name" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" value="yanfelipe678@gmail.com" autocomplete="email" />
+              </div>
+
+              <div class="field">
+                <label for="phone">Telefone</label>
+                <input type="tel" id="phone" name="phone" placeholder="+55 (00) 00000-0000" />
+              </div>
+
+              <div class="field">
+                <label for="bio">Sobre você</label>
+                <textarea id="bio" name="bio" placeholder="Conte um pouco sobre sua trajetória musical…"></textarea>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <p class="settings-card-title">Preferências musicais</p>
+
+              <div class="field">
+                <label for="instrument">Instrumento principal</label>
+                <select id="instrument" name="instrument">
+                  <option value="">Selecione…</option>
+                  <option value="violao" selected>Violão</option>
+                  <option value="guitarra">Guitarra</option>
+                  <option value="piano">Piano / Teclado</option>
+                  <option value="baixo">Baixo</option>
+                  <option value="bateria">Bateria / Percussão</option>
+                  <option value="voz">Voz / Canto</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="level">Nível atual</label>
+                <select id="level" name="level">
+                  <option value="iniciante">Iniciante</option>
+                  <option value="basico" selected>Básico</option>
+                  <option value="intermediario">Intermediário</option>
+                  <option value="avancado">Avançado</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="goal">Objetivo principal</label>
+                <select id="goal" name="goal">
+                  <option value="hobby" selected>Tocar por hobby</option>
+                  <option value="profissional">Me tornar profissional</option>
+                  <option value="producao">Produzir minhas músicas</option>
+                  <option value="teoria">Aprender teoria musical</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <p class="settings-card-title">Alterar senha</p>
+
+              <div class="field">
+                <label for="current_pw">Senha atual</label>
+                <input type="password" id="current_pw" name="current_pw" placeholder="••••••••" />
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="new_pw">Nova senha</label>
+                  <input type="password" id="new_pw" name="new_pw" placeholder="Mínimo 8 caracteres" />
+                </div>
+                <div class="field">
+                  <label for="confirm_pw">Confirmar nova senha</label>
+                  <input type="password" id="confirm_pw" name="confirm_pw" placeholder="Repita a nova senha" />
+                </div>
+              </div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-info" id="save-info">Alterações salvas ✓</span>
+              <button type="button" class="btn btn-secondary" style="padding:12px 28px;font-size:14px;border-radius:var(--radius-md);">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:14px;border-radius:var(--radius-md);">
+                Salvar alterações
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div><!-- /profile-layout -->
+    </div><!-- /db-content -->
+  </main>
+
+</div><!-- /db-layout -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+  gsap.from('.profile-card', { opacity: 0, x: -24, duration: 0.5, ease: 'power2.out' });
+  gsap.from('.settings-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out', delay: 0.15 });
+
+  document.getElementById('profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const info = document.getElementById('save-info');
+    info.style.display = 'block';
+    setTimeout(() => { info.style.display = 'none'; }, 3000);
+  });
+</script>
+</body>
+</html>

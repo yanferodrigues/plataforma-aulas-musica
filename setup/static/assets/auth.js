@@ -1,39 +1,14 @@
 /* ============================================================
-   HARMONIA — auth.js
+   MUSILAB — auth.js
    Login & Register page interactions
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
-  initCursor();
   initFormAnimations();
   initPasswordToggles();
   initFormValidation();
   initFormSubmit();
 });
-
-/* ─── CURSOR ────────────────────────────────────────────── */
-function initCursor() {
-  const dot  = document.querySelector('.cursor-dot');
-  const ring = document.querySelector('.cursor-ring');
-  if (!dot || !ring) return;
-
-  let mx = -200, my = -200, rx = -200, ry = -200;
-
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-  (function trackRing() {
-    rx += (mx - rx) * 0.11;
-    ry += (my - ry) * 0.11;
-    dot.style.transform  = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
-    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
-    requestAnimationFrame(trackRing);
-  })();
-
-  document.querySelectorAll('a, button, input, textarea').forEach(el => {
-    el.addEventListener('mouseenter', () => { dot.classList.add('hovered'); ring.classList.add('hovered'); });
-    el.addEventListener('mouseleave', () => { dot.classList.remove('hovered'); ring.classList.remove('hovered'); });
-  });
-}
 
 /* ─── FORM ENTRANCE ANIMATION ───────────────────────────── */
 function initFormAnimations() {

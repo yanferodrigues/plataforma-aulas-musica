@@ -1,5 +1,5 @@
 /* ============================================================
-   HARMONIA — main.js
+   MUSILAB — main.js
    Three.js wave grid + GSAP ScrollTrigger + Cursor + Lenis
    ============================================================ */
 
@@ -20,7 +20,6 @@ document.body.style.overflow = 'hidden';
 /* ─── 2. INIT ALL ──────────────────────────────────────── */
 function initAll() {
   initLenis();
-  initCursor();
   initNavScroll();
   initHeroGSAP();
   initScrollAnimations();
@@ -30,35 +29,7 @@ function initAll() {
 /* ─── 3. SMOOTH SCROLL (removido — scroll nativo) ──────── */
 function initLenis() {}
 
-/* ─── 4. CUSTOM CURSOR ─────────────────────────────────── */
-function initCursor() {
-  const dot  = document.querySelector('.cursor-dot');
-  const ring = document.querySelector('.cursor-ring');
-  if (!dot || !ring) return;
-
-  let mx = -200, my = -200;
-  let rx = -200, ry = -200;
-
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-  (function trackRing() {
-    rx += (mx - rx) * 0.11;
-    ry += (my - ry) * 0.11;
-    dot.style.transform  = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
-    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
-    requestAnimationFrame(trackRing);
-  })();
-
-  document.querySelectorAll('a, button, [data-hover]').forEach(el => {
-    el.addEventListener('mouseenter', () => { dot.classList.add('hovered'); ring.classList.add('hovered'); });
-    el.addEventListener('mouseleave', () => { dot.classList.remove('hovered'); ring.classList.remove('hovered'); });
-  });
-
-  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
-  document.addEventListener('mouseup',   () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
-}
-
-/* ─── 5. NAV SCROLL STATE ──────────────────────────────── */
+/* ─── 4. NAV SCROLL STATE ──────────────────────────────── */
 function initNavScroll() {
   const nav = document.querySelector('.nav');
   if (!nav) return;
