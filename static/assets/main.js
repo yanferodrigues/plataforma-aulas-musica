@@ -22,7 +22,6 @@ function initAll() {
   initLenis();
   initCursor();
   initNavScroll();
-  initHeroThree();
   initHeroGSAP();
   initScrollAnimations();
   initCounters();
@@ -68,139 +67,7 @@ function initNavScroll() {
   onScroll();
 }
 
-/* ─── 6. THREE.JS HERO WAVE ────────────────────────────── */
-function initHeroThree() {
-  const canvas = document.getElementById('hero-canvas');
-  if (!canvas || typeof THREE === 'undefined') return;
-
-  /* Scene */
-  const scene    = new THREE.Scene();
-  const W        = window.innerWidth;
-  const H        = window.innerHeight;
-  const camera   = new THREE.PerspectiveCamera(55, W / H, 0.1, 1000);
-  camera.position.set(0, 14, 20);
-  camera.lookAt(0, 0, -2);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setSize(W, H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  /* Particle grid — reduzida e discreta */
-  const COLS = 55, ROWS = 18;
-  const TOTAL = COLS * ROWS;
-  const positions = new Float32Array(TOTAL * 3);
-  const scales    = new Float32Array(TOTAL);
-  const phases    = new Float32Array(TOTAL);
-
-  for (let i = 0; i < COLS; i++) {
-    for (let j = 0; j < ROWS; j++) {
-      const idx = (i * ROWS + j);
-      positions[idx * 3 + 0] = (i / (COLS - 1) - 0.5) * 40;
-      positions[idx * 3 + 1] = 0;
-      positions[idx * 3 + 2] = (j / (ROWS - 1) - 0.5) * 14;
-      scales[idx]  = 0.25 + Math.random() * 0.45;
-      phases[idx]  = Math.random() * Math.PI * 2;
-    }
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geo.setAttribute('aScale',   new THREE.BufferAttribute(scales, 1));
-  geo.setAttribute('aPhase',   new THREE.BufferAttribute(phases, 1));
-
-  /* Shaders */
-  const vertexShader = /* glsl */`
-    attribute float aScale;
-    attribute float aPhase;
-    uniform float uTime;
-    uniform vec2  uMouse;
-    varying float vY;
-
-    void main() {
-      vec3 pos = position;
-
-      float wave =
-        sin(pos.x * 0.30 + uTime * 0.55) * 0.9 +
-        cos(pos.z * 0.42 + uTime * 0.38) * 0.55 +
-        sin((pos.x + pos.z) * 0.15 + uTime * 0.28) * 0.35;
-
-      pos.y = wave + aPhase * 0.18;
-
-      /* Mouse elevation — mais suave */
-      float dx = pos.x - uMouse.x;
-      float dz = pos.z - uMouse.y;
-      float md = sqrt(dx*dx + dz*dz);
-      pos.y += max(0.0, 4.0 - md) * 0.35;
-
-      vY = (pos.y + 2.5) / 5.0;
-
-      vec4 mvp = modelViewMatrix * vec4(pos, 1.0);
-      gl_PointSize = aScale * 2.2 * (260.0 / -mvp.z);
-      gl_Position  = projectionMatrix * mvp;
-    }
-  `;
-
-  const fragmentShader = /* glsl */`
-    uniform vec3 uColorA;
-    uniform vec3 uColorB;
-    varying float vY;
-
-    void main() {
-      vec2  c    = gl_PointCoord - 0.5;
-      float dist = length(c);
-      if (dist > 0.5) discard;
-
-      float alpha = pow(1.0 - dist * 2.0, 2.8) * 0.45;
-      vec3  col   = mix(uColorA, uColorB, clamp(vY, 0.0, 1.0));
-      gl_FragColor = vec4(col, alpha);
-    }
-  `;
-
-  const mat = new THREE.ShaderMaterial({
-    vertexShader,
-    fragmentShader,
-    uniforms: {
-      uTime:   { value: 0 },
-      uMouse:  { value: new THREE.Vector2(0, 0) },
-      uColorA: { value: new THREE.Color('#5828C8') },
-      uColorB: { value: new THREE.Color('#9068E8') },
-    },
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.NormalBlending,
-  });
-
-  const particles = new THREE.Points(geo, mat);
-  scene.add(particles);
-
-  /* Mouse tracking */
-  const mouse = new THREE.Vector2();
-  window.addEventListener('mousemove', e => {
-    const nx =  (e.clientX / window.innerWidth  - 0.5) * 42;
-    const ny = -(e.clientY / window.innerHeight - 0.5) * 18;
-    mouse.set(nx, ny);
-  });
-
-  /* Resize */
-  window.addEventListener('resize', () => {
-    const w = window.innerWidth, h = window.innerHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  });
-
-  /* Animate */
-  const clock = new THREE.Clock();
-  (function loop() {
-    requestAnimationFrame(loop);
-    const t = clock.getElapsedTime();
-    mat.uniforms.uTime.value  = t;
-    mat.uniforms.uMouse.value.lerp(mouse, 0.04);
-    renderer.render(scene, camera);
-  })();
-}
-
-/* ─── 7. HERO GSAP ENTRANCE ────────────────────────────── */
+/* ─── 6. HERO GSAP ENTRANCE ────────────────────────────── */
 function initHeroGSAP() {
   if (typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
@@ -304,15 +171,6 @@ function initScrollAnimations() {
     );
   }
 
-  /* Hero subtitle parallax */
-  const heroBg = document.getElementById('hero-canvas');
-  if (heroBg) {
-    gsap.to(heroBg, {
-      y: '20%',
-      ease: 'none',
-      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
-    });
-  }
 }
 
 /* ─── 9. COUNTER ANIMATIONS ────────────────────────────── */
