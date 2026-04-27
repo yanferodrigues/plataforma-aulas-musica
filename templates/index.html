@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harmonia — Escola de Música</title>
+  <meta name="description" content="Aprenda música de verdade com módulos estruturados e professores experientes." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- CSS — {% static 'style/styles.css' %} in Django -->
+  <link rel="stylesheet" href="../static/style/styles.css" />
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="pl-staff">
+      <div class="pl-line"></div>
+      <div class="pl-line"></div>
+      <div class="pl-line"></div>
+      <div class="pl-line"></div>
+      <div class="pl-line"></div>
+      <div class="pl-notes">
+        <span class="pl-note">♩</span>
+        <span class="pl-note">♪</span>
+        <span class="pl-note">♫</span>
+        <span class="pl-note">♬</span>
+      </div>
+    </div>
+    <span class="pl-brand">Harmon<em>ia</em></span>
+  </div>
+
+  <!-- CURSOR -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">Harmon<em>ia</em></a>
+    <ul class="nav-links">
+      <li><a href="#features">Diferenciais</a></li>
+      <li><a href="#modules">Módulos</a></li>
+      <li><a href="#testimonials">Depoimentos</a></li>
+      <li><a href="login.html" class="nav-cta btn btn-primary" style="padding:10px 22px;font-size:13px;">Entrar</a></li>
+    </ul>
+  </nav>
+
+  <!-- ══ HERO ══════════════════════════════════════════════ -->
+  <section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">Academia de Música Online</p>
+
+      <h1 class="hero-title">
+        <span class="hero-title-row">Aprenda</span>
+        <span class="hero-title-row accent-word">Música</span>
+        <span class="hero-title-row">de Verdade.</span>
+      </h1>
+
+      <p class="hero-body">
+        Módulos estruturados, professores experientes e uma jornada pensada
+        para quem quer dominar seu instrumento — do zero ao avançado.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="register.html" class="btn btn-primary btn-lg">Começar agora</a>
+        <a href="#modules" class="btn btn-secondary btn-lg">Ver módulos</a>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-mouse"><div class="scroll-dot"></div></div>
+      <span class="scroll-label">Scroll</span>
+    </div>
+  </section>
+
+  <!-- ══ FEATURES ══════════════════════════════════════════ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features-head">
+        <span class="tag">Por que Harmonia</span>
+        <h2 class="section-h2">Aprendizado que<br>transforma de verdade</h2>
+        <p class="section-p">
+          Cada detalhe da plataforma foi pensado para que você evolua mais
+          rápido, com clareza e sem se perder no caminho.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-icon">🎵</div>
+          <h3 class="feat-title">Módulos Estruturados</h3>
+          <p class="feat-desc">
+            Aulas organizadas em módulos com progressão lógica — do
+            fundamento à técnica avançada, sem pular etapas essenciais.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🎬</div>
+          <h3 class="feat-title">Vídeo em Alta Qualidade</h3>
+          <p class="feat-desc">
+            Gravações profissionais com múltiplos ângulos, partituras
+            sincronizadas e legendas para cada aula.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">📚</div>
+          <h3 class="feat-title">Material Complementar</h3>
+          <p class="feat-desc">
+            PDFs, tablaturas, áudios de referência e exercícios práticos
+            disponíveis para download em cada aula.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">📈</div>
+          <h3 class="feat-title">Acompanhe seu Progresso</h3>
+          <p class="feat-desc">
+            Painel visual com seu histórico de aulas, taxa de conclusão
+            por módulo e marcos desbloqueados.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">💬</div>
+          <h3 class="feat-title">Q&amp;A em Cada Aula</h3>
+          <p class="feat-desc">
+            Envie dúvidas diretamente em cada aula e receba respostas
+            dos professores ou da comunidade de alunos.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🎯</div>
+          <h3 class="feat-title">Exercícios Práticos</h3>
+          <p class="feat-desc">
+            Atividades por nível — fácil, médio e difícil — para fixar
+            o conteúdo e desafiar você constantemente.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MODULES PREVIEW ═══════════════════════════════════ -->
+  <section class="mods-preview" id="modules">
+    <div class="container">
+      <div class="mods-preview-head">
+        <div>
+          <span class="tag">Conteúdo</span>
+          <h2 class="section-h2" style="margin-bottom:0;">Nossos Módulos</h2>
+        </div>
+        <a href="dashboard.html" class="see-all">Ver todos →</a>
+      </div>
+    </div>
+
+    <div class="container" style="padding-right:0;max-width:none;">
+      <div class="mods-track" style="padding-left:clamp(20px,5vw,64px);">
+
+        <div class="mod-card">
+          <div class="mod-bg mod-bg-1"></div>
+          <span class="mod-index">01</span>
+          <div class="mod-content">
+            <span class="mod-badge">Iniciante</span>
+            <h3 class="mod-title">Fundamentos da Música</h3>
+            <p class="mod-meta">12 aulas · 3h 40min</p>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-bg mod-bg-2"></div>
+          <span class="mod-index">02</span>
+          <div class="mod-content">
+            <span class="mod-badge">Básico</span>
+            <h3 class="mod-title">Teoria Musical</h3>
+            <p class="mod-meta">18 aulas · 5h 20min</p>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-bg mod-bg-3"></div>
+          <span class="mod-index">03</span>
+          <div class="mod-content">
+            <span class="mod-badge">Intermediário</span>
+            <h3 class="mod-title">Harmonia &amp; Contraponto</h3>
+            <p class="mod-meta">22 aulas · 7h 10min</p>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-bg mod-bg-4"></div>
+          <span class="mod-index">04</span>
+          <div class="mod-content">
+            <span class="mod-badge">Intermediário</span>
+            <h3 class="mod-title">Ritmo &amp; Percussão</h3>
+            <p class="mod-meta">14 aulas · 4h 30min</p>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-bg mod-bg-5"></div>
+          <span class="mod-index">05</span>
+          <div class="mod-content">
+            <span class="mod-badge">Avançado</span>
+            <h3 class="mod-title">Improvisação</h3>
+            <p class="mod-meta">16 aulas · 5h 50min</p>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-bg mod-bg-6"></div>
+          <span class="mod-index">06</span>
+          <div class="mod-content">
+            <span class="mod-badge">Avançado</span>
+            <h3 class="mod-title">Produção Musical</h3>
+            <p class="mod-meta">20 aulas · 8h 00min</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STATS ══════════════════════════════════════════════ -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-cell">
+          <span class="stat-number"><span data-count="2800" data-suffix="+">0</span></span>
+          <span class="stat-label">Alunos Ativos</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-number"><span data-count="102" data-suffix="">0</span></span>
+          <span class="stat-label">Aulas Disponíveis</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-number"><span data-count="6" data-suffix="">0</span></span>
+          <span class="stat-label">Módulos Completos</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-number"><span data-count="98" data-suffix="%">0</span></span>
+          <span class="stat-label">Satisfação dos Alunos</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TESTIMONIALS ═══════════════════════════════════════ -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="testimonials-head">
+        <span class="tag">Depoimentos</span>
+        <h2 class="section-h2">O que nossos<br>alunos dizem</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testi-card">
+          <div class="testi-mark">"</div>
+          <p class="testi-text">
+            Em 3 meses aprendi mais do que em 2 anos de aulas particulares.
+            A organização dos módulos faz toda a diferença — você nunca fica
+            perdido.
+          </p>
+          <div class="testi-author">
+            <div class="testi-avatar">L</div>
+            <div>
+              <p class="testi-name">Lucas Mendes</p>
+              <p class="testi-role">Módulo: Fundamentos</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-mark">"</div>
+          <p class="testi-text">
+            Os materiais complementares são incríveis. Partituras, cifras,
+            áudios de referência — tudo que você precisa está ali, organizado
+            e fácil de acessar.
+          </p>
+          <div class="testi-author">
+            <div class="testi-avatar">A</div>
+            <div>
+              <p class="testi-name">Ana Paula Costa</p>
+              <p class="testi-role">Módulo: Harmonia</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-mark">"</div>
+          <p class="testi-text">
+            Comecei sem saber nada de teoria. Hoje improviso em cima de
+            qualquer progressão de acordes. A plataforma mudou minha
+            relação com a música.
+          </p>
+          <div class="testi-author">
+            <div class="testi-avatar">R</div>
+            <div>
+              <p class="testi-name">Rafael Souza</p>
+              <p class="testi-role">Módulo: Improvisação</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA ════════════════════════════════════════════════ -->
+  <section class="cta-section">
+    <div class="cta-glow-wrap">
+      <div class="cta-glow"></div>
+      <div class="cta-glow2"></div>
+    </div>
+    <div class="container">
+      <div class="cta-inner">
+        <h2 class="cta-title">
+          Sua jornada musical
+          <em>começa agora.</em>
+        </h2>
+        <p class="cta-desc">
+          Junte-se a mais de 2800 alunos e comece a aprender com
+          estrutura, clareza e orientação profissional.
+        </p>
+        <div class="cta-btns">
+          <a href="register.html" class="btn btn-primary btn-lg">Criar conta gratuita</a>
+          <a href="login.html"    class="btn btn-secondary btn-lg">Já tenho uma conta</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ═════════════════════════════════════════════ -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="index.html" class="footer-logo">Harmon<em>ia</em></a>
+          <p class="footer-tagline">
+            A plataforma de ensino musical que respeita o seu tempo
+            e acelera o seu aprendizado.
+          </p>
+          <div class="footer-socials">
+            <a href="#" class="soc-btn" aria-label="Instagram">IG</a>
+            <a href="#" class="soc-btn" aria-label="YouTube">YT</a>
+            <a href="#" class="soc-btn" aria-label="Spotify">SP</a>
+          </div>
+        </div>
+
+        <div>
+          <p class="footer-col-title">Plataforma</p>
+          <ul class="footer-col-links">
+            <li><a href="#modules">Módulos</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="#">Progresso</a></li>
+            <li><a href="#">Certificados</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="footer-col-title">Empresa</p>
+          <ul class="footer-col-links">
+            <li><a href="#">Sobre nós</a></li>
+            <li><a href="#">Professores</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Contato</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="footer-col-title">Legal</p>
+          <ul class="footer-col-links">
+            <li><a href="#">Termos de Uso</a></li>
+            <li><a href="#">Privacidade</a></li>
+            <li><a href="#">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2025 Harmonia Escola de Música. Todos os direitos reservados.</span>
+        <span>Feito com ♪ no Brasil</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <!-- App — {% static 'assets/main.js' %} in Django -->
+  <script src="../static/assets/main.js"></script>
+</body>
+</html>

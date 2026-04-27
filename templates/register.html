@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Criar conta — Harmonia</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/style/styles.css" />
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+
+  <div class="auth-page">
+
+    <!-- ── VISUAL SIDE ──────────────────────────────── -->
+    <div class="auth-visual">
+      <div class="auth-visual-bg">
+        <div class="auth-orb auth-orb-1"></div>
+        <div class="auth-orb auth-orb-2"></div>
+        <div class="auth-orb auth-orb-3"></div>
+      </div>
+
+      <div class="auth-visual-content">
+        <a href="index.html" class="auth-logo">Harmon<em>ia</em></a>
+
+        <p class="auth-quote">
+          "Sem música, a vida<br>seria um erro."
+        </p>
+        <p class="auth-quote-by">— Friedrich Nietzsche</p>
+
+        <div class="auth-dots">
+          <div class="auth-dot"></div>
+          <div class="auth-dot active"></div>
+          <div class="auth-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FORM SIDE ────────────────────────────────── -->
+    <div class="auth-form-side">
+      <div class="auth-form-wrap">
+
+        <h1 class="auth-form-title">Crie sua<br>conta.</h1>
+        <p class="auth-form-subtitle">
+          Já tem uma conta?
+          <a href="login.html">Entrar agora</a>
+        </p>
+
+        <form id="register-form" novalidate>
+
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" id="first_name" name="first_name" class="form-input" placeholder="nome" autocomplete="given-name" />
+              <label for="first_name" class="form-label">Nome</label>
+              <span class="form-hint">Informe seu nome.</span>
+            </div>
+            <div class="form-group">
+              <input type="text" id="last_name" name="last_name" class="form-input" placeholder="sobrenome" autocomplete="family-name" />
+              <label for="last_name" class="form-label">Sobrenome</label>
+              <span class="form-hint">Informe seu sobrenome.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <input type="email" id="email" name="email" class="form-input" placeholder="email" autocomplete="email" />
+            <label for="email" class="form-label">E-mail</label>
+            <span class="form-hint">Informe um e-mail válido.</span>
+          </div>
+
+          <div class="form-group pw-wrap">
+            <input type="password" id="password" name="password" class="form-input" placeholder="senha" autocomplete="new-password" />
+            <label for="password" class="form-label">Senha</label>
+            <button type="button" class="pw-toggle" aria-label="Mostrar senha">👁</button>
+            <span class="form-hint">Mínimo 8 caracteres.</span>
+          </div>
+
+          <div class="form-group pw-wrap">
+            <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="confirmar" autocomplete="new-password" />
+            <label for="confirm_password" class="form-label">Confirmar Senha</label>
+            <button type="button" class="pw-toggle" aria-label="Mostrar senha">👁</button>
+            <span class="form-hint">As senhas não coincidem.</span>
+          </div>
+
+          <!-- Terms -->
+          <div style="display:flex;align-items:flex-start;gap:10px;margin:8px 0 22px;">
+            <input
+              type="checkbox" id="terms" name="terms"
+              style="width:16px;height:16px;margin-top:3px;accent-color:var(--brand);flex-shrink:0;"
+            />
+            <label for="terms" style="font-size:13px;color:var(--text-secondary);line-height:1.6;cursor:pointer;">
+              Concordo com os
+              <a href="#" style="color:var(--brand);text-decoration:none;">Termos de Uso</a>
+              e a
+              <a href="#" style="color:var(--brand);text-decoration:none;">Política de Privacidade</a>.
+            </label>
+          </div>
+
+          <button type="submit" class="form-submit">
+            <span class="submit-text">Criar conta</span>
+            <span class="submit-icon">→</span>
+          </button>
+
+        </form>
+
+        <div class="form-divider"><span>ou continue com</span></div>
+
+        <div style="display:flex;gap:12px;">
+          <button type="button" class="btn btn-secondary" style="flex:1;justify-content:center;padding:14px;font-size:13px;border-radius:var(--radius-md);">
+            Google
+          </button>
+          <button type="button" class="btn btn-secondary" style="flex:1;justify-content:center;padding:14px;font-size:13px;border-radius:var(--radius-md);">
+            Facebook
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="../static/assets/auth.js"></script>
+</body>
+</html>
