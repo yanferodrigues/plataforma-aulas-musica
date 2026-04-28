@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aula 8 — MUSILAB</title>
+  <title>{{ lesson.title }} — MUSILAB</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,14 +23,22 @@
         <div class="breadcrumb">
           <a href="{% url 'courses:dashboard' %}" class="bc-home">🏠</a>
           <span class="bc-sep">/</span>
-          <a href="{% url 'courses:dashboard' %}" class="bc-mod">Harmonia &amp; Contraponto</a>
+          <a href="{% url 'courses:module_detail' module.pk %}" class="bc-mod">{{ module.title }}</a>
           <span class="bc-sep">/</span>
-          <span class="bc-cur">Aula 8</span>
+          <span class="bc-cur">Aula {{ lesson.order }}</span>
         </div>
 
         <div class="lesson-nav-btns">
-          <a href="#" class="ln-btn">← Anterior</a>
-          <a href="#" class="ln-btn primary">Próxima →</a>
+          {% if prev_lesson %}
+            <a href="{% url 'courses:lesson_detail' module.pk prev_lesson.pk %}" class="ln-btn">← Anterior</a>
+          {% else %}
+            <span class="ln-btn" style="opacity:.35;cursor:default;">← Anterior</span>
+          {% endif %}
+          {% if next_lesson %}
+            <a href="{% url 'courses:lesson_detail' module.pk next_lesson.pk %}" class="ln-btn primary">Próxima →</a>
+          {% else %}
+            <span class="ln-btn primary" style="opacity:.35;cursor:default;">Próxima →</span>
+          {% endif %}
         </div>
       </nav>
 
@@ -39,21 +47,32 @@
 
         <!-- Video player -->
         <div class="video-wrap">
-          <div class="video-placeholder">
-            <button class="play-btn" id="play-btn" aria-label="Reproduzir vídeo">▶</button>
-            <p class="video-label">Aula 8 · Progressões de Acordes Secundários</p>
-          </div>
+          {% if embed_url %}
+            <iframe
+              src="{{ embed_url }}"
+              style="width:100%;aspect-ratio:16/9;border:none;border-radius:var(--radius-lg);"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          {% else %}
+            <div class="video-placeholder">
+              <button class="play-btn" id="play-btn" aria-label="Reproduzir vídeo">▶</button>
+              <p class="video-label">Aula {{ lesson.order }} · {{ lesson.title }}</p>
+            </div>
+          {% endif %}
         </div>
 
         <!-- Lesson info -->
         <div class="lesson-info">
-          <span class="lesson-tag">♩ Módulo 03 — Harmonia &amp; Contraponto</span>
-          <h1 class="lesson-title">Progressões de Acordes<br>Secundários</h1>
+          <span class="lesson-tag">♩ Módulo {{ module.order|stringformat:"02d" }} — {{ module.title }}</span>
+          <h1 class="lesson-title">{{ lesson.title }}</h1>
           <div class="lesson-meta-row">
-            <span class="lesson-meta-item"><span>⏱</span> 18 min</span>
-            <span class="lesson-meta-item"><span class="meta-dot"></span>Intermediário</span>
-            <span class="lesson-meta-item"><span class="meta-dot"></span>Aula 8 de 22</span>
-            <span class="lesson-meta-item"><span>📅</span>Atualizado em Mar 2025</span>
+            {% if lesson.duration_minutes %}
+            <span class="lesson-meta-item"><span>⏱</span> {{ lesson.duration_minutes }} min</span>
+            {% endif %}
+            <span class="lesson-meta-item"><span class="meta-dot"></span>{{ module.get_level_display }}</span>
+            <span class="lesson-meta-item"><span class="meta-dot"></span>Aula {{ lesson.order }} de {{ total_count }}</span>
+            <span class="lesson-meta-item"><span>📅</span> Atualizado em {{ lesson.updated_at|date:"M Y" }}</span>
           </div>
         </div>
 
@@ -67,117 +86,72 @@
 
         <!-- ── TAB: CONTEÚDO ───────────────────────── -->
         <div class="tab-panel active" id="tab-content">
-          <p class="lesson-desc">
-            Nesta aula exploramos os <strong style="color:var(--text-primary);">acordes secundários</strong> —
-            dominantes secundários, subdominantes emprestadas e acordes de passagem
-            que enriquecem progressões tonais com movimento cromático e tensão
-            dramática. Aprenderemos a identificá-los, construí-los e usá-los
-            em contextos reais de composição e improvisação.
-          </p>
+          {% if lesson.description %}
+          <p class="lesson-desc">{{ lesson.description }}</p>
+          {% endif %}
 
+          {% if objectives_list %}
           <div class="lesson-objectives-box">
             <h3>O que você vai aprender</h3>
             <ul class="obj-list">
-              <li>Identificar e nomear dominantes secundários em qualquer tonalidade</li>
-              <li>Construir progressões com V/V, V/IV e V/II</li>
-              <li>Usar subdominantes emprestadas do modo paralelo</li>
-              <li>Aplicar acordes de passagem para criar movimento harmônico fluido</li>
-              <li>Analisar exemplos reais em peças clássicas e jazz</li>
+              {% for obj in objectives_list %}
+              <li>{{ obj }}</li>
+              {% endfor %}
             </ul>
           </div>
+          {% endif %}
 
-          <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:22px 26px;">
-            <h3 style="font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">
-              Conceitos abordados
-            </h3>
-            <div style="display:flex;flex-wrap:wrap;gap:10px;">
-              <span style="background:var(--brand-dim);border:1px solid rgba(112,56,248,.22);color:var(--hover);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:4px;">Dominante Secundário</span>
-              <span style="background:var(--brand-dim);border:1px solid rgba(112,56,248,.22);color:var(--hover);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:4px;">Subdominante Emprestada</span>
-              <span style="background:var(--brand-dim);border:1px solid rgba(112,56,248,.22);color:var(--hover);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:4px;">Tonicização</span>
-              <span style="background:var(--brand-dim);border:1px solid rgba(112,56,248,.22);color:var(--hover);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:4px;">Acorde de Passagem</span>
-              <span style="background:var(--brand-dim);border:1px solid rgba(112,56,248,.22);color:var(--hover);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:4px;">Análise Harmônica</span>
-            </div>
-          </div>
+          {% if not lesson.description and not objectives_list %}
+          <p style="color:var(--text-secondary);padding:32px 0;">Conteúdo da aula ainda não disponível.</p>
+          {% endif %}
         </div>
 
         <!-- ── TAB: MATERIAL ──────────────────────── -->
         <div class="tab-panel" id="tab-material">
+          {% if materials %}
           <div class="materials-list">
-            <a href="#" class="mat-item">
-              <div class="mat-icon">📄</div>
-              <span class="mat-name">Partitura — Progressões Secundárias</span>
-              <span class="mat-size">PDF · 240 KB</span>
+            {% for mat in materials %}
+            <a href="{{ mat.file.url }}" class="mat-item" download>
+              <div class="mat-icon">
+                {% if mat.file_type == 'pdf' %}📄
+                {% elif mat.file_type == 'mp3' %}🎵
+                {% elif mat.file_type == 'mp4' %}🎬
+                {% elif mat.file_type == 'xlsx' %}📊
+                {% else %}📁{% endif %}
+              </div>
+              <span class="mat-name">{{ mat.name }}</span>
+              <span class="mat-size">{{ mat.get_file_type_display }}{% if mat.size_kb %} · {{ mat.size_kb }} KB{% endif %}</span>
               <span class="mat-dl">⬇</span>
             </a>
-            <a href="#" class="mat-item">
-              <div class="mat-icon">🎸</div>
-              <span class="mat-name">Cifra — Exemplos em Dó Maior</span>
-              <span class="mat-size">PDF · 85 KB</span>
-              <span class="mat-dl">⬇</span>
-            </a>
-            <a href="#" class="mat-item">
-              <div class="mat-icon">🎵</div>
-              <span class="mat-name">Áudio de Referência — Progressão I</span>
-              <span class="mat-size">MP3 · 3.2 MB</span>
-              <span class="mat-dl">⬇</span>
-            </a>
-            <a href="#" class="mat-item">
-              <div class="mat-icon">🎵</div>
-              <span class="mat-name">Áudio de Referência — Progressão II</span>
-              <span class="mat-size">MP3 · 2.8 MB</span>
-              <span class="mat-dl">⬇</span>
-            </a>
-            <a href="#" class="mat-item">
-              <div class="mat-icon">📊</div>
-              <span class="mat-name">Tabela — Dominantes Secundários nas 12 Tonalidades</span>
-              <span class="mat-size">PDF · 120 KB</span>
-              <span class="mat-dl">⬇</span>
-            </a>
+            {% endfor %}
           </div>
+          {% else %}
+          <p style="color:var(--text-secondary);padding:32px 0;">Nenhum material disponível para esta aula.</p>
+          {% endif %}
         </div>
 
         <!-- ── TAB: EXERCÍCIOS ────────────────────── -->
         <div class="tab-panel" id="tab-exercises">
+          {% if exercises %}
           <div class="exercises-list">
+            {% for ex in exercises %}
             <div class="ex-card">
               <div class="ex-header">
-                <span class="ex-num">Exercício 01</span>
-                <span class="ex-diff diff-easy">Fácil</span>
+                <span class="ex-num">Exercício {{ ex.number|stringformat:"02d" }}</span>
+                <span class="ex-diff diff-{{ ex.difficulty }}">
+                  {% if ex.difficulty == 'easy' %}Fácil
+                  {% elif ex.difficulty == 'medium' %}Médio
+                  {% else %}Difícil{% endif %}
+                </span>
               </div>
-              <h4 class="ex-title">Identificação de Dominantes Secundários</h4>
-              <p class="ex-desc">
-                Analise as progressões abaixo e identifique qual grau
-                cada dominante secundário está tonicizando. Use a notação
-                V/x para cada acorde identificado.
-              </p>
+              <h4 class="ex-title">{{ ex.title }}</h4>
+              <p class="ex-desc">{{ ex.description }}</p>
             </div>
-
-            <div class="ex-card">
-              <div class="ex-header">
-                <span class="ex-num">Exercício 02</span>
-                <span class="ex-diff diff-medium">Médio</span>
-              </div>
-              <h4 class="ex-title">Construção de Progressão com V/V</h4>
-              <p class="ex-desc">
-                Em Ré Maior, construa uma progressão de 8 compassos que
-                inclua ao menos três dominantes secundários distintos.
-                Escreva em partitura ou cifra.
-              </p>
-            </div>
-
-            <div class="ex-card">
-              <div class="ex-header">
-                <span class="ex-num">Exercício 03</span>
-                <span class="ex-diff diff-hard">Difícil</span>
-              </div>
-              <h4 class="ex-title">Reharmonização com Acordes Secundários</h4>
-              <p class="ex-desc">
-                Pegue uma progressão simples I–IV–V–I e reharmonize-a
-                inserindo dominantes secundários, subdominantes emprestadas
-                e acordes de passagem. Grave um áudio de referência.
-              </p>
-            </div>
+            {% endfor %}
           </div>
+          {% else %}
+          <p style="color:var(--text-secondary);padding:32px 0;">Nenhum exercício disponível para esta aula.</p>
+          {% endif %}
         </div>
 
         <!-- ── TAB: Q&A ───────────────────────────── -->
@@ -186,37 +160,48 @@
             <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">
               Faça uma pergunta
             </h3>
-            <textarea
-              placeholder="Escreva sua dúvida sobre esta aula…"
-              style="width:100%;background:var(--bg-primary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:14px 16px;font-family:var(--font-ui);font-size:14px;color:var(--text-primary);resize:vertical;min-height:100px;outline:none;transition:border-color .3s;"
-              onfocus="this.style.borderColor='var(--brand)'"
-              onblur="this.style.borderColor='var(--glass-border)'"
-            ></textarea>
-            <div style="display:flex;justify-content:flex-end;margin-top:14px;">
-              <button class="btn btn-primary" style="padding:12px 28px;font-size:14px;">Enviar pergunta</button>
-            </div>
+            <form method="post">
+              {% csrf_token %}
+              <textarea
+                name="question_text"
+                placeholder="Escreva sua dúvida sobre esta aula…"
+                style="width:100%;background:var(--bg-primary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:14px 16px;font-family:var(--font-ui);font-size:14px;color:var(--text-primary);resize:vertical;min-height:100px;outline:none;transition:border-color .3s;box-sizing:border-box;"
+                onfocus="this.style.borderColor='var(--brand)'"
+                onblur="this.style.borderColor='var(--glass-border)'"
+              ></textarea>
+              <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+                <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:14px;">Enviar pergunta</button>
+              </div>
+            </form>
           </div>
 
-          <!-- Example Q&A -->
           <div style="display:flex;flex-direction:column;gap:16px;">
+            {% for q in questions %}
             <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:22px 24px;">
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--hover));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;font-weight:700;flex-shrink:0;">M</div>
+                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--hover));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;font-weight:700;flex-shrink:0;color:#fff;">
+                  {{ q.user.first_name|first|upper|default:q.user.username|first|upper }}
+                </div>
                 <div>
-                  <p style="font-size:14px;font-weight:500;color:var(--text-primary);">Mariana Fonseca</p>
-                  <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">há 2 dias</p>
+                  <p style="font-size:14px;font-weight:500;color:var(--text-primary);">{{ q.user.get_full_name|default:q.user.username }}</p>
+                  <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">{{ q.created_at|timesince }} atrás</p>
                 </div>
               </div>
-              <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
-                No exemplo do V/V em Dó Maior, o Ré7 resolve sempre pro Sol ou pode ir para outro acorde antes?
+              <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:{% if q.answers.all %}12px{% else %}0{% endif %};">
+                {{ q.text }}
               </p>
-              <div style="background:rgba(112,56,248,0.06);border-left:2px solid var(--brand);padding:14px 16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
-                <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--brand);margin-bottom:6px;">Resposta do Professor</p>
-                <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;">
-                  Ótima pergunta! O V/V normalmente resolve no V, mas pode haver uma cadência evitada ou o acorde pode ser interceptado por um substituto de trítono. Explore isso nos exercícios da aula 9!
+              {% for ans in q.answers.all %}
+              <div style="background:rgba(112,56,248,0.06);border-left:2px solid var(--brand);padding:14px 16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-top:10px;">
+                <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--brand);margin-bottom:6px;">
+                  {% if ans.is_professor_answer %}Resposta do Professor{% else %}{{ ans.user.get_full_name|default:ans.user.username }}{% endif %}
                 </p>
+                <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;">{{ ans.text }}</p>
               </div>
+              {% endfor %}
             </div>
+            {% empty %}
+            <p style="color:var(--text-secondary);text-align:center;padding:24px 0;">Nenhuma pergunta ainda. Seja o primeiro a perguntar!</p>
+            {% endfor %}
           </div>
         </div>
 
@@ -226,97 +211,27 @@
     <!-- ═══════════ LESSON SIDEBAR ═══════════════════════ -->
     <aside class="lesson-sidebar">
       <div class="ls-header">
-        <h3>Harmonia &amp; Contraponto</h3>
-        <p class="ls-progress-label">8 de 22 aulas concluídas · 36%</p>
-        <div class="pbar" style="margin-top:10px;"><div class="pbar-fill" data-width="36%" style="width:0"></div></div>
+        <h3>{{ module.title }}</h3>
+        <p class="ls-progress-label">{{ completed_count }} de {{ total_count }} aulas concluídas · {{ module_pct }}%</p>
+        <div class="pbar" style="margin-top:10px;"><div class="pbar-fill" data-width="{{ module_pct }}%" style="width:0"></div></div>
       </div>
 
       <div class="ls-lessons">
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
+        {% for item in lessons_status %}
+        <a href="{% url 'courses:lesson_detail' module.pk item.lesson.pk %}"
+           class="ls-item {% if item.completed %}done{% elif item.is_current %}active{% endif %}">
+          <div class="ls-num">{% if item.completed %}✓{% else %}{{ item.lesson.order }}{% endif %}</div>
           <div class="ls-item-info">
-            <p class="ls-item-title">Introdução à Harmonia Tonal</p>
-            <span class="ls-item-dur">14 min</span>
+            <p class="ls-item-title">{{ item.lesson.title }}</p>
+            {% if item.lesson.duration_minutes %}
+            <span class="ls-item-dur">{{ item.lesson.duration_minutes }} min</span>
+            {% endif %}
           </div>
         </a>
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Tríades e Tétrades</p>
-            <span class="ls-item-dur">20 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Funções Harmônicas Básicas</p>
-            <span class="ls-item-dur">22 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Cadências: Autêntica, Plagal e Deceptiva</p>
-            <span class="ls-item-dur">18 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Vozeamento e Condução de Vozes</p>
-            <span class="ls-item-dur">25 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Inversões de Acordes</p>
-            <span class="ls-item-dur">17 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item done">
-          <div class="ls-num">✓</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Notas de Passagem e Bordaduras</p>
-            <span class="ls-item-dur">19 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item active">
-          <div class="ls-num">8</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Progressões de Acordes Secundários</p>
-            <span class="ls-item-dur">18 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item">
-          <div class="ls-num">9</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Substitutos de Trítono</p>
-            <span class="ls-item-dur">21 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item">
-          <div class="ls-num">10</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Modulação: Pivô e Enarmônica</p>
-            <span class="ls-item-dur">24 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item">
-          <div class="ls-num">11</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Contraponto de 1ª Espécie</p>
-            <span class="ls-item-dur">28 min</span>
-          </div>
-        </a>
-        <a href="#" class="ls-item">
-          <div class="ls-num">12</div>
-          <div class="ls-item-info">
-            <p class="ls-item-title">Contraponto de 2ª e 3ª Espécie</p>
-            <span class="ls-item-dur">30 min</span>
-          </div>
-        </a>
-      </div><!-- /ls-lessons -->
+        {% empty %}
+        <p style="color:var(--text-secondary);padding:20px;font-size:13px;">Nenhuma aula cadastrada.</p>
+        {% endfor %}
+      </div>
     </aside>
 
   </div><!-- /lesson-layout -->

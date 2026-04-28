@@ -1,0 +1,995 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio — MUSILAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <style>
+    /* ── STUDIO OVERRIDES ─────────────────────────────── */
+    .studio-sidebar { background: #110d1e; border-right: 1px solid rgba(112,56,248,.15); }
+    .studio-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-family: var(--font-ui);
+      letter-spacing: .08em;
+      background: var(--brand);
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-left: 6px;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+
+    /* ── SECTIONS ─────────────────────────────────────── */
+    .st-section { display: none; }
+    .st-section.active { display: block; }
+
+    /* ── STATS ────────────────────────────────────────── */
+    .st-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 16px; margin-bottom: 32px; }
+    .st-stat {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+    }
+    .st-stat-val { font-family: var(--font-mono); font-size: 36px; font-weight: 700; color: var(--brand); line-height: 1; }
+    .st-stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 6px; letter-spacing: .05em; text-transform: uppercase; }
+
+    /* ── SECTION HEADER ───────────────────────────────── */
+    .st-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
+    .st-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; }
+    .st-head-actions { display: flex; gap: 8px; }
+
+    /* ── TABLE ────────────────────────────────────────── */
+    .st-table-wrap { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); overflow: hidden; }
+    .st-table { width: 100%; border-collapse: collapse; }
+    .st-table th {
+      text-align: left;
+      padding: 13px 18px;
+      font-size: 11px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      background: rgba(0,0,0,.15);
+      border-bottom: 1px solid var(--glass-border);
+      font-family: var(--font-ui);
+      font-weight: 500;
+    }
+    .st-table td {
+      padding: 13px 18px;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      vertical-align: middle;
+    }
+    .st-table tr:last-child td { border-bottom: none; }
+    .st-table tr:hover td { background: rgba(112,56,248,.04); }
+    .st-empty { padding: 48px 24px; text-align: center; color: var(--text-secondary); font-size: 14px; }
+
+    /* ── CHIPS ────────────────────────────────────────── */
+    .st-chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: var(--font-ui);
+      letter-spacing: .04em;
+      font-weight: 500;
+    }
+    .st-chip-active   { background: rgba(76,175,138,.15); color: var(--success); }
+    .st-chip-inactive { background: rgba(248,88,88,.12);  color: var(--error); }
+    .st-chip-level    { background: rgba(112,56,248,.15); color: var(--brand); }
+
+    /* ── ACTION BUTTONS ───────────────────────────────── */
+    .st-btn-edit, .st-btn-del {
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 12px;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .st-btn-edit { background: rgba(112,56,248,.18); color: var(--brand); }
+    .st-btn-edit:hover { background: rgba(112,56,248,.32); }
+    .st-btn-del  { background: rgba(248,88,88,.12); color: var(--error); margin-left: 6px; }
+    .st-btn-del:hover  { background: rgba(248,88,88,.25); }
+
+    /* ── NEW BUTTON ───────────────────────────────────── */
+    .st-btn-new {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: .04em;
+    }
+    .st-btn-new:hover { background: var(--hover); transform: translateY(-1px); box-shadow: 0 8px 24px var(--brand-glow); }
+
+    /* ── MODAL ────────────────────────────────────────── */
+    .st-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .st-overlay.open { display: flex; }
+    .st-modal {
+      background: #1a1232;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 32px 36px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: modalIn .25s ease;
+    }
+    @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(10px); } to { opacity:1; transform:none; } }
+    .st-modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+    .st-modal-close {
+      position: absolute; top: 18px; right: 20px;
+      background: none; border: none; color: var(--text-secondary);
+      font-size: 22px; cursor: pointer; line-height: 1; padding: 4px 8px;
+      border-radius: 6px; transition: var(--transition);
+    }
+    .st-modal-close:hover { color: var(--text-primary); background: rgba(255,255,255,.06); }
+
+    /* ── MODAL FORM ───────────────────────────────────── */
+    .st-field { margin-bottom: 18px; }
+    .st-field label { display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 7px; font-family: var(--font-ui); }
+    .st-field input[type=text],
+    .st-field input[type=url],
+    .st-field input[type=number],
+    .st-field input[type=file],
+    .st-field select,
+    .st-field textarea {
+      width: 100%;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      transition: border-color .2s, box-shadow .2s;
+      box-sizing: border-box;
+    }
+    .st-field textarea { resize: vertical; min-height: 80px; }
+    .st-field input:focus,
+    .st-field select:focus,
+    .st-field textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(112,56,248,.12); }
+    .st-field select option { background: #1a1232; }
+    .st-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .st-field-check { display: flex; align-items: center; gap: 10px; }
+    .st-field-check input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--brand); flex-shrink: 0; cursor: pointer; }
+    .st-field-check label { font-size: 14px; color: var(--text-primary); text-transform: none; letter-spacing: 0; cursor: pointer; margin: 0; }
+
+    .st-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .st-modal-cancel {
+      padding: 11px 22px;
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .st-modal-cancel:hover { border-color: var(--brand); color: var(--text-primary); }
+    .st-modal-submit {
+      padding: 11px 26px;
+      background: var(--brand);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .st-modal-submit:hover { background: var(--hover); }
+
+    /* ── USERS TABLE ──────────────────────────────────── */
+    .st-avatar-sm {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+    }
+
+    /* ── SEARCH ───────────────────────────────────────── */
+    .st-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 9px 14px;
+      flex: 1;
+      max-width: 300px;
+    }
+    .st-search input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      width: 100%;
+    }
+    .st-search input::placeholder { color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+<div class="db-layout">
+
+  <!-- ═══════════ SIDEBAR ═══════════════════════════════════ -->
+  <aside class="db-sidebar studio-sidebar" id="sidebar">
+    <div class="db-sidebar-logo">
+      <a href="{% url 'core:index' %}">
+        <img src="{% static 'assets/logo-musilab.png' %}" alt="MUSILAB" class="sidebar-logo-img" />
+        <span>MUSI<em>LAB</em></span>
+      </a>
+    </div>
+
+    <nav class="db-nav">
+      <p class="db-nav-section-label">Studio <span class="studio-badge">ADMIN</span></p>
+
+      <button class="db-nav-link st-tab-btn active" data-tab="overview" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">🎛️</span> Visão Geral
+      </button>
+      <button class="db-nav-link st-tab-btn" data-tab="modules" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">📦</span> Módulos
+        <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_modules }}</span>
+      </button>
+      <button class="db-nav-link st-tab-btn" data-tab="lessons" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">🎬</span> Aulas
+        <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_lessons }}</span>
+      </button>
+      <button class="db-nav-link st-tab-btn" data-tab="achievements" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">🏆</span> Conquistas
+        <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_achievements }}</span>
+      </button>
+      <button class="db-nav-link st-tab-btn" data-tab="users" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">👥</span> Usuários
+        <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_users }}</span>
+      </button>
+
+      <p class="db-nav-section-label" style="margin-top:24px;">Navegação</p>
+      <a href="{% url 'courses:dashboard' %}" class="db-nav-link">
+        <span class="db-nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="{% url 'accounts:logout' %}" class="db-nav-link">
+        <span class="db-nav-icon">🚪</span> Sair
+      </a>
+    </nav>
+
+    <div class="db-sidebar-foot">
+      <div class="db-user-card">
+        <div class="db-avatar" style="background:var(--brand);">{{ request.user.first_name|first|upper }}</div>
+        <div>
+          <p class="db-user-name">{{ request.user.get_full_name }}</p>
+          <p class="db-user-plan" style="color:var(--brand);">Superusuário</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN ══════════════════════════════════════ -->
+  <main class="db-main">
+
+    <!-- Topbar -->
+    <header class="db-topbar">
+      <h1 class="db-topbar-title" id="st-page-title">Visão Geral</h1>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+      <div style="padding: 0 32px 0;">
+        {% for message in messages %}
+          <div class="auth-alert auth-alert--{{ message.tags }}" style="margin-bottom:10px;">
+            <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% else %}✓{% endif %}</span>
+            <span class="auth-alert-text">{{ message }}</span>
+            <button type="button" class="auth-alert-close" onclick="this.closest('.auth-alert').remove()">×</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="db-content">
+
+      <!-- ══ VISÃO GERAL ══════════════════════════════════ -->
+      <section class="st-section active" id="tab-overview">
+        <div class="st-stats">
+          <div class="st-stat">
+            <div class="st-stat-val">{{ total_modules }}</div>
+            <div class="st-stat-label">Módulos</div>
+          </div>
+          <div class="st-stat">
+            <div class="st-stat-val">{{ total_lessons }}</div>
+            <div class="st-stat-label">Aulas</div>
+          </div>
+          <div class="st-stat">
+            <div class="st-stat-val">{{ total_achievements }}</div>
+            <div class="st-stat-label">Conquistas</div>
+          </div>
+          <div class="st-stat">
+            <div class="st-stat-val">{{ total_users }}</div>
+            <div class="st-stat-label">Usuários</div>
+          </div>
+        </div>
+
+        <h2 style="font-family:var(--font-display);font-size:18px;margin-bottom:16px;">Módulos recentes</h2>
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>Ordem</th>
+                <th>Título</th>
+                <th>Nível</th>
+                <th>Aulas</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in modules %}
+              <tr>
+                <td style="font-family:var(--font-mono);color:var(--text-secondary);">{{ m.order|stringformat:"02d" }}</td>
+                <td style="font-weight:500;">{{ m.title }}</td>
+                <td><span class="st-chip st-chip-level">{{ m.get_level_display }}</span></td>
+                <td style="font-family:var(--font-mono);">{{ m.total_lessons }}</td>
+                <td>
+                  {% if m.is_active %}
+                    <span class="st-chip st-chip-active">Ativo</span>
+                  {% else %}
+                    <span class="st-chip st-chip-inactive">Inativo</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="st-empty">Nenhum módulo cadastrado ainda.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ MÓDULOS ════════════════════════════════════════ -->
+      <section class="st-section" id="tab-modules">
+        <div class="st-head">
+          <h2>Módulos</h2>
+          <div class="st-head-actions">
+            <div class="st-search">
+              <span style="color:var(--text-secondary);">🔍</span>
+              <input type="text" placeholder="Buscar módulo…" oninput="filterTable('modules-body', this.value)" />
+            </div>
+            <button class="st-btn-new" onclick="openModal('modal-module')">
+              + Novo Módulo
+            </button>
+          </div>
+        </div>
+
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Título</th>
+                <th>Descrição</th>
+                <th>Nível</th>
+                <th>Aulas</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="modules-body">
+              {% for m in modules %}
+              <tr>
+                <td style="font-family:var(--font-mono);color:var(--text-secondary);">{{ m.order|stringformat:"02d" }}</td>
+                <td style="font-weight:500;">{{ m.title }}</td>
+                <td style="color:var(--text-secondary);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.description|default:"—" }}</td>
+                <td><span class="st-chip st-chip-level">{{ m.get_level_display }}</span></td>
+                <td style="font-family:var(--font-mono);">{{ m.total_lessons }}</td>
+                <td>
+                  {% if m.is_active %}
+                    <span class="st-chip st-chip-active">Ativo</span>
+                  {% else %}
+                    <span class="st-chip st-chip-inactive">Inativo</span>
+                  {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                  <button class="st-btn-edit" onclick="editModule({{ m.pk }}, '{{ m.title|escapejs }}', '{{ m.description|escapejs }}', {{ m.order }}, '{{ m.level }}', {{ m.is_active|yesno:'true,false' }})">
+                    Editar
+                  </button>
+                  <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_module_delete' m.pk %}', 'Excluir módulo &quot;{{ m.title|escapejs }}&quot;?')">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="st-empty">Nenhum módulo cadastrado. Clique em "Novo Módulo" para começar.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ AULAS ══════════════════════════════════════════ -->
+      <section class="st-section" id="tab-lessons">
+        <div class="st-head">
+          <h2>Aulas</h2>
+          <div class="st-head-actions">
+            <div class="st-search">
+              <span style="color:var(--text-secondary);">🔍</span>
+              <input type="text" placeholder="Buscar aula…" oninput="filterTable('lessons-body', this.value)" />
+            </div>
+            <button class="st-btn-new" onclick="openModal('modal-lesson')">
+              + Nova Aula
+            </button>
+          </div>
+        </div>
+
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>Módulo</th>
+                <th>#</th>
+                <th>Título</th>
+                <th>Duração</th>
+                <th>Vídeo</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="lessons-body">
+              {% for l in lessons %}
+              <tr>
+                <td style="color:var(--text-secondary);font-size:12px;">{{ l.module.title }}</td>
+                <td style="font-family:var(--font-mono);color:var(--text-secondary);">{{ l.order }}</td>
+                <td style="font-weight:500;">{{ l.title }}</td>
+                <td style="font-family:var(--font-mono);">{{ l.duration_minutes }}min</td>
+                <td>
+                  {% if l.video_url %}
+                    <a href="{{ l.video_url }}" target="_blank" style="color:var(--brand);font-size:12px;">▶ ver</a>
+                  {% else %}
+                    <span style="color:var(--text-secondary);">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if l.is_active %}
+                    <span class="st-chip st-chip-active">Ativa</span>
+                  {% else %}
+                    <span class="st-chip st-chip-inactive">Inativa</span>
+                  {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                  <button class="st-btn-edit" onclick="editLesson({{ l.pk }}, {{ l.module.pk }}, '{{ l.title|escapejs }}', '{{ l.description|escapejs }}', '{{ l.objectives|escapejs }}', '{{ l.video_url|escapejs }}', {{ l.duration_minutes }}, {{ l.order }}, {{ l.is_active|yesno:'true,false' }})">
+                    Editar
+                  </button>
+                  <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_lesson_delete' l.pk %}', 'Excluir aula &quot;{{ l.title|escapejs }}&quot;?')">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="st-empty">Nenhuma aula cadastrada. Crie módulos primeiro e depois adicione aulas.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ CONQUISTAS ═════════════════════════════════════ -->
+      <section class="st-section" id="tab-achievements">
+        <div class="st-head">
+          <h2>Conquistas</h2>
+          <div class="st-head-actions">
+            <div class="st-search">
+              <span style="color:var(--text-secondary);">🔍</span>
+              <input type="text" placeholder="Buscar conquista…" oninput="filterTable('achievements-body', this.value)" />
+            </div>
+            <button class="st-btn-new" onclick="openModal('modal-achievement')">
+              + Nova Conquista
+            </button>
+          </div>
+        </div>
+
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>Ícone</th>
+                <th>Título</th>
+                <th>Descrição</th>
+                <th>Condição</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="achievements-body">
+              {% for a in achievements %}
+              <tr>
+                <td style="font-size:22px;">{{ a.icon }}</td>
+                <td style="font-weight:500;">{{ a.title }}</td>
+                <td style="color:var(--text-secondary);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.description }}</td>
+                <td style="font-size:12px;color:var(--text-secondary);">{{ a.get_condition_type_display }}</td>
+                <td style="font-family:var(--font-mono);">{{ a.condition_value }}</td>
+                <td>
+                  {% if a.is_active %}
+                    <span class="st-chip st-chip-active">Ativa</span>
+                  {% else %}
+                    <span class="st-chip st-chip-inactive">Inativa</span>
+                  {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                  <button class="st-btn-edit" onclick="editAchievement({{ a.pk }}, '{{ a.title|escapejs }}', '{{ a.description|escapejs }}', '{{ a.icon|escapejs }}', '{{ a.condition_type }}', {{ a.condition_value }}, {{ a.is_active|yesno:'true,false' }})">
+                    Editar
+                  </button>
+                  <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_achievement_delete' a.pk %}', 'Excluir conquista &quot;{{ a.title|escapejs }}&quot;?')">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="st-empty">Nenhuma conquista cadastrada.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ USUÁRIOS ═══════════════════════════════════════ -->
+      <section class="st-section" id="tab-users">
+        <div class="st-head">
+          <h2>Usuários</h2>
+          <div class="st-head-actions">
+            <div class="st-search">
+              <span style="color:var(--text-secondary);">🔍</span>
+              <input type="text" placeholder="Buscar usuário…" oninput="filterTable('users-body', this.value)" />
+            </div>
+          </div>
+        </div>
+
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Cadastro</th>
+                <th>Acesso</th>
+                <th>Admin</th>
+              </tr>
+            </thead>
+            <tbody id="users-body">
+              {% for u in users %}
+              <tr>
+                <td>
+                  <div class="st-avatar-sm">{{ u.first_name|first|upper|default:u.username|first|upper }}</div>
+                </td>
+                <td style="font-weight:500;">{{ u.get_full_name|default:u.username }}</td>
+                <td style="color:var(--text-secondary);font-size:13px;">{{ u.email }}</td>
+                <td style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);">{{ u.date_joined|date:"d/m/Y" }}</td>
+                <td>
+                  {% if u.is_active %}
+                    <span class="st-chip st-chip-active">Ativo</span>
+                  {% else %}
+                    <span class="st-chip st-chip-inactive">Inativo</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if u.is_superuser %}
+                    <span class="st-chip" style="background:rgba(255,193,7,.12);color:var(--warning);">Superuser</span>
+                  {% elif u.is_staff %}
+                    <span class="st-chip st-chip-level">Staff</span>
+                  {% else %}
+                    <span style="color:var(--text-secondary);font-size:12px;">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="st-empty">Nenhum usuário encontrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- /.db-content -->
+  </main>
+</div>
+
+<!-- ═══════════ MODAL: MÓDULO ══════════════════════════════ -->
+<div class="st-overlay" id="modal-module">
+  <div class="st-modal">
+    <button class="st-modal-close" onclick="closeModal('modal-module')">×</button>
+    <p class="st-modal-title" id="modal-module-title">Novo Módulo</p>
+
+    <form id="form-module" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="_method_override" value="save" />
+
+      <div class="st-field-row">
+        <div class="st-field">
+          <label>Ordem *</label>
+          <input type="number" name="order" id="m-order" min="1" max="999" required />
+        </div>
+        <div class="st-field">
+          <label>Nível *</label>
+          <select name="level" id="m-level">
+            {% for val, label in level_choices %}
+              <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="st-field">
+        <label>Título *</label>
+        <input type="text" name="title" id="m-title" maxlength="200" required />
+      </div>
+
+      <div class="st-field">
+        <label>Descrição</label>
+        <textarea name="description" id="m-description" rows="3"></textarea>
+      </div>
+
+      <div class="st-field">
+        <label>Capa (imagem)</label>
+        <input type="file" name="thumbnail" id="m-thumbnail" accept="image/*" />
+      </div>
+
+      <div class="st-field">
+        <div class="st-field-check">
+          <input type="checkbox" name="is_active" id="m-is_active" checked />
+          <label for="m-is_active">Módulo ativo (visível para alunos)</label>
+        </div>
+      </div>
+
+      <div class="st-modal-actions">
+        <button type="button" class="st-modal-cancel" onclick="closeModal('modal-module')">Cancelar</button>
+        <button type="submit" class="st-modal-submit">Salvar Módulo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: AULA ════════════════════════════════ -->
+<div class="st-overlay" id="modal-lesson">
+  <div class="st-modal">
+    <button class="st-modal-close" onclick="closeModal('modal-lesson')">×</button>
+    <p class="st-modal-title" id="modal-lesson-title">Nova Aula</p>
+
+    <form id="form-lesson" method="post">
+      {% csrf_token %}
+
+      <div class="st-field">
+        <label>Módulo *</label>
+        <select name="module" id="l-module" required>
+          {% for m in modules %}
+            <option value="{{ m.pk }}">{{ m.order|stringformat:"02d" }} — {{ m.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="st-field-row">
+        <div class="st-field">
+          <label>Ordem *</label>
+          <input type="number" name="order" id="l-order" min="1" max="999" required />
+        </div>
+        <div class="st-field">
+          <label>Duração (min)</label>
+          <input type="number" name="duration_minutes" id="l-duration" min="0" max="9999" />
+        </div>
+      </div>
+
+      <div class="st-field">
+        <label>Título *</label>
+        <input type="text" name="title" id="l-title" maxlength="200" required />
+      </div>
+
+      <div class="st-field">
+        <label>URL do Vídeo</label>
+        <input type="url" name="video_url" id="l-video_url" placeholder="https://youtube.com/..." />
+      </div>
+
+      <div class="st-field">
+        <label>Descrição</label>
+        <textarea name="description" id="l-description" rows="2"></textarea>
+      </div>
+
+      <div class="st-field">
+        <label>Objetivos</label>
+        <textarea name="objectives" id="l-objectives" rows="2" placeholder="O que o aluno vai aprender…"></textarea>
+      </div>
+
+      <div class="st-field">
+        <div class="st-field-check">
+          <input type="checkbox" name="is_active" id="l-is_active" checked />
+          <label for="l-is_active">Aula ativa (visível para alunos)</label>
+        </div>
+      </div>
+
+      <div class="st-modal-actions">
+        <button type="button" class="st-modal-cancel" onclick="closeModal('modal-lesson')">Cancelar</button>
+        <button type="submit" class="st-modal-submit">Salvar Aula</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: CONQUISTA ═══════════════════════════ -->
+<div class="st-overlay" id="modal-achievement">
+  <div class="st-modal">
+    <button class="st-modal-close" onclick="closeModal('modal-achievement')">×</button>
+    <p class="st-modal-title" id="modal-achievement-title">Nova Conquista</p>
+
+    <form id="form-achievement" method="post">
+      {% csrf_token %}
+
+      <div class="st-field-row">
+        <div class="st-field">
+          <label>Ícone (emoji) *</label>
+          <input type="text" name="icon" id="a-icon" maxlength="10" placeholder="🏆" required />
+        </div>
+        <div class="st-field">
+          <label>Valor da condição *</label>
+          <input type="number" name="condition_value" id="a-condition_value" min="1" value="1" required />
+        </div>
+      </div>
+
+      <div class="st-field">
+        <label>Título *</label>
+        <input type="text" name="title" id="a-title" maxlength="100" required />
+      </div>
+
+      <div class="st-field">
+        <label>Descrição *</label>
+        <input type="text" name="description" id="a-description" maxlength="255" required />
+      </div>
+
+      <div class="st-field">
+        <label>Tipo de condição *</label>
+        <select name="condition_type" id="a-condition_type" required>
+          {% for val, label in condition_choices %}
+            <option value="{{ val }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="st-field">
+        <div class="st-field-check">
+          <input type="checkbox" name="is_active" id="a-is_active" checked />
+          <label for="a-is_active">Conquista ativa</label>
+        </div>
+      </div>
+
+      <div class="st-modal-actions">
+        <button type="button" class="st-modal-cancel" onclick="closeModal('modal-achievement')">Cancelar</button>
+        <button type="submit" class="st-modal-submit">Salvar Conquista</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: CONFIRMAR EXCLUSÃO ═════════════════ -->
+<div class="st-overlay" id="modal-delete">
+  <div class="st-modal" style="max-width:420px;text-align:center;">
+    <p class="st-modal-title" id="modal-delete-msg" style="font-size:17px;font-family:var(--font-ui);">Confirmar exclusão?</p>
+    <p style="color:var(--text-secondary);font-size:13px;margin-bottom:28px;">Esta ação não pode ser desfeita.</p>
+    <form id="form-delete" method="post" style="display:inline;">
+      {% csrf_token %}
+      <div class="st-modal-actions" style="justify-content:center;">
+        <button type="button" class="st-modal-cancel" onclick="closeModal('modal-delete')">Cancelar</button>
+        <button type="submit" class="st-modal-submit" style="background:var(--error);">Excluir</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/* ── TABS ─────────────────────────────────────────────────── */
+const TAB_TITLES = {
+  overview: 'Visão Geral',
+  modules: 'Módulos',
+  lessons: 'Aulas',
+  achievements: 'Conquistas',
+  users: 'Usuários',
+};
+
+function showTab(name) {
+  document.querySelectorAll('.st-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.st-tab-btn').forEach(b => b.classList.remove('active'));
+  const section = document.getElementById('tab-' + name);
+  if (section) section.classList.add('active');
+  document.querySelectorAll('.st-tab-btn').forEach(b => {
+    if (b.dataset.tab === name) b.classList.add('active');
+  });
+  document.getElementById('st-page-title').textContent = TAB_TITLES[name] || name;
+  sessionStorage.setItem('studio-tab', name);
+}
+
+document.querySelectorAll('.st-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+// Restore tab from session
+const savedTab = sessionStorage.getItem('studio-tab');
+if (savedTab) showTab(savedTab);
+
+/* ── MODALS ───────────────────────────────────────────────── */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close on overlay click
+document.querySelectorAll('.st-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.st-overlay.open').forEach(o => closeModal(o.id));
+});
+
+/* ── MÓDULO MODAL ─────────────────────────────────────────── */
+const CREATE_MOD_URL = "{% url 'core:studio_module_create' %}";
+
+function openModal_module_create() {
+  document.getElementById('modal-module-title').textContent = 'Novo Módulo';
+  document.getElementById('form-module').action = CREATE_MOD_URL;
+  document.getElementById('m-order').value = '';
+  document.getElementById('m-level').value = 'iniciante';
+  document.getElementById('m-title').value = '';
+  document.getElementById('m-description').value = '';
+  document.getElementById('m-is_active').checked = true;
+  openModal('modal-module');
+}
+
+function editModule(pk, title, desc, order, level, isActive) {
+  document.getElementById('modal-module-title').textContent = 'Editar Módulo';
+  document.getElementById('form-module').action = `/studio/modulos/${pk}/editar/`;
+  document.getElementById('m-order').value = order;
+  document.getElementById('m-level').value = level;
+  document.getElementById('m-title').value = title;
+  document.getElementById('m-description').value = desc;
+  document.getElementById('m-is_active').checked = isActive;
+  openModal('modal-module');
+}
+
+// Override the "Novo Módulo" button
+document.querySelectorAll('[onclick="openModal(\'modal-module\')"]').forEach(btn => {
+  btn.onclick = openModal_module_create;
+});
+
+/* ── AULA MODAL ───────────────────────────────────────────── */
+const CREATE_LESSON_URL = "{% url 'core:studio_lesson_create' %}";
+
+function openModal_lesson_create() {
+  document.getElementById('modal-lesson-title').textContent = 'Nova Aula';
+  document.getElementById('form-lesson').action = CREATE_LESSON_URL;
+  document.getElementById('l-module').value = '';
+  document.getElementById('l-order').value = '';
+  document.getElementById('l-duration').value = '0';
+  document.getElementById('l-title').value = '';
+  document.getElementById('l-video_url').value = '';
+  document.getElementById('l-description').value = '';
+  document.getElementById('l-objectives').value = '';
+  document.getElementById('l-is_active').checked = true;
+  openModal('modal-lesson');
+}
+
+function editLesson(pk, modulePk, title, desc, objectives, videoUrl, duration, order, isActive) {
+  document.getElementById('modal-lesson-title').textContent = 'Editar Aula';
+  document.getElementById('form-lesson').action = `/studio/aulas/${pk}/editar/`;
+  document.getElementById('l-module').value = modulePk;
+  document.getElementById('l-order').value = order;
+  document.getElementById('l-duration').value = duration;
+  document.getElementById('l-title').value = title;
+  document.getElementById('l-video_url').value = videoUrl;
+  document.getElementById('l-description').value = desc;
+  document.getElementById('l-objectives').value = objectives;
+  document.getElementById('l-is_active').checked = isActive;
+  openModal('modal-lesson');
+}
+
+document.querySelectorAll('[onclick="openModal(\'modal-lesson\')"]').forEach(btn => {
+  btn.onclick = openModal_lesson_create;
+});
+
+/* ── CONQUISTA MODAL ──────────────────────────────────────── */
+const CREATE_ACH_URL = "{% url 'core:studio_achievement_create' %}";
+
+function openModal_ach_create() {
+  document.getElementById('modal-achievement-title').textContent = 'Nova Conquista';
+  document.getElementById('form-achievement').action = CREATE_ACH_URL;
+  document.getElementById('a-icon').value = '🏆';
+  document.getElementById('a-title').value = '';
+  document.getElementById('a-description').value = '';
+  document.getElementById('a-condition_type').value = 'first_lesson';
+  document.getElementById('a-condition_value').value = '1';
+  document.getElementById('a-is_active').checked = true;
+  openModal('modal-achievement');
+}
+
+function editAchievement(pk, title, desc, icon, condType, condVal, isActive) {
+  document.getElementById('modal-achievement-title').textContent = 'Editar Conquista';
+  document.getElementById('form-achievement').action = `/studio/conquistas/${pk}/editar/`;
+  document.getElementById('a-icon').value = icon;
+  document.getElementById('a-title').value = title;
+  document.getElementById('a-description').value = desc;
+  document.getElementById('a-condition_type').value = condType;
+  document.getElementById('a-condition_value').value = condVal;
+  document.getElementById('a-is_active').checked = isActive;
+  openModal('modal-achievement');
+}
+
+document.querySelectorAll('[onclick="openModal(\'modal-achievement\')"]').forEach(btn => {
+  btn.onclick = openModal_ach_create;
+});
+
+/* ── CONFIRMAR EXCLUSÃO ───────────────────────────────────── */
+function confirmDelete(url, msg) {
+  document.getElementById('modal-delete-msg').innerHTML = msg;
+  document.getElementById('form-delete').action = url;
+  openModal('modal-delete');
+}
+
+/* ── FILTRO DE TABELA ─────────────────────────────────────── */
+function filterTable(tbodyId, query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#' + tbodyId + ' tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+/* ── AUTO-DISMISS MESSAGES ────────────────────────────────── */
+document.querySelectorAll('.auth-alert').forEach(a => setTimeout(() => {
+  a.style.transition = 'opacity .35s';
+  a.style.opacity = '0';
+  setTimeout(() => a.remove(), 360);
+}, 5000));
+</script>
+
+</body>
+</html>

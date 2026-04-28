@@ -38,6 +38,13 @@
         <span class="db-nav-icon">🏆</span> Conquistas
       </a>
 
+      {% if request.user.is_superuser %}
+      <p class="db-nav-section-label">Admin</p>
+      <a href="{% url 'core:studio' %}" class="db-nav-link">
+        <span class="db-nav-icon">🎛️</span> Studio
+      </a>
+      {% endif %}
+
       <p class="db-nav-section-label">Conta</p>
       <a href="{% url 'accounts:profile' %}" class="db-nav-link">
         <span class="db-nav-icon">👤</span> Perfil
@@ -79,25 +86,25 @@
       <div class="stat-cards">
         <div class="stat-card">
           <div class="stat-card-icon">⏱</div>
-          <div class="stat-card-value">34h</div>
-          <div class="stat-card-sub">+2h esta semana</div>
+          <div class="stat-card-value">{{ total_hours }}h</div>
+          <div class="stat-card-sub">de conteúdo assistido</div>
           <div class="stat-card-label">Total de horas</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-icon">🎬</div>
-          <div class="stat-card-value">42</div>
-          <div class="stat-card-sub">de 102 aulas</div>
+          <div class="stat-card-value">{{ completed_lessons }}</div>
+          <div class="stat-card-sub">de {{ total_lessons }} aulas</div>
           <div class="stat-card-label">Aulas concluídas</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-icon">📚</div>
-          <div class="stat-card-value">1</div>
-          <div class="stat-card-sub">de 6 módulos</div>
+          <div class="stat-card-value">{{ completed_modules }}</div>
+          <div class="stat-card-sub">de {{ total_modules }} módulos</div>
           <div class="stat-card-label">Módulos completos</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-icon">🔥</div>
-          <div class="stat-card-value">7</div>
+          <div class="stat-card-value">{{ streak }}</div>
           <div class="stat-card-sub">dias consecutivos</div>
           <div class="stat-card-label">Sequência atual</div>
         </div>
@@ -107,145 +114,55 @@
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:44px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
           <p style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">Progresso geral do curso</p>
-          <span style="font-family:var(--font-mono);font-size:13px;color:var(--brand);">41% concluído</span>
+          <span style="font-family:var(--font-mono);font-size:13px;color:var(--brand);">{{ overall_pct }}% concluído</span>
         </div>
         <div class="pbar" style="height:8px;border-radius:4px;">
-          <div class="pbar-fill" data-width="41%" style="width:0;height:8px;border-radius:4px;"></div>
+          <div class="pbar-fill" data-width="{{ overall_pct }}%" style="width:0;height:8px;border-radius:4px;"></div>
         </div>
-        <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">42 de 102 aulas · estimativa de conclusão: 3 meses</p>
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">{{ completed_lessons }} de {{ total_lessons }} aulas concluídas</p>
       </div>
 
       <!-- Per-module progress -->
       <p class="progress-section-title">Progresso por Módulo</p>
       <div class="mod-progress-list">
-
+        {% for item in modules_data %}
         <div class="mod-progress-row">
-          <span class="mod-progress-num">01</span>
+          <span class="mod-progress-num">{{ item.module.order|stringformat:"02d" }}</span>
           <div class="mod-progress-info">
-            <p class="mod-progress-name">Fundamentos da Música</p>
+            <p class="mod-progress-name">{{ item.module.title }}</p>
             <div class="mod-progress-bar">
               <div class="pbar" style="flex:1;">
-                <div class="pbar-fill" data-width="100%" style="width:0;background:var(--success);"></div>
+                <div class="pbar-fill" data-width="{{ item.percentage }}%" style="width:0;{% if item.is_complete %}background:var(--success);{% elif not item.has_started %}background:rgba(155,141,184,0.3);{% endif %}"></div>
               </div>
-              <span class="mod-progress-pct">100%</span>
+              <span class="mod-progress-pct">{{ item.percentage }}%</span>
             </div>
           </div>
+          {% if item.is_complete %}
           <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:rgba(76,175,138,.1);color:var(--success);border:1px solid rgba(76,175,138,.2);flex-shrink:0;">COMPLETO</span>
-        </div>
-
-        <div class="mod-progress-row">
-          <span class="mod-progress-num">02</span>
-          <div class="mod-progress-info">
-            <p class="mod-progress-name">Teoria Musical</p>
-            <div class="mod-progress-bar">
-              <div class="pbar" style="flex:1;">
-                <div class="pbar-fill" data-width="78%" style="width:0;"></div>
-              </div>
-              <span class="mod-progress-pct">78%</span>
-            </div>
-          </div>
+          {% elif item.has_started %}
           <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:var(--brand-dim);color:var(--brand);border:1px solid rgba(112,56,248,.2);flex-shrink:0;">EM CURSO</span>
+          {% else %}
+          <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:rgba(155,141,184,.08);color:var(--text-secondary);border:1px solid var(--glass-border);flex-shrink:0;">PENDENTE</span>
+          {% endif %}
         </div>
-
-        <div class="mod-progress-row">
-          <span class="mod-progress-num">03</span>
-          <div class="mod-progress-info">
-            <p class="mod-progress-name">Harmonia &amp; Contraponto</p>
-            <div class="mod-progress-bar">
-              <div class="pbar" style="flex:1;">
-                <div class="pbar-fill" data-width="62%" style="width:0;"></div>
-              </div>
-              <span class="mod-progress-pct">62%</span>
-            </div>
-          </div>
-          <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:var(--brand-dim);color:var(--brand);border:1px solid rgba(112,56,248,.2);flex-shrink:0;">EM CURSO</span>
-        </div>
-
-        <div class="mod-progress-row">
-          <span class="mod-progress-num">04</span>
-          <div class="mod-progress-info">
-            <p class="mod-progress-name">Ritmo &amp; Percussão</p>
-            <div class="mod-progress-bar">
-              <div class="pbar" style="flex:1;">
-                <div class="pbar-fill" data-width="20%" style="width:0;"></div>
-              </div>
-              <span class="mod-progress-pct">20%</span>
-            </div>
-          </div>
-          <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:var(--brand-dim);color:var(--brand);border:1px solid rgba(112,56,248,.2);flex-shrink:0;">EM CURSO</span>
-        </div>
-
-        <div class="mod-progress-row">
-          <span class="mod-progress-num">05</span>
-          <div class="mod-progress-info">
-            <p class="mod-progress-name">Improvisação</p>
-            <div class="mod-progress-bar">
-              <div class="pbar" style="flex:1;">
-                <div class="pbar-fill" data-width="0%" style="width:0;background:rgba(155,141,184,0.3);"></div>
-              </div>
-              <span class="mod-progress-pct">0%</span>
-            </div>
-          </div>
-          <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:rgba(155,141,184,.08);color:var(--text-secondary);border:1px solid var(--glass-border);flex-shrink:0;">BLOQUEADO</span>
-        </div>
-
-        <div class="mod-progress-row">
-          <span class="mod-progress-num">06</span>
-          <div class="mod-progress-info">
-            <p class="mod-progress-name">Produção Musical</p>
-            <div class="mod-progress-bar">
-              <div class="pbar" style="flex:1;">
-                <div class="pbar-fill" data-width="0%" style="width:0;background:rgba(155,141,184,0.3);"></div>
-              </div>
-              <span class="mod-progress-pct">0%</span>
-            </div>
-          </div>
-          <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:rgba(155,141,184,.08);color:var(--text-secondary);border:1px solid var(--glass-border);flex-shrink:0;">BLOQUEADO</span>
-        </div>
-
+        {% empty %}
+        <div style="text-align:center;padding:40px;color:var(--text-secondary);">Nenhum módulo disponível.</div>
+        {% endfor %}
       </div>
 
       <!-- Recent activity -->
       <p class="progress-section-title">Atividade Recente</p>
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-lg);overflow:hidden;">
         <div class="activity-list">
-
+          {% for item in activities %}
           <div class="activity-item">
-            <div class="activity-dot done"></div>
-            <div class="activity-text">Concluiu <strong>Aula 8 — Progressões de Acordes Secundários</strong> · Harmonia &amp; Contraponto</div>
-            <span class="activity-time">Hoje</span>
+            <div class="activity-dot {% if item.log.activity_type == 'lesson_complete' or item.log.activity_type == 'module_complete' or item.log.activity_type == 'achievement_unlock' %}done{% endif %}"></div>
+            <div class="activity-text">{{ item.log.description }}</div>
+            <span class="activity-time">{{ item.time_label }}</span>
           </div>
-          <div class="activity-item">
-            <div class="activity-dot done"></div>
-            <div class="activity-text">Concluiu <strong>Aula 7 — Cadências e Resoluções</strong> · Harmonia &amp; Contraponto</div>
-            <span class="activity-time">Ontem</span>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot done"></div>
-            <div class="activity-text">Concluiu <strong>Aula 3 — Grooves Básicos</strong> · Ritmo &amp; Percussão</div>
-            <span class="activity-time">Há 2 dias</span>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot done"></div>
-            <div class="activity-text">Concluiu <strong>Aula 14 — Modos Gregos</strong> · Teoria Musical</div>
-            <span class="activity-time">Há 3 dias</span>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot"></div>
-            <div class="activity-text">Iniciou <strong>Módulo 04 — Ritmo &amp; Percussão</strong></div>
-            <span class="activity-time">Há 4 dias</span>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot done"></div>
-            <div class="activity-text">Concluiu <strong>Aula 18 — Ditado Melódico Avançado</strong> · Teoria Musical</div>
-            <span class="activity-time">Há 5 dias</span>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot done"></div>
-            <div class="activity-text">Desbloqueou a conquista <strong>🏆 Módulo Completo</strong></div>
-            <span class="activity-time">Há 10 dias</span>
-          </div>
-
+          {% empty %}
+          <div style="padding:40px;text-align:center;color:var(--text-secondary);">Nenhuma atividade registrada ainda. Comece a assistir aulas!</div>
+          {% endfor %}
         </div>
       </div>
 

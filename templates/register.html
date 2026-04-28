@@ -52,6 +52,18 @@
           <a href="{% url 'accounts:login' %}">Entrar agora</a>
         </p>
 
+        {% if messages %}
+          <div class="auth-alerts">
+            {% for message in messages %}
+              <div class="auth-alert auth-alert--{{ message.tags }}">
+                <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% elif 'success' in message.tags %}✓{% else %}!{% endif %}</span>
+                <span class="auth-alert-text">{{ message }}</span>
+                <button type="button" class="auth-alert-close" aria-label="Fechar">×</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
         <form id="register-form" method="post" novalidate>
           {% csrf_token %}
 

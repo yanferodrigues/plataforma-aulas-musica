@@ -38,6 +38,13 @@
         <span class="db-nav-icon">🏆</span> Conquistas
       </a>
 
+      {% if request.user.is_superuser %}
+      <p class="db-nav-section-label">Admin</p>
+      <a href="{% url 'core:studio' %}" class="db-nav-link">
+        <span class="db-nav-icon">🎛️</span> Studio
+      </a>
+      {% endif %}
+
       <p class="db-nav-section-label">Conta</p>
       <a href="{% url 'accounts:profile' %}" class="db-nav-link">
         <span class="db-nav-icon">👤</span> Perfil
@@ -94,147 +101,42 @@
         <h2 style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);">
           Todos os Módulos
         </h2>
-        <span class="mods-count" id="mods-count">6 módulos · 102 aulas · 34h de conteúdo</span>
+        <span class="mods-count" id="mods-count">{{ total_modules }} módulo{{ total_modules|pluralize:"s" }} · {{ total_lessons }} aula{{ total_lessons|pluralize:"s" }} · {{ total_duration }} de conteúdo</span>
       </div>
 
       <!-- Grid -->
       <div class="mods-grid" id="mods-grid" style="margin-top:24px;">
-
-        <!-- Módulo 01 -->
-        <div class="db-mod-card" data-level="iniciante">
+        {% for item in modules %}
+        <div class="db-mod-card" data-level="{{ item.module.level }}">
           <div class="db-mod-cover">
-            <div class="cover-bg mod-bg-1"></div>
-            <span class="db-mod-num">MÓDULO 01</span>
+            <div class="cover-bg {{ item.color_class }}"></div>
+            <span class="db-mod-num">MÓDULO {{ item.module.order|stringformat:"02d" }}</span>
           </div>
           <div class="db-mod-body">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <h3 class="db-mod-title" style="margin-bottom:0;">Fundamentos da Música</h3>
+              <h3 class="db-mod-title" style="margin-bottom:0;">{{ item.module.title }}</h3>
+              {% if item.completed %}
               <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;padding:3px 10px;border-radius:20px;background:rgba(76,175,138,.12);color:var(--success);border:1px solid rgba(76,175,138,.2);flex-shrink:0;margin-left:10px;">COMPLETO</span>
+              {% endif %}
             </div>
-            <p class="db-mod-desc">Notas, escalas, claves e leitura básica de partitura.</p>
+            <p class="db-mod-desc">{{ item.module.description }}</p>
             <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> 12 aulas</span>
-              <span class="db-meta-chip"><span>⏱</span> 3h 40min</span>
-              <span class="db-meta-chip"><span>📶</span> Iniciante</span>
+              <span class="db-meta-chip"><span>🎬</span> {{ item.module.total_lessons }} aula{{ item.module.total_lessons|pluralize:"s" }}</span>
+              <span class="db-meta-chip"><span>⏱</span> {{ item.duration_display }}</span>
+              <span class="db-meta-chip"><span>📶</span> {{ item.module.get_level_display }}</span>
             </div>
             <div class="db-mod-progress-wrap">
-              <div class="db-progress-label"><span>Progresso</span><span>100%</span></div>
-              <div class="pbar"><div class="pbar-fill" data-width="100%" style="background:var(--success);width:0"></div></div>
+              <div class="db-progress-label"><span>Progresso</span><span>{{ item.percentage }}%</span></div>
+              <div class="pbar"><div class="pbar-fill" data-width="{{ item.percentage }}%" style="{% if item.completed %}background:var(--success);{% endif %}width:0"></div></div>
             </div>
-            <a href="#" class="db-mod-btn">Revisar módulo</a>
+            <a href="{% url 'courses:module_detail' item.module.pk %}" class="db-mod-btn">{{ item.btn_text }}</a>
           </div>
         </div>
-
-        <!-- Módulo 02 -->
-        <div class="db-mod-card" data-level="basico">
-          <div class="db-mod-cover">
-            <div class="cover-bg mod-bg-2"></div>
-            <span class="db-mod-num">MÓDULO 02</span>
-          </div>
-          <div class="db-mod-body">
-            <h3 class="db-mod-title">Teoria Musical</h3>
-            <p class="db-mod-desc">Intervalos, modos, círculo das quintas e ditado melódico.</p>
-            <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> 18 aulas</span>
-              <span class="db-meta-chip"><span>⏱</span> 5h 20min</span>
-              <span class="db-meta-chip"><span>📶</span> Básico</span>
-            </div>
-            <div class="db-mod-progress-wrap">
-              <div class="db-progress-label"><span>Progresso</span><span>78%</span></div>
-              <div class="pbar"><div class="pbar-fill" data-width="78%" style="width:0"></div></div>
-            </div>
-            <a href="#" class="db-mod-btn">Continuar</a>
-          </div>
+        {% empty %}
+        <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-secondary);">
+          Nenhum módulo disponível ainda.
         </div>
-
-        <!-- Módulo 03 -->
-        <div class="db-mod-card" data-level="intermediario">
-          <div class="db-mod-cover">
-            <div class="cover-bg mod-bg-3"></div>
-            <span class="db-mod-num">MÓDULO 03</span>
-          </div>
-          <div class="db-mod-body">
-            <h3 class="db-mod-title">Harmonia &amp; Contraponto</h3>
-            <p class="db-mod-desc">Progressões, funções harmônicas, vozeamento e contraponto.</p>
-            <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> 22 aulas</span>
-              <span class="db-meta-chip"><span>⏱</span> 7h 10min</span>
-              <span class="db-meta-chip"><span>📶</span> Intermediário</span>
-            </div>
-            <div class="db-mod-progress-wrap">
-              <div class="db-progress-label"><span>Progresso</span><span>62%</span></div>
-              <div class="pbar"><div class="pbar-fill" data-width="62%" style="width:0"></div></div>
-            </div>
-            <a href="#" class="db-mod-btn">Continuar</a>
-          </div>
-        </div>
-
-        <!-- Módulo 04 -->
-        <div class="db-mod-card" data-level="intermediario">
-          <div class="db-mod-cover">
-            <div class="cover-bg mod-bg-4"></div>
-            <span class="db-mod-num">MÓDULO 04</span>
-          </div>
-          <div class="db-mod-body">
-            <h3 class="db-mod-title">Ritmo &amp; Percussão</h3>
-            <p class="db-mod-desc">Subdivisões, polirritmia, grooves e leitura rítmica avançada.</p>
-            <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> 14 aulas</span>
-              <span class="db-meta-chip"><span>⏱</span> 4h 30min</span>
-              <span class="db-meta-chip"><span>📶</span> Intermediário</span>
-            </div>
-            <div class="db-mod-progress-wrap">
-              <div class="db-progress-label"><span>Progresso</span><span>20%</span></div>
-              <div class="pbar"><div class="pbar-fill" data-width="20%" style="width:0"></div></div>
-            </div>
-            <a href="#" class="db-mod-btn">Continuar</a>
-          </div>
-        </div>
-
-        <!-- Módulo 05 -->
-        <div class="db-mod-card" data-level="avancado">
-          <div class="db-mod-cover">
-            <div class="cover-bg mod-bg-5"></div>
-            <span class="db-mod-num">MÓDULO 05</span>
-          </div>
-          <div class="db-mod-body">
-            <h3 class="db-mod-title">Improvisação</h3>
-            <p class="db-mod-desc">Escalas modais, linguagem bebop, vocabulário e licks clássicos.</p>
-            <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> 16 aulas</span>
-              <span class="db-meta-chip"><span>⏱</span> 5h 50min</span>
-              <span class="db-meta-chip"><span>📶</span> Avançado</span>
-            </div>
-            <div class="db-mod-progress-wrap">
-              <div class="db-progress-label"><span>Progresso</span><span>0%</span></div>
-              <div class="pbar"><div class="pbar-fill" data-width="0%" style="width:0"></div></div>
-            </div>
-            <a href="#" class="db-mod-btn">Começar módulo</a>
-          </div>
-        </div>
-
-        <!-- Módulo 06 -->
-        <div class="db-mod-card" data-level="avancado">
-          <div class="db-mod-cover">
-            <div class="cover-bg mod-bg-6"></div>
-            <span class="db-mod-num">MÓDULO 06</span>
-          </div>
-          <div class="db-mod-body">
-            <h3 class="db-mod-title">Produção Musical</h3>
-            <p class="db-mod-desc">DAW, mixagem, masterização e publicação de faixas originais.</p>
-            <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> 20 aulas</span>
-              <span class="db-meta-chip"><span>⏱</span> 8h 00min</span>
-              <span class="db-meta-chip"><span>📶</span> Avançado</span>
-            </div>
-            <div class="db-mod-progress-wrap">
-              <div class="db-progress-label"><span>Progresso</span><span>0%</span></div>
-              <div class="pbar"><div class="pbar-fill" data-width="0%" style="width:0"></div></div>
-            </div>
-            <a href="#" class="db-mod-btn">Começar módulo</a>
-          </div>
-        </div>
-
+        {% endfor %}
       </div><!-- /mods-grid -->
     </div><!-- /db-content -->
   </main>

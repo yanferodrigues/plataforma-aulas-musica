@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPasswordToggles();
   initFormValidation();
   initFormSubmit();
+  initAlerts();
 });
 
 /* ─── FORM ENTRANCE ANIMATION ───────────────────────────── */
@@ -130,6 +131,25 @@ function submitLoading(btn) {
   if (text) text.textContent = 'Carregando…';
   if (icon) icon.textContent = '⏳';
   btn.style.opacity = '0.75';
+}
+
+/* ─── ALERT DISMISS ─────────────────────────────────────── */
+function initAlerts() {
+  document.querySelectorAll('.auth-alert-close').forEach(btn => {
+    btn.addEventListener('click', () => dismissAlert(btn.closest('.auth-alert')));
+  });
+
+  document.querySelectorAll('.auth-alert').forEach(alert => {
+    setTimeout(() => dismissAlert(alert), 6000);
+  });
+}
+
+function dismissAlert(alert) {
+  if (!alert) return;
+  alert.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+  alert.style.opacity = '0';
+  alert.style.transform = 'translateY(-6px)';
+  setTimeout(() => alert.remove(), 360);
 }
 
 function shakeForm(form) {

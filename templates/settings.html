@@ -38,6 +38,13 @@
         <span class="db-nav-icon">🏆</span> Conquistas
       </a>
 
+      {% if request.user.is_superuser %}
+      <p class="db-nav-section-label">Admin</p>
+      <a href="{% url 'core:studio' %}" class="db-nav-link">
+        <span class="db-nav-icon">🎛️</span> Studio
+      </a>
+      {% endif %}
+
       <p class="db-nav-section-label">Conta</p>
       <a href="{% url 'accounts:profile' %}" class="db-nav-link">
         <span class="db-nav-icon">👤</span> Perfil

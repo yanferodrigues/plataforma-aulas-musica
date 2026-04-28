@@ -38,6 +38,13 @@
         <span class="db-nav-icon">🏆</span> Conquistas
       </a>
 
+      {% if request.user.is_superuser %}
+      <p class="db-nav-section-label">Admin</p>
+      <a href="{% url 'core:studio' %}" class="db-nav-link">
+        <span class="db-nav-icon">🎛️</span> Studio
+      </a>
+      {% endif %}
+
       <p class="db-nav-section-label">Conta</p>
       <a href="{% url 'accounts:profile' %}" class="db-nav-link">
         <span class="db-nav-icon">👤</span> Perfil
@@ -78,108 +85,55 @@
       <!-- Summary banner -->
       <div class="achv-summary">
         <div>
-          <div class="achv-summary-num">4<span>/12</span></div>
+          <div class="achv-summary-num">{{ unlocked_count }}<span>/{{ total }}</span></div>
           <p class="achv-summary-label">conquistas desbloqueadas</p>
         </div>
         <div class="achv-summary-bar-wrap">
           <div class="achv-summary-bar-label">
             <span>Progresso total</span>
-            <span>33%</span>
+            <span>{{ pct }}%</span>
           </div>
           <div class="pbar" style="height:8px;border-radius:4px;">
-            <div class="pbar-fill" data-width="33%" style="width:0;height:8px;border-radius:4px;"></div>
+            <div class="pbar-fill" data-width="{{ pct }}%" style="width:0;height:8px;border-radius:4px;"></div>
           </div>
           <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">Continue estudando para desbloquear mais conquistas.</p>
         </div>
       </div>
 
       <!-- Unlocked -->
+      {% if unlocked %}
       <p class="achv-section-title">Desbloqueadas ✨</p>
       <div class="achv-grid">
-
+        {% for a in unlocked %}
         <div class="achv-card unlocked">
           <span class="achv-unlocked-tag">OBTIDA</span>
-          <div class="achv-icon unlocked-icon">🎵</div>
-          <p class="achv-title">Primeiros Passos</p>
-          <p class="achv-desc">Concluiu sua primeira aula na plataforma.</p>
+          <div class="achv-icon unlocked-icon">{{ a.icon }}</div>
+          <p class="achv-title">{{ a.title }}</p>
+          <p class="achv-desc">{{ a.description }}</p>
         </div>
-
-        <div class="achv-card unlocked">
-          <span class="achv-unlocked-tag">OBTIDA</span>
-          <div class="achv-icon unlocked-icon">📚</div>
-          <p class="achv-title">Módulo Completo</p>
-          <p class="achv-desc">Finalizou todos os módulo de Fundamentos da Música.</p>
-        </div>
-
-        <div class="achv-card unlocked">
-          <span class="achv-unlocked-tag">OBTIDA</span>
-          <div class="achv-icon unlocked-icon">🔍</div>
-          <p class="achv-title">Curioso Musical</p>
-          <p class="achv-desc">Acessou os 3 primeiros módulos da plataforma.</p>
-        </div>
-
-        <div class="achv-card unlocked">
-          <span class="achv-unlocked-tag">OBTIDA</span>
-          <div class="achv-icon unlocked-icon">🔥</div>
-          <p class="achv-title">Semana Completa</p>
-          <p class="achv-desc">Estudou 7 dias consecutivos sem parar.</p>
-        </div>
-
+        {% endfor %}
       </div>
+      {% endif %}
 
       <!-- Locked -->
+      {% if locked %}
       <p class="achv-section-title">Bloqueadas 🔒</p>
       <div class="achv-grid">
-
+        {% for a in locked %}
         <div class="achv-card locked">
-          <div class="achv-icon locked-icon">🎸</div>
-          <p class="achv-title">Mestre da Harmonia</p>
-          <p class="achv-desc">Conclua o módulo de Harmonia &amp; Contraponto.</p>
+          <div class="achv-icon locked-icon">{{ a.icon }}</div>
+          <p class="achv-title">{{ a.title }}</p>
+          <p class="achv-desc">{{ a.description }}</p>
         </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">🎷</div>
-          <p class="achv-title">Improvisador</p>
-          <p class="achv-desc">Complete o módulo de Improvisação.</p>
-        </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">💯</div>
-          <p class="achv-title">100 Aulas</p>
-          <p class="achv-desc">Assista a 100 aulas no total.</p>
-        </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">🌙</div>
-          <p class="achv-title">Madrugador</p>
-          <p class="achv-desc">Acesse a plataforma antes das 6h da manhã.</p>
-        </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">🎹</div>
-          <p class="achv-title">Polirrítmico</p>
-          <p class="achv-desc">Finalize o módulo de Ritmo &amp; Percussão.</p>
-        </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">🎚️</div>
-          <p class="achv-title">Produtor</p>
-          <p class="achv-desc">Complete o módulo de Produção Musical.</p>
-        </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">⭐</div>
-          <p class="achv-title">Aluno Dedicado</p>
-          <p class="achv-desc">Acumule 30 dias consecutivos de estudo.</p>
-        </div>
-
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">🏅</div>
-          <p class="achv-title">Curso Completo</p>
-          <p class="achv-desc">Finalize todos os 6 módulos da plataforma.</p>
-        </div>
-
+        {% endfor %}
       </div>
+      {% endif %}
+
+      {% if not unlocked and not locked %}
+      <div style="text-align:center;padding:80px;color:var(--text-secondary);">
+        Nenhuma conquista cadastrada ainda.
+      </div>
+      {% endif %}
 
     </div><!-- /db-content -->
   </main>
