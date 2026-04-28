@@ -41,6 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'core',
+    'accounts',
+    'courses',
+    'progress',
+    'achievements',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +64,7 @@ ROOT_URLCONF = 'setup.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,3 +137,7 @@ MEDIA_URL = "/media/"
 LANGUAGE_CODE = "pt-br"
 
 USE_L10N = True
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/courses/dashboard/'
+LOGOUT_REDIRECT_URL = '/'

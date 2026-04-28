@@ -1,4 +1,4 @@
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../setup/static/style/styles.css" />
+  <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
 </head>
 <body>
 
@@ -18,8 +18,8 @@
     <!-- ═══════════ SIDEBAR ═══════════════════════════ -->
     <aside class="db-sidebar" id="sidebar">
       <div class="db-sidebar-logo">
-        <a href="index.html">
-          <img src="../setup/static/assets/logo-musilab.png" alt="MUSILAB" class="sidebar-logo-img" />
+        <a href="{% url 'core:index' %}">
+          <img src="{% static 'assets/logo-musilab.png' %}" alt="MUSILAB" class="sidebar-logo-img" />
           <span>MUSI<em>LAB</em></span>
         </a>
       </div>
@@ -27,37 +27,37 @@
       <nav class="db-nav">
         <p class="db-nav-section-label">Principal</p>
 
-        <a href="dashboard.html" class="db-nav-link active">
+        <a href="{% url 'courses:dashboard' %}" class="db-nav-link active">
           <span class="db-nav-icon">🏠</span> Início
         </a>
-        <a href="modules.html" class="db-nav-link">
+        <a href="{% url 'courses:module_list' %}" class="db-nav-link">
           <span class="db-nav-icon">🎵</span> Módulos
         </a>
-        <a href="progress.html" class="db-nav-link">
+        <a href="{% url 'progress:progress' %}" class="db-nav-link">
           <span class="db-nav-icon">📈</span> Meu Progresso
         </a>
-        <a href="achievements.html" class="db-nav-link">
+        <a href="{% url 'achievements:achievements' %}" class="db-nav-link">
           <span class="db-nav-icon">🏆</span> Conquistas
         </a>
 
         <p class="db-nav-section-label">Conta</p>
 
-        <a href="profile.html" class="db-nav-link">
+        <a href="{% url 'accounts:profile' %}" class="db-nav-link">
           <span class="db-nav-icon">👤</span> Perfil
         </a>
-        <a href="settings.html" class="db-nav-link">
+        <a href="{% url 'accounts:settings' %}" class="db-nav-link">
           <span class="db-nav-icon">⚙️</span> Configurações
         </a>
-        <a href="login.html" class="db-nav-link">
+        <a href="{% url 'accounts:logout' %}" class="db-nav-link">
           <span class="db-nav-icon">🚪</span> Sair
         </a>
       </nav>
 
       <div class="db-sidebar-foot">
         <div class="db-user-card">
-          <div class="db-avatar">Y</div>
+          <div class="db-avatar">{{ request.user.first_name|first|upper }}</div>
           <div>
-            <p class="db-user-name">Yan Vieira</p>
+            <p class="db-user-name">{{ request.user.get_full_name }}</p>
             <p class="db-user-plan">Plano Pro</p>
           </div>
         </div>
@@ -88,7 +88,7 @@
         <!-- Greeting -->
         <div style="margin-bottom:32px;">
           <h2 style="font-family:var(--font-display);font-size:clamp(22px,3vw,34px);font-weight:600;color:var(--text-primary);margin-bottom:6px;">
-            Olá, Yan 👋
+            Olá, {{ request.user.first_name }} 👋
           </h2>
           <p style="color:var(--text-secondary);font-size:15px;">
             Continue de onde parou. Você está indo muito bem!
@@ -107,13 +107,13 @@
               <span class="pbar-label">62% concluído</span>
             </div>
           </div>
-          <a href="lesson.html" class="btn btn-primary" style="flex-shrink:0;">Retomar →</a>
+          <a href="#" class="btn btn-primary" style="flex-shrink:0;">Retomar →</a>
         </div>
 
         <!-- Modules grid -->
         <div class="mods-section-head">
           <h2>Todos os Módulos</h2>
-          <a href="#" class="see-all">Ver todos →</a>
+          <a href="{% url 'courses:module_list' %}" class="see-all">Ver todos →</a>
         </div>
 
         <div class="mods-grid" id="mods-grid">
@@ -135,7 +135,7 @@
                 <div class="db-progress-label"><span>Progresso</span><span>100%</span></div>
                 <div class="pbar"><div class="pbar-fill" data-width="100%" style="background:var(--success);width:0"></div></div>
               </div>
-              <a href="lesson.html" class="db-mod-btn">Revisar módulo</a>
+              <a href="#" class="db-mod-btn">Revisar módulo</a>
             </div>
           </div>
 
@@ -156,7 +156,7 @@
                 <div class="db-progress-label"><span>Progresso</span><span>78%</span></div>
                 <div class="pbar"><div class="pbar-fill" data-width="78%" style="width:0"></div></div>
               </div>
-              <a href="lesson.html" class="db-mod-btn">Continuar</a>
+              <a href="#" class="db-mod-btn">Continuar</a>
             </div>
           </div>
 
@@ -177,7 +177,7 @@
                 <div class="db-progress-label"><span>Progresso</span><span>62%</span></div>
                 <div class="pbar"><div class="pbar-fill" data-width="62%" style="width:0"></div></div>
               </div>
-              <a href="lesson.html" class="db-mod-btn">Continuar</a>
+              <a href="#" class="db-mod-btn">Continuar</a>
             </div>
           </div>
 
@@ -198,7 +198,7 @@
                 <div class="db-progress-label"><span>Progresso</span><span>20%</span></div>
                 <div class="pbar"><div class="pbar-fill" data-width="20%" style="width:0"></div></div>
               </div>
-              <a href="lesson.html" class="db-mod-btn">Continuar</a>
+              <a href="#" class="db-mod-btn">Continuar</a>
             </div>
           </div>
 
@@ -219,7 +219,7 @@
                 <div class="db-progress-label"><span>Progresso</span><span>0%</span></div>
                 <div class="pbar"><div class="pbar-fill" data-width="0%" style="width:0"></div></div>
               </div>
-              <a href="lesson.html" class="db-mod-btn">Começar módulo</a>
+              <a href="#" class="db-mod-btn">Começar módulo</a>
             </div>
           </div>
 
@@ -240,7 +240,7 @@
                 <div class="db-progress-label"><span>Progresso</span><span>0%</span></div>
                 <div class="pbar"><div class="pbar-fill" data-width="0%" style="width:0"></div></div>
               </div>
-              <a href="lesson.html" class="db-mod-btn">Começar módulo</a>
+              <a href="#" class="db-mod-btn">Começar módulo</a>
             </div>
           </div>
 
@@ -251,6 +251,6 @@
   </div><!-- /db-layout -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="../setup/static/assets/dashboard.js"></script>
+  <script src="{% static 'assets/dashboard.js' %}"></script>
 </body>
 </html>

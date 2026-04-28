@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../setup/static/style/styles.css" />
+  <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
 </head>
 <body>
 
@@ -20,16 +21,16 @@
       <!-- Top bar -->
       <nav class="lesson-topbar">
         <div class="breadcrumb">
-          <a href="dashboard.html" class="bc-home">🏠</a>
+          <a href="{% url 'courses:dashboard' %}" class="bc-home">🏠</a>
           <span class="bc-sep">/</span>
-          <a href="dashboard.html" class="bc-mod">Harmonia &amp; Contraponto</a>
+          <a href="{% url 'courses:dashboard' %}" class="bc-mod">Harmonia &amp; Contraponto</a>
           <span class="bc-sep">/</span>
           <span class="bc-cur">Aula 8</span>
         </div>
 
         <div class="lesson-nav-btns">
           <a href="#" class="ln-btn">← Anterior</a>
-          <a href="lesson.html" class="ln-btn primary">Próxima →</a>
+          <a href="#" class="ln-btn primary">Próxima →</a>
         </div>
       </nav>
 
@@ -42,8 +43,6 @@
             <button class="play-btn" id="play-btn" aria-label="Reproduzir vídeo">▶</button>
             <p class="video-label">Aula 8 · Progressões de Acordes Secundários</p>
           </div>
-          <!-- <video src="..." controls></video> -->
-          <!-- <iframe src="https://player.vimeo.com/..." allowfullscreen></iframe> -->
         </div>
 
         <!-- Lesson info -->
@@ -282,7 +281,7 @@
             <span class="ls-item-dur">19 min</span>
           </div>
         </a>
-        <a href="lesson.html" class="ls-item active">
+        <a href="#" class="ls-item active">
           <div class="ls-num">8</div>
           <div class="ls-item-info">
             <p class="ls-item-title">Progressões de Acordes Secundários</p>
@@ -323,6 +322,6 @@
   </div><!-- /lesson-layout -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="../setup/static/assets/lesson.js"></script>
+  <script src="{% static 'assets/lesson.js' %}"></script>
 </body>
 </html>

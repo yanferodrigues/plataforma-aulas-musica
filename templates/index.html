@@ -1,4 +1,4 @@
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,8 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- CSS — {% static 'style/styles.css' %} in Django -->
-  <link rel="stylesheet" href="../setup/static/style/styles.css" />
+  <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
 </head>
 <body>
 
@@ -32,21 +31,21 @@
         <span class="pl-note">♬</span>
       </div>
     </div>
-    <img src="../setup/static/assets/logo-musilab.png" alt="MUSILAB" class="pl-logo-img" />
+    <img src="{% static 'assets/logo-musilab.png' %}" alt="MUSILAB" class="pl-logo-img" />
     <span class="pl-brand">MUSI<em>LAB</em></span>
   </div>
 
   <!-- NAVIGATION -->
   <nav class="nav">
-    <a href="index.html" class="nav-logo">
-      <img src="../setup/static/assets/logo-musilab.png" alt="MUSILAB" class="nav-logo-img" />
+    <a href="{% url 'core:index' %}" class="nav-logo">
+      <img src="{% static 'assets/logo-musilab.png' %}" alt="MUSILAB" class="nav-logo-img" />
       <span>MUSI<em>LAB</em></span>
     </a>
     <ul class="nav-links">
       <li><a href="#features">Diferenciais</a></li>
       <li><a href="#modules">Módulos</a></li>
       <li><a href="#testimonials">Depoimentos</a></li>
-      <li><a href="login.html" class="nav-cta btn btn-primary" style="padding:10px 22px;font-size:13px;">Entrar</a></li>
+      <li><a href="{% url 'accounts:login' %}" class="nav-cta btn btn-primary" style="padding:10px 22px;font-size:13px;">Entrar</a></li>
     </ul>
   </nav>
 
@@ -74,7 +73,7 @@
       </p>
 
       <div class="hero-ctas">
-        <a href="register.html" class="btn btn-primary btn-lg">Começar agora</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Começar agora</a>
         <a href="#modules" class="btn btn-secondary btn-lg">Ver módulos</a>
       </div>
     </div>
@@ -158,7 +157,7 @@
           <span class="tag">Conteúdo</span>
           <h2 class="section-h2" style="margin-bottom:0;">Nossos Módulos</h2>
         </div>
-        <a href="dashboard.html" class="see-all">Ver todos →</a>
+        <a href="{% url 'courses:dashboard' %}" class="see-all">Ver todos →</a>
       </div>
     </div>
 
@@ -330,8 +329,8 @@
           estrutura, clareza e orientação profissional.
         </p>
         <div class="cta-btns">
-          <a href="register.html" class="btn btn-primary btn-lg">Criar conta gratuita</a>
-          <a href="login.html"    class="btn btn-secondary btn-lg">Já tenho uma conta</a>
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Criar conta gratuita</a>
+          <a href="{% url 'accounts:login' %}"    class="btn btn-secondary btn-lg">Já tenho uma conta</a>
         </div>
       </div>
     </div>
@@ -342,8 +341,8 @@
     <div class="container">
       <div class="footer-grid">
         <div>
-          <a href="index.html" class="footer-logo">
-            <img src="../setup/static/assets/logo-musilab.png" alt="MUSILAB" class="footer-logo-img" />
+          <a href="{% url 'core:index' %}" class="footer-logo">
+            <img src="{% static 'assets/logo-musilab.png' %}" alt="MUSILAB" class="footer-logo-img" />
             <span>MUSI<em>LAB</em></span>
           </a>
           <p class="footer-tagline">
@@ -361,8 +360,8 @@
           <p class="footer-col-title">Plataforma</p>
           <ul class="footer-col-links">
             <li><a href="#modules">Módulos</a></li>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="#">Progresso</a></li>
+            <li><a href="{% url 'courses:dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'progress:progress' %}">Progresso</a></li>
             <li><a href="#">Certificados</a></li>
           </ul>
         </div>
@@ -395,10 +394,8 @@
   </footer>
 
   <!-- SCRIPTS -->
-  <!-- GSAP + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <!-- App — {% static 'assets/main.js' %} in Django -->
-  <script src="../setup/static/assets/main.js"></script>
+  <script src="{% static 'assets/main.js' %}"></script>
 </body>
 </html>

@@ -98,18 +98,16 @@ function initFormSubmit() {
 
   if (loginForm) {
     loginForm.addEventListener('submit', e => {
-      e.preventDefault();
       const inputs = loginForm.querySelectorAll('.form-input');
       let allValid = true;
       inputs.forEach(inp => { validateInput(inp); if (inp.classList.contains('invalid')) allValid = false; });
-      if (!allValid) return shakeForm(loginForm);
-      submitFlow(loginForm.querySelector('.form-submit'), 'dashboard.html');
+      if (!allValid) { e.preventDefault(); return shakeForm(loginForm); }
+      submitLoading(loginForm.querySelector('.form-submit'));
     });
   }
 
   if (registerForm) {
     registerForm.addEventListener('submit', e => {
-      e.preventDefault();
       const inputs = registerForm.querySelectorAll('.form-input');
       let allValid = true;
       inputs.forEach(inp => { validateInput(inp); if (inp.classList.contains('invalid') || inp.value.trim() === '') allValid = false; });
@@ -119,24 +117,19 @@ function initFormSubmit() {
         terms.style.outline = '2px solid var(--error)';
         setTimeout(() => { terms.style.outline = ''; }, 2500);
       }
-      if (!allValid) return shakeForm(registerForm);
-      submitFlow(registerForm.querySelector('.form-submit'), 'dashboard.html');
+      if (!allValid) { e.preventDefault(); return shakeForm(registerForm); }
+      submitLoading(registerForm.querySelector('.form-submit'));
     });
   }
 }
 
-function submitFlow(btn, redirect) {
+function submitLoading(btn) {
   if (!btn) return;
   const text = btn.querySelector('.submit-text');
   const icon = btn.querySelector('.submit-icon');
   if (text) text.textContent = 'Carregando…';
   if (icon) icon.textContent = '⏳';
-  btn.disabled = true;
   btn.style.opacity = '0.75';
-
-  setTimeout(() => {
-    window.location.href = redirect;
-  }, 1200);
 }
 
 function shakeForm(form) {
