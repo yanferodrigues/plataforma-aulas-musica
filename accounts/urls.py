@@ -10,4 +10,8 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('settings/', views.settings_view, name='settings'),
     path('password/reset/', views.password_reset, name='password_reset'),
+
+    # OAuth
+    path('google/login/', views.google_login, name='google_login'),
+    path('google/callback/', views.google_callback, name='google_callback'),
 ]

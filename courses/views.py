@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from courses.models import Module, Lesson, Question
+from courses.models import Module, Lesson, Question, Answer
 from progress.models import LessonProgress, ModuleProgress
 
 
@@ -14,15 +14,21 @@ def _fmt_duration(minutes):
     return f'{m}min'
 
 
-def _embed_url(url):
+def _youtube_id(url):
     if not url:
         return None
     if 'youtube.com/watch?v=' in url:
-        vid = url.split('v=')[1].split('&')[0]
-        return f'https://www.youtube.com/embed/{vid}?rel=0'
+        return url.split('v=')[1].split('&')[0]
     if 'youtu.be/' in url:
-        vid = url.split('youtu.be/')[1].split('?')[0]
-        return f'https://www.youtube.com/embed/{vid}?rel=0'
+        return url.split('youtu.be/')[1].split('?')[0]
+    return None
+
+
+def _embed_url(url):
+    if not url:
+        return None
+    if _youtube_id(url):
+        return None  # YouTube is handled via IFrame API using youtube_id
     return url
 
 
@@ -175,6 +181,43 @@ def lesson_detail(request, module_pk, pk):
         'materials': lesson.materials.all(),
         'exercises': lesson.exercises.all(),
         'questions': lesson.questions.select_related('user').prefetch_related('answers__user').all(),
+        'video_file_url': lesson.video_file.url if lesson.video_file else None,
         'embed_url': _embed_url(lesson.video_url),
+        'youtube_id': _youtube_id(lesson.video_url),
+        'video_url': lesson.video_url,
     }
     return render(request, 'lesson.html', context)
+
+
+@login_required(login_url='accounts:login')
+def lesson_qa(request, module_pk, pk):
+    module = get_object_or_404(Module, pk=module_pk, is_active=True)
+    lesson = get_object_or_404(Lesson, pk=pk, module=module, is_active=True)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'question':
+            text = request.POST.get('question_text', '').strip()
+            if text:
+                Question.objects.create(lesson=lesson, user=request.user, text=text)
+        elif action == 'answer':
+            qid = request.POST.get('question_id')
+            text = request.POST.get('answer_text', '').strip()
+            if qid and text:
+                q = get_object_or_404(Question, pk=qid, lesson=lesson)
+                Answer.objects.create(
+                    question=q,
+                    user=request.user,
+                    text=text,
+                    is_professor_answer=request.user.is_superuser,
+                )
+        return redirect('courses:lesson_qa', module_pk=module_pk, pk=pk)
+
+    questions = lesson.questions.select_related('user').prefetch_related('answers__user').order_by('-created_at')
+    context = {
+        'module': module,
+        'lesson': lesson,
+        'questions': questions,
+        'total_questions': questions.count(),
+    }
+    return render(request, 'qa.html', context)

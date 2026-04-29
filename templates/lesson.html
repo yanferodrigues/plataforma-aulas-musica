@@ -46,20 +46,94 @@
       <div class="lesson-body">
 
         <!-- Video player -->
-        <div class="video-wrap">
-          {% if embed_url %}
+        <div class="video-wrap{% if video_file_url %} vp-paused{% endif %}" id="player-wrap">
+
+          {% if video_file_url %}
+            <!-- ── Player HTML5 próprio ── -->
+            <video id="vid" preload="metadata" playsinline>
+              <source src="{{ video_file_url }}" />
+              Seu navegador não suporta reprodução de vídeo.
+            </video>
+
+            <div class="vp-loading" id="vp-loading"><div class="vp-spinner"></div></div>
+
+            <div class="vp-play-overlay">
+              <button class="vp-big-play" id="vp-big-play" aria-label="Reproduzir">▶</button>
+            </div>
+
+            <div class="vp-controls" id="vp-controls">
+              <div class="vp-progress-wrap" id="vp-progress-wrap">
+                <div class="vp-progress-bg">
+                  <div class="vp-buffered" id="vp-buffered"></div>
+                  <div class="vp-played" id="vp-played"></div>
+                  <div class="vp-thumb" id="vp-thumb"></div>
+                </div>
+              </div>
+              <div class="vp-bar">
+                <div class="vp-left">
+                  <button class="vp-btn" id="vp-play-btn" aria-label="Play/Pause">▶</button>
+                  <span class="vp-time" id="vp-time">0:00 / 0:00</span>
+                </div>
+                <div class="vp-right">
+                  <!-- Velocidade -->
+                  <div class="vp-menu-wrap">
+                    <button class="vp-btn vp-menu-btn" id="vp-speed-btn" aria-label="Velocidade">1×</button>
+                    <div class="vp-menu" id="vp-speed-menu">
+                      <p class="vp-menu-label">Velocidade</p>
+                      <button class="vp-menu-item" data-speed="0.25">0.25×</button>
+                      <button class="vp-menu-item" data-speed="0.5">0.5×</button>
+                      <button class="vp-menu-item" data-speed="0.75">0.75×</button>
+                      <button class="vp-menu-item active" data-speed="1">Normal</button>
+                      <button class="vp-menu-item" data-speed="1.25">1.25×</button>
+                      <button class="vp-menu-item" data-speed="1.5">1.5×</button>
+                      <button class="vp-menu-item" data-speed="2">2×</button>
+                    </div>
+                  </div>
+                  <!-- Qualidade -->
+                  <div class="vp-menu-wrap">
+                    <button class="vp-btn vp-menu-btn" id="vp-qual-btn" aria-label="Qualidade">Auto</button>
+                    <div class="vp-menu" id="vp-qual-menu">
+                      <p class="vp-menu-label">Qualidade</p>
+                      <button class="vp-menu-item active" id="vp-qual-item">Auto</button>
+                    </div>
+                  </div>
+                  <!-- Volume -->
+                  <button class="vp-btn" id="vp-vol-btn" aria-label="Mudo">🔊</button>
+                  <input type="range" id="vp-vol" class="vp-vol-slider" min="0" max="1" step="0.05" value="1" />
+                  <!-- Fullscreen -->
+                  <button class="vp-btn" id="vp-fs-btn" aria-label="Tela cheia">⛶</button>
+                </div>
+              </div>
+            </div>
+
+          {% elif youtube_id %}
+            <!-- ── YouTube IFrame API (div → player criado pela API) ── -->
+            <div id="yt-player" style="position:absolute;inset:0;"></div>
+            <div id="yt-error" style="display:none;position:absolute;inset:0;background:rgba(15,12,22,.97);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center;z-index:5;">
+              <p style="font-size:44px;">🎬</p>
+              <p style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text-primary);">Reprodução bloqueada</p>
+              <p style="font-size:14px;color:var(--text-secondary);max-width:340px;line-height:1.7;">O proprietário do vídeo desativou a reprodução incorporada.</p>
+              <a href="{{ video_url }}" target="_blank" rel="noopener noreferrer"
+                 class="btn btn-primary" style="padding:12px 28px;font-size:14px;margin-top:4px;">
+                Assistir no YouTube →
+              </a>
+            </div>
+
+          {% elif embed_url %}
+            <!-- ── Embed genérico (não-YouTube) ── -->
             <iframe
               src="{{ embed_url }}"
-              style="width:100%;aspect-ratio:16/9;border:none;border-radius:var(--radius-lg);"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen
             ></iframe>
+
           {% else %}
             <div class="video-placeholder">
               <button class="play-btn" id="play-btn" aria-label="Reproduzir vídeo">▶</button>
               <p class="video-label">Aula {{ lesson.order }} · {{ lesson.title }}</p>
             </div>
           {% endif %}
+
         </div>
 
         <!-- Lesson info -->
@@ -138,14 +212,41 @@
             <div class="ex-card">
               <div class="ex-header">
                 <span class="ex-num">Exercício {{ ex.number|stringformat:"02d" }}</span>
-                <span class="ex-diff diff-{{ ex.difficulty }}">
-                  {% if ex.difficulty == 'easy' %}Fácil
-                  {% elif ex.difficulty == 'medium' %}Médio
-                  {% else %}Difícil{% endif %}
-                </span>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  {% if ex.exercise_type == 'quiz' %}
+                  <span class="ex-diff" style="background:rgba(255,193,7,.12);color:#FFC107;border:1px solid rgba(255,193,7,.25);">Quiz</span>
+                  {% endif %}
+                  <span class="ex-diff diff-{{ ex.difficulty }}">
+                    {% if ex.difficulty == 'easy' %}Fácil
+                    {% elif ex.difficulty == 'medium' %}Médio
+                    {% else %}Difícil{% endif %}
+                  </span>
+                </div>
               </div>
               <h4 class="ex-title">{{ ex.title }}</h4>
               <p class="ex-desc">{{ ex.description }}</p>
+
+              {% if ex.exercise_type == 'quiz' and ex.option_a %}
+              <div class="quiz-options" id="quiz-{{ ex.pk }}">
+                <button class="quiz-opt" data-opt="A" onclick="pickOpt(this, '{{ ex.pk }}', 'A', '{{ ex.correct_option }}')">
+                  <span class="quiz-opt-letter">A</span> {{ ex.option_a }}
+                </button>
+                <button class="quiz-opt" data-opt="B" onclick="pickOpt(this, '{{ ex.pk }}', 'B', '{{ ex.correct_option }}')">
+                  <span class="quiz-opt-letter">B</span> {{ ex.option_b }}
+                </button>
+                {% if ex.option_c %}
+                <button class="quiz-opt" data-opt="C" onclick="pickOpt(this, '{{ ex.pk }}', 'C', '{{ ex.correct_option }}')">
+                  <span class="quiz-opt-letter">C</span> {{ ex.option_c }}
+                </button>
+                {% endif %}
+                {% if ex.option_d %}
+                <button class="quiz-opt" data-opt="D" onclick="pickOpt(this, '{{ ex.pk }}', 'D', '{{ ex.correct_option }}')">
+                  <span class="quiz-opt-letter">D</span> {{ ex.option_d }}
+                </button>
+                {% endif %}
+                <p class="quiz-feedback" id="qfb-{{ ex.pk }}" style="display:none;"></p>
+              </div>
+              {% endif %}
             </div>
             {% endfor %}
           </div>
@@ -156,52 +257,20 @@
 
         <!-- ── TAB: Q&A ───────────────────────────── -->
         <div class="tab-panel" id="tab-qa">
-          <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:28px;margin-bottom:20px;">
-            <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">
-              Faça uma pergunta
-            </h3>
-            <form method="post">
-              {% csrf_token %}
-              <textarea
-                name="question_text"
-                placeholder="Escreva sua dúvida sobre esta aula…"
-                style="width:100%;background:var(--bg-primary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:14px 16px;font-family:var(--font-ui);font-size:14px;color:var(--text-primary);resize:vertical;min-height:100px;outline:none;transition:border-color .3s;box-sizing:border-box;"
-                onfocus="this.style.borderColor='var(--brand)'"
-                onblur="this.style.borderColor='var(--glass-border)'"
-              ></textarea>
-              <div style="display:flex;justify-content:flex-end;margin-top:14px;">
-                <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:14px;">Enviar pergunta</button>
-              </div>
-            </form>
-          </div>
-
-          <div style="display:flex;flex-direction:column;gap:16px;">
-            {% for q in questions %}
-            <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:22px 24px;">
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--hover));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;font-weight:700;flex-shrink:0;color:#fff;">
-                  {{ q.user.first_name|first|upper|default:q.user.username|first|upper }}
-                </div>
-                <div>
-                  <p style="font-size:14px;font-weight:500;color:var(--text-primary);">{{ q.user.get_full_name|default:q.user.username }}</p>
-                  <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">{{ q.created_at|timesince }} atrás</p>
-                </div>
-              </div>
-              <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:{% if q.answers.all %}12px{% else %}0{% endif %};">
-                {{ q.text }}
-              </p>
-              {% for ans in q.answers.all %}
-              <div style="background:rgba(112,56,248,0.06);border-left:2px solid var(--brand);padding:14px 16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-top:10px;">
-                <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--brand);margin-bottom:6px;">
-                  {% if ans.is_professor_answer %}Resposta do Professor{% else %}{{ ans.user.get_full_name|default:ans.user.username }}{% endif %}
-                </p>
-                <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;">{{ ans.text }}</p>
-              </div>
-              {% endfor %}
-            </div>
-            {% empty %}
-            <p style="color:var(--text-secondary);text-align:center;padding:24px 0;">Nenhuma pergunta ainda. Seja o primeiro a perguntar!</p>
-            {% endfor %}
+          <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:40px 32px;text-align:center;">
+            <p style="font-size:44px;margin-bottom:16px;">💬</p>
+            <p style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Comunidade desta aula</p>
+            <p style="font-size:14px;color:var(--text-secondary);max-width:420px;margin:0 auto 28px;line-height:1.7;">
+              Tire dúvidas, veja respostas de professores e interaja com outros alunos sobre o conteúdo desta aula.
+            </p>
+            <a href="{% url 'courses:lesson_qa' module.pk lesson.pk %}" class="btn btn-primary" style="padding:13px 36px;font-size:15px;">
+              Acessar Comunidade →
+            </a>
+            {% if questions %}
+            <p style="font-size:13px;color:var(--text-secondary);margin-top:20px;">
+              {{ questions.count }} pergunta{{ questions.count|pluralize:"s" }} já {{ questions.count|pluralize:"foi,foram" }} feita{{ questions.count|pluralize:"s" }}
+            </p>
+            {% endif %}
           </div>
         </div>
 
@@ -238,5 +307,216 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="{% static 'assets/lesson.js' %}"></script>
+
+  <!-- ── Quiz JS ── -->
+  <script>
+  function pickOpt(btn, quizId, chosen, correct) {
+    var wrap = document.getElementById('quiz-' + quizId);
+    if (!wrap) return;
+    var opts = wrap.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) { o.disabled = true; });
+    var fb = document.getElementById('qfb-' + quizId);
+    if (chosen === correct) {
+      btn.classList.add('correct');
+      fb.textContent = '✓ Correto!';
+      fb.className = 'quiz-feedback ok';
+    } else {
+      btn.classList.add('wrong');
+      opts.forEach(function(o) {
+        if (o.dataset.opt === correct) o.classList.add('revealed');
+      });
+      fb.textContent = '✗ Incorreto — a resposta certa é ' + correct + '.';
+      fb.className = 'quiz-feedback err';
+    }
+    fb.style.display = '';
+  }
+  </script>
+
+  {% if video_file_url %}
+  <!-- ── Player JS ── -->
+  <script>
+  (function () {
+    var vid  = document.getElementById('vid');
+    var wrap = document.getElementById('player-wrap');
+    if (!vid || !wrap) return;
+
+    var bigPlay    = document.getElementById('vp-big-play');
+    var playBtn    = document.getElementById('vp-play-btn');
+    var played     = document.getElementById('vp-played');
+    var buffered   = document.getElementById('vp-buffered');
+    var thumb      = document.getElementById('vp-thumb');
+    var progWrap   = document.getElementById('vp-progress-wrap');
+    var timeDisp   = document.getElementById('vp-time');
+    var volBtn     = document.getElementById('vp-vol-btn');
+    var volSlider  = document.getElementById('vp-vol');
+    var fsBtn      = document.getElementById('vp-fs-btn');
+    var loading    = document.getElementById('vp-loading');
+    var speedBtn   = document.getElementById('vp-speed-btn');
+    var speedMenu  = document.getElementById('vp-speed-menu');
+    var qualBtn    = document.getElementById('vp-qual-btn');
+    var qualMenu   = document.getElementById('vp-qual-menu');
+    var qualItem   = document.getElementById('vp-qual-item');
+
+    function fmt(s) {
+      s = Math.floor(s || 0);
+      var m = Math.floor(s / 60), ss = s % 60;
+      return m + ':' + (ss < 10 ? '0' : '') + ss;
+    }
+
+    function updateBar() {
+      var pct = vid.duration ? vid.currentTime / vid.duration * 100 : 0;
+      played.style.width = pct + '%';
+      thumb.style.left   = pct + '%';
+      timeDisp.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
+      if (vid.buffered.length) {
+        buffered.style.width = (vid.buffered.end(vid.buffered.length - 1) / vid.duration * 100) + '%';
+      }
+    }
+
+    function setPlay(playing) {
+      playBtn.textContent = playing ? '⏸' : '▶';
+      bigPlay.style.display = playing ? 'none' : 'flex';
+      wrap.classList.toggle('vp-paused', !playing);
+    }
+
+    vid.addEventListener('timeupdate',    updateBar);
+    vid.addEventListener('loadedmetadata',updateBar);
+    vid.addEventListener('play',          function () { setPlay(true);  });
+    vid.addEventListener('pause',         function () { setPlay(false); });
+    vid.addEventListener('ended',         function () { setPlay(false); });
+    vid.addEventListener('waiting',       function () { loading.classList.add('active'); });
+    vid.addEventListener('canplay',       function () { loading.classList.remove('active'); });
+
+    function toggle() { vid.paused ? vid.play() : vid.pause(); }
+    playBtn.addEventListener('click', toggle);
+    bigPlay.addEventListener('click', toggle);
+    vid.addEventListener('click', toggle);
+
+    /* ── Seek ── */
+    var seeking = false;
+    function seek(e) {
+      var r = progWrap.getBoundingClientRect();
+      var pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      vid.currentTime = pct * vid.duration;
+    }
+    progWrap.addEventListener('mousedown', function (e) { seeking = true; seek(e); });
+    document.addEventListener('mousemove', function (e) { if (seeking) seek(e); });
+    document.addEventListener('mouseup',   function ()  { seeking = false; });
+
+    /* ── Volume ── */
+    volSlider.addEventListener('input', function () {
+      vid.volume = parseFloat(volSlider.value);
+      vid.muted  = vid.volume === 0;
+      volBtn.textContent = (vid.muted || vid.volume === 0) ? '🔇' : '🔊';
+    });
+    volBtn.addEventListener('click', function () {
+      vid.muted = !vid.muted;
+      volSlider.value = vid.muted ? 0 : vid.volume;
+      volBtn.textContent = vid.muted ? '🔇' : '🔊';
+    });
+
+    /* ── Fullscreen ── */
+    fsBtn.addEventListener('click', function () {
+      if (!document.fullscreenElement) wrap.requestFullscreen();
+      else document.exitFullscreen();
+    });
+    document.addEventListener('fullscreenchange', function () {
+      fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+    });
+
+    /* ── Teclado ── */
+    document.addEventListener('keydown', function (e) {
+      if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+      if (e.code === 'Space')       { e.preventDefault(); toggle(); }
+      if (e.code === 'ArrowRight')  { vid.currentTime = Math.min(vid.duration, vid.currentTime + 10); }
+      if (e.code === 'ArrowLeft')   { vid.currentTime = Math.max(0, vid.currentTime - 10); }
+      if (e.code === 'KeyM')        { volBtn.click(); }
+      if (e.code === 'KeyF')        { fsBtn.click(); }
+    });
+
+    /* ── Velocidade ── */
+    function closeMenus() {
+      speedMenu.classList.remove('open');
+      qualMenu.classList.remove('open');
+    }
+    speedBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opening = !speedMenu.classList.contains('open');
+      closeMenus();
+      if (opening) speedMenu.classList.add('open');
+    });
+    speedMenu.querySelectorAll('.vp-menu-item').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var speed = parseFloat(this.dataset.speed);
+        vid.playbackRate = speed;
+        speedBtn.textContent = speed === 1 ? '1×' : speed + '×';
+        speedMenu.querySelectorAll('.vp-menu-item').forEach(function (i) { i.classList.remove('active'); });
+        this.classList.add('active');
+        closeMenus();
+      });
+    });
+
+    /* ── Qualidade ── */
+    vid.addEventListener('loadedmetadata', function () {
+      var h = vid.videoHeight;
+      var label = h >= 2160 ? '4K' : h >= 1440 ? '1440p' : h >= 1080 ? '1080p' : h >= 720 ? '720p' : h >= 480 ? '480p' : h >= 360 ? '360p' : 'Auto';
+      qualBtn.textContent = label;
+      qualItem.textContent = label;
+    });
+    qualBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opening = !qualMenu.classList.contains('open');
+      closeMenus();
+      if (opening) qualMenu.classList.add('open');
+    });
+    qualMenu.querySelectorAll('.vp-menu-item').forEach(function (item) {
+      item.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); });
+    });
+
+    /* ── Fechar menus ao clicar fora ── */
+    document.addEventListener('click', closeMenus);
+
+    /* ── Auto-hide controls ── */
+    var hideTimer;
+    wrap.addEventListener('mousemove', function () {
+      clearTimeout(hideTimer);
+      document.getElementById('vp-controls').style.opacity = '1';
+      if (!vid.paused) hideTimer = setTimeout(function () {
+        document.getElementById('vp-controls').style.opacity = '0';
+      }, 2800);
+    });
+    wrap.addEventListener('mouseleave', function () {
+      if (!vid.paused) document.getElementById('vp-controls').style.opacity = '0';
+    });
+  })();
+  </script>
+
+  {% elif youtube_id %}
+  <!-- ── YouTube IFrame API ── -->
+  <script>
+    window.onYouTubeIframeAPIReady = function () {
+      new YT.Player('yt-player', {
+        videoId: '{{ youtube_id }}',
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          origin: window.location.origin,
+        },
+        events: {
+          onError: function () {
+            var el = document.getElementById('yt-error');
+            if (el) el.style.display = 'flex';
+          }
+        }
+      });
+    };
+    (function () {
+      var s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    })();
+  </script>
+  {% endif %}
 </body>
 </html>

@@ -20,4 +20,12 @@ urlpatterns = [
     path('studio/conquistas/nova/', views.studio_achievement_save, name='studio_achievement_create'),
     path('studio/conquistas/<int:pk>/editar/', views.studio_achievement_save, name='studio_achievement_edit'),
     path('studio/conquistas/<int:pk>/excluir/', views.studio_achievement_delete, name='studio_achievement_delete'),
+
+    path('studio/materiais/novo/', views.studio_material_save, name='studio_material_create'),
+    path('studio/materiais/<int:pk>/editar/', views.studio_material_save, name='studio_material_edit'),
+    path('studio/materiais/<int:pk>/excluir/', views.studio_material_delete, name='studio_material_delete'),
+
+    path('studio/exercicios/novo/', views.studio_exercise_save, name='studio_exercise_create'),
+    path('studio/exercicios/<int:pk>/editar/', views.studio_exercise_save, name='studio_exercise_edit'),
+    path('studio/exercicios/<int:pk>/excluir/', views.studio_exercise_delete, name='studio_exercise_delete'),
 ]

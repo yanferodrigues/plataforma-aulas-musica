@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comunidade — {{ lesson.title }} — MUSILAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <style>
+    .qa-layout { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .qa-topbar {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 36px;
+      padding-bottom: 24px; border-bottom: 1px solid var(--glass-border);
+    }
+    .qa-back {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--brand); font-weight: 600; font-size: 14px;
+      text-decoration: none; transition: color .2s; flex-shrink: 0;
+    }
+    .qa-back:hover { color: var(--hover); }
+    .qa-lesson-info { flex: 1; min-width: 0; }
+    .qa-lesson-kicker {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--brand); margin-bottom: 4px;
+    }
+    .qa-lesson-title {
+      font-family: var(--font-display); font-size: 20px; font-weight: 700;
+      color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .qa-count {
+      font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* New question form */
+    .qa-new-form {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg); padding: 28px; margin-bottom: 36px;
+    }
+    .qa-new-title {
+      font-family: var(--font-display); font-size: 17px; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 16px;
+    }
+    .qa-textarea {
+      width: 100%; background: var(--bg-primary);
+      border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+      padding: 14px 16px; font-family: var(--font-ui); font-size: 14px;
+      color: var(--text-primary); resize: vertical; min-height: 96px;
+      outline: none; transition: border-color .25s; box-sizing: border-box;
+    }
+    .qa-textarea:focus { border-color: var(--brand); }
+    .qa-submit-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+
+    /* Question cards */
+    .qa-section-title {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .qa-card {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px;
+      transition: border-color .2s;
+    }
+    .qa-card:hover { border-color: rgba(172,139,255,.25); }
+
+    .qa-user-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .qa-avatar {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--brand), var(--hover));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 15px; font-weight: 700; color: #fff;
+    }
+    .qa-avatar.prof {
+      background: linear-gradient(135deg, #e07200, #f8c400);
+    }
+    .qa-username { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .qa-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+    .qa-prof-badge {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+      text-transform: uppercase; background: rgba(255,193,7,.12);
+      color: #FFC107; border: 1px solid rgba(255,193,7,.3);
+      padding: 2px 8px; border-radius: 20px; margin-left: 8px;
+    }
+
+    .qa-text {
+      font-size: 14px; color: var(--text-primary); line-height: 1.75;
+      margin-bottom: 16px;
+    }
+
+    /* Answers thread */
+    .qa-answers { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .qa-answer {
+      background: rgba(112,56,248,.05); border-left: 2px solid var(--brand);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 16px;
+    }
+    .qa-answer.prof-answer {
+      background: rgba(255,193,7,.05); border-left-color: #FFC107;
+    }
+
+    /* Reply toggle */
+    .qa-reply-toggle {
+      background: none; border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm); color: var(--text-secondary);
+      font-family: var(--font-ui); font-size: 13px; padding: 7px 16px;
+      cursor: pointer; transition: all .2s;
+    }
+    .qa-reply-toggle:hover { border-color: var(--brand); color: var(--brand); }
+
+    .qa-reply-form { display: none; margin-top: 14px; }
+    .qa-reply-form.open { display: block; }
+
+    .qa-empty {
+      text-align: center; padding: 60px 24px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg); color: var(--text-secondary);
+    }
+    .qa-empty p:first-child { font-size: 36px; margin-bottom: 12px; }
+  </style>
+</head>
+<body style="background:var(--bg-primary);min-height:100vh;">
+
+<div class="qa-layout">
+
+  <!-- Topbar -->
+  <div class="qa-topbar">
+    <a href="{% url 'courses:lesson_detail' module.pk lesson.pk %}" class="qa-back">← Voltar à aula</a>
+    <div class="qa-lesson-info">
+      <p class="qa-lesson-kicker">{{ module.title }}</p>
+      <p class="qa-lesson-title">{{ lesson.title }}</p>
+    </div>
+    <span class="qa-count">{{ total_questions }} pergunta{{ total_questions|pluralize:"s" }}</span>
+  </div>
+
+  <!-- Nova pergunta -->
+  <div class="qa-new-form">
+    <p class="qa-new-title">💬 Faça uma pergunta</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="question" />
+      <textarea
+        name="question_text"
+        class="qa-textarea"
+        placeholder="Descreva sua dúvida sobre esta aula com o máximo de detalhes possível…"
+        required
+      ></textarea>
+      <div class="qa-submit-row">
+        <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:14px;">Publicar pergunta</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista de perguntas -->
+  {% if questions %}
+  <p class="qa-section-title">Perguntas da comunidade</p>
+
+  {% for q in questions %}
+  <div class="qa-card" id="q{{ q.pk }}">
+
+    <!-- Cabeçalho da pergunta -->
+    <div class="qa-user-row">
+      <div class="qa-avatar">{{ q.user.first_name|first|upper|default:q.user.username|first|upper }}</div>
+      <div>
+        <p class="qa-username">
+          {{ q.user.get_full_name|default:q.user.username }}
+          {% if q.user.is_superuser %}<span class="qa-prof-badge">Professor</span>{% endif %}
+        </p>
+        <p class="qa-meta">{{ q.created_at|timesince }} atrás</p>
+      </div>
+    </div>
+
+    <p class="qa-text">{{ q.text }}</p>
+
+    <!-- Respostas -->
+    {% if q.answers.all %}
+    <div class="qa-answers">
+      {% for ans in q.answers.all %}
+      <div class="qa-answer {% if ans.is_professor_answer %}prof-answer{% endif %}">
+        <div class="qa-user-row" style="margin-bottom:8px;">
+          <div class="qa-avatar {% if ans.is_professor_answer %}prof{% endif %}" style="width:30px;height:30px;font-size:12px;">
+            {{ ans.user.first_name|first|upper|default:ans.user.username|first|upper }}
+          </div>
+          <div>
+            <p class="qa-username" style="font-size:13px;">
+              {% if ans.is_professor_answer %}
+                {{ ans.user.get_full_name|default:ans.user.username }}
+                <span class="qa-prof-badge">Professor</span>
+              {% else %}
+                {{ ans.user.get_full_name|default:ans.user.username }}
+              {% endif %}
+            </p>
+            <p class="qa-meta">{{ ans.created_at|timesince }} atrás</p>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;">{{ ans.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Botão responder -->
+    <button class="qa-reply-toggle" onclick="toggleReply({{ q.pk }})">
+      Responder
+    </button>
+    <div class="qa-reply-form" id="reply-{{ q.pk }}">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="answer" />
+        <input type="hidden" name="question_id" value="{{ q.pk }}" />
+        <textarea
+          name="answer_text"
+          class="qa-textarea"
+          placeholder="Escreva sua resposta…"
+          rows="4"
+          required
+        ></textarea>
+        <div class="qa-submit-row" style="gap:10px;">
+          <button type="button" class="qa-reply-toggle" onclick="toggleReply({{ q.pk }})">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="padding:10px 24px;font-size:13px;">Publicar resposta</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="qa-empty">
+    <p>🎵</p>
+    <p style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Nenhuma pergunta ainda</p>
+    <p style="font-size:14px;">Seja o primeiro a perguntar sobre esta aula!</p>
+  </div>
+  {% endif %}
+
+</div><!-- /qa-layout -->
+
+<script>
+  function toggleReply(qid) {
+    var el = document.getElementById('reply-' + qid);
+    el.classList.toggle('open');
+    if (el.classList.contains('open')) {
+      el.querySelector('textarea').focus();
+    }
+  }
+</script>
+</body>
+</html>

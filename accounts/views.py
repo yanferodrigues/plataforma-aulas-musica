@@ -1,3 +1,8 @@
+import os
+import secrets
+import urllib.parse
+import requests as _requests
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -6,6 +11,9 @@ from django.contrib import messages
 from django.db.models import Sum
 from progress.models import LessonProgress, StudyStreak
 from achievements.models import UserAchievement
+
+_GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+_GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
 
 
 def login_view(request):
@@ -123,3 +131,93 @@ def settings_view(request):
 
 def password_reset(request):
     return redirect('accounts:login')
+
+
+# ── OAuth helpers ──────────────────────────────────────────────────────────────
+
+def _callback_uri(request, provider):
+    return request.build_absolute_uri(f'/accounts/{provider}/callback/')
+
+
+def _get_or_create_social_user(email, first_name, last_name):
+    try:
+        return User.objects.get(email=email)
+    except User.DoesNotExist:
+        base = email.split('@')[0]
+        username = base
+        n = 1
+        while User.objects.filter(username=username).exists():
+            username = f'{base}{n}'
+            n += 1
+        return User.objects.create_user(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            # sem senha → conta social-only
+        )
+
+
+# ── Google OAuth ───────────────────────────────────────────────────────────────
+
+def google_login(request):
+    if not _GOOGLE_CLIENT_ID:
+        messages.error(request, 'Login com Google não configurado.')
+        return redirect('accounts:login')
+
+    state = secrets.token_urlsafe(16)
+    request.session['oauth_state'] = state
+
+    params = {
+        'client_id': _GOOGLE_CLIENT_ID,
+        'redirect_uri': _callback_uri(request, 'google'),
+        'scope': 'openid email profile',
+        'response_type': 'code',
+        'state': state,
+        'access_type': 'online',
+    }
+    return redirect('https://accounts.google.com/o/oauth2/v2/auth?' + urllib.parse.urlencode(params))
+
+
+def google_callback(request):
+    stored_state = request.session.pop('oauth_state', None)
+    if not stored_state or request.GET.get('state') != stored_state:
+        messages.error(request, 'Falha na autenticação. Tente novamente.')
+        return redirect('accounts:login')
+
+    code = request.GET.get('code')
+    if not code:
+        messages.error(request, 'Autenticação com Google cancelada.')
+        return redirect('accounts:login')
+
+    token_resp = _requests.post('https://oauth2.googleapis.com/token', data={
+        'code': code,
+        'client_id': _GOOGLE_CLIENT_ID,
+        'client_secret': _GOOGLE_CLIENT_SECRET,
+        'redirect_uri': _callback_uri(request, 'google'),
+        'grant_type': 'authorization_code',
+    })
+    access_token = token_resp.json().get('access_token')
+    if not access_token:
+        messages.error(request, 'Não foi possível autenticar com o Google.')
+        return redirect('accounts:login')
+
+    info = _requests.get(
+        'https://www.googleapis.com/oauth2/v2/userinfo',
+        headers={'Authorization': f'Bearer {access_token}'},
+    ).json()
+
+    email = info.get('email')
+    if not email:
+        messages.error(request, 'Não foi possível obter o e-mail da conta Google.')
+        return redirect('accounts:login')
+
+    user = _get_or_create_social_user(
+        email=email,
+        first_name=info.get('given_name', ''),
+        last_name=info.get('family_name', ''),
+    )
+    login(request, user)
+    return redirect('courses:dashboard')
+
+

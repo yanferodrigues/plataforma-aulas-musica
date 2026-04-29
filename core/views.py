@@ -6,6 +6,7 @@ from courses.models import Module, Lesson, Material, Exercise
 from achievements.models import Achievement
 
 
+
 def index(request):
     return render(request, 'index.html')
 
@@ -31,9 +32,13 @@ def studio(request):
         'level_choices': Module.LEVEL_CHOICES,
         'condition_choices': Achievement.CONDITION_CHOICES,
         'total_users': User.objects.count(),
+        'materials': Material.objects.select_related('lesson__module').order_by('lesson__module__order', 'lesson__order', 'order'),
+        'exercises': Exercise.objects.select_related('lesson__module').order_by('lesson__module__order', 'lesson__order', 'number'),
         'total_modules': Module.objects.count(),
         'total_lessons': Lesson.objects.count(),
         'total_achievements': Achievement.objects.count(),
+        'total_materials': Material.objects.count(),
+        'total_exercises': Exercise.objects.count(),
     }
     return render(request, 'studio.html', context)
 
@@ -103,9 +108,13 @@ def studio_lesson_save(request, pk=None):
         obj = get_object_or_404(Lesson, pk=pk)
         for k, v in data.items():
             setattr(obj, k, v)
+        if 'video_file' in request.FILES:
+            obj.video_file = request.FILES['video_file']
         obj.save()
         messages.success(request, f'Aula "{obj.title}" atualizada.')
     else:
+        if 'video_file' in request.FILES:
+            data['video_file'] = request.FILES['video_file']
         obj = Lesson.objects.create(**data)
         messages.success(request, f'Aula "{obj.title}" criada.')
 
@@ -157,3 +166,93 @@ def studio_achievement_delete(request, pk):
     obj.delete()
     messages.success(request, f'Conquista "{name}" excluída.')
     return redirect('core:studio')
+
+
+# ── MATERIAIS ────────────────────────────────────────────────
+
+@superuser_required
+def studio_material_save(request, pk=None):
+    if request.method != 'POST':
+        return redirect('core:studio')
+
+    lesson = get_object_or_404(Lesson, pk=request.POST.get('lesson'))
+    data = {
+        'lesson': lesson,
+        'name': request.POST.get('name', '').strip(),
+        'file_type': request.POST.get('file_type', 'other'),
+        'order': int(request.POST.get('order') or 0),
+    }
+
+    if pk:
+        obj = get_object_or_404(Material, pk=pk)
+        for k, v in data.items():
+            setattr(obj, k, v)
+        if 'file' in request.FILES:
+            obj.file = request.FILES['file']
+            obj.size_kb = request.FILES['file'].size // 1024
+        obj.save()
+        messages.success(request, f'Material "{obj.name}" atualizado.')
+    else:
+        file = request.FILES.get('file')
+        if file:
+            data['file'] = file
+            data['size_kb'] = file.size // 1024
+        obj = Material.objects.create(**data)
+        messages.success(request, f'Material "{obj.name}" criado.')
+
+    return redirect('core:studio')
+
+
+@superuser_required
+def studio_material_delete(request, pk):
+    obj = get_object_or_404(Material, pk=pk)
+    name = obj.name
+    obj.delete()
+    messages.success(request, f'Material "{name}" excluído.')
+    return redirect('core:studio')
+
+
+# ── EXERCÍCIOS ───────────────────────────────────────────────
+
+@superuser_required
+def studio_exercise_save(request, pk=None):
+    if request.method != 'POST':
+        return redirect('core:studio')
+
+    lesson = get_object_or_404(Lesson, pk=request.POST.get('lesson'))
+    ex_type = request.POST.get('exercise_type', 'practice')
+    data = {
+        'lesson': lesson,
+        'number': int(request.POST.get('number') or 1),
+        'title': request.POST.get('title', '').strip(),
+        'description': request.POST.get('description', '').strip(),
+        'difficulty': request.POST.get('difficulty', 'easy'),
+        'exercise_type': ex_type,
+        'option_a': request.POST.get('option_a', '').strip() if ex_type == 'quiz' else '',
+        'option_b': request.POST.get('option_b', '').strip() if ex_type == 'quiz' else '',
+        'option_c': request.POST.get('option_c', '').strip() if ex_type == 'quiz' else '',
+        'option_d': request.POST.get('option_d', '').strip() if ex_type == 'quiz' else '',
+        'correct_option': request.POST.get('correct_option', '').strip() if ex_type == 'quiz' else '',
+    }
+
+    if pk:
+        obj = get_object_or_404(Exercise, pk=pk)
+        for k, v in data.items():
+            setattr(obj, k, v)
+        obj.save()
+        messages.success(request, f'Exercício "{obj.title}" atualizado.')
+    else:
+        obj = Exercise.objects.create(**data)
+        messages.success(request, f'Exercício "{obj.title}" criado.')
+
+    return redirect('core:studio')
+
+
+@superuser_required
+def studio_exercise_delete(request, pk):
+    obj = get_object_or_404(Exercise, pk=pk)
+    name = obj.title
+    obj.delete()
+    messages.success(request, f'Exercício "{name}" excluído.')
+    return redirect('core:studio')
+

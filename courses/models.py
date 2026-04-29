@@ -46,6 +46,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True)
     objectives = models.TextField(blank=True)
     video_url = models.URLField(blank=True)
+    video_file = models.FileField(upload_to='lessons/videos/', blank=True, null=True)
     duration_minutes = models.PositiveSmallIntegerField(default=0)
     order = models.PositiveSmallIntegerField()
     is_active = models.BooleanField(default=True)
@@ -96,11 +97,26 @@ class Exercise(models.Model):
         ('hard', 'Difícil'),
     ]
 
+    TYPE_CHOICES = [
+        ('practice', 'Prática'),
+        ('quiz', 'Múltipla Escolha'),
+    ]
+
+    OPTION_CHOICES = [
+        ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'),
+    ]
+
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='exercises')
     number = models.PositiveSmallIntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField()
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
+    exercise_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='practice')
+    option_a = models.CharField(max_length=300, blank=True)
+    option_b = models.CharField(max_length=300, blank=True)
+    option_c = models.CharField(max_length=300, blank=True)
+    option_d = models.CharField(max_length=300, blank=True)
+    correct_option = models.CharField(max_length=1, choices=OPTION_CHOICES, blank=True)
 
     class Meta:
         verbose_name = 'Exercício'

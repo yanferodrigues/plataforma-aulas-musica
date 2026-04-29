@@ -178,7 +178,8 @@
     .st-field input:focus,
     .st-field select:focus,
     .st-field textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(112,56,248,.12); }
-    .st-field select option { background: #1a1232; }
+    .st-field select { color-scheme: dark; }
+    .st-field select option { background: #1a1232; color: var(--text-primary); }
     .st-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .st-field-check { display: flex; align-items: center; gap: 10px; }
     .st-field-check input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--brand); flex-shrink: 0; cursor: pointer; }
@@ -280,11 +281,18 @@
         <span class="db-nav-icon">🏆</span> Conquistas
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_achievements }}</span>
       </button>
+      <button class="db-nav-link st-tab-btn" data-tab="materials" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">📎</span> Materiais
+        <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_materials }}</span>
+      </button>
+      <button class="db-nav-link st-tab-btn" data-tab="exercises" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+        <span class="db-nav-icon">🎯</span> Exercícios
+        <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_exercises }}</span>
+      </button>
       <button class="db-nav-link st-tab-btn" data-tab="users" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
         <span class="db-nav-icon">👥</span> Usuários
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_users }}</span>
       </button>
-
       <p class="db-nav-section-label" style="margin-top:24px;">Navegação</p>
       <a href="{% url 'courses:dashboard' %}" class="db-nav-link">
         <span class="db-nav-icon">🏠</span> Dashboard
@@ -346,6 +354,14 @@
           <div class="st-stat">
             <div class="st-stat-val">{{ total_users }}</div>
             <div class="st-stat-label">Usuários</div>
+          </div>
+          <div class="st-stat">
+            <div class="st-stat-val">{{ total_materials }}</div>
+            <div class="st-stat-label">Materiais</div>
+          </div>
+          <div class="st-stat">
+            <div class="st-stat-val">{{ total_exercises }}</div>
+            <div class="st-stat-label">Exercícios</div>
           </div>
         </div>
 
@@ -628,6 +644,116 @@
         </div>
       </section>
 
+      <!-- ══ MATERIAIS ══════════════════════════════════════ -->
+      <section class="st-section" id="tab-materials">
+        <div class="st-head">
+          <h2>Materiais</h2>
+          <div class="st-head-actions">
+            <div class="st-search">
+              <span style="color:var(--text-secondary);">🔍</span>
+              <input type="text" placeholder="Buscar material…" oninput="filterTable('materials-body', this.value)" />
+            </div>
+            <button class="st-btn-new" onclick="openModal_material_create()">
+              + Novo Material
+            </button>
+          </div>
+        </div>
+
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>Aula</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Tamanho</th>
+                <th>Ordem</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="materials-body">
+              {% for mat in materials %}
+              <tr>
+                <td style="color:var(--text-secondary);font-size:12px;">{{ mat.lesson.title }}</td>
+                <td style="font-weight:500;">{{ mat.name }}</td>
+                <td><span class="st-chip st-chip-level">{{ mat.get_file_type_display }}</span></td>
+                <td style="font-family:var(--font-mono);font-size:12px;">{{ mat.size_kb }} KB</td>
+                <td style="font-family:var(--font-mono);color:var(--text-secondary);">{{ mat.order }}</td>
+                <td style="white-space:nowrap;">
+                  <button class="st-btn-edit" onclick="editMaterial({{ mat.pk }}, {{ mat.lesson.pk }}, '{{ mat.name|escapejs }}', '{{ mat.file_type }}', {{ mat.order }})">
+                    Editar
+                  </button>
+                  <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_material_delete' mat.pk %}', 'Excluir material &quot;{{ mat.name|escapejs }}&quot;?')">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="st-empty">Nenhum material cadastrado. Clique em "Novo Material" para adicionar.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ EXERCÍCIOS ═════════════════════════════════════ -->
+      <section class="st-section" id="tab-exercises">
+        <div class="st-head">
+          <h2>Exercícios</h2>
+          <div class="st-head-actions">
+            <div class="st-search">
+              <span style="color:var(--text-secondary);">🔍</span>
+              <input type="text" placeholder="Buscar exercício…" oninput="filterTable('exercises-body', this.value)" />
+            </div>
+            <button class="st-btn-new" onclick="openModal_exercise_create()">
+              + Novo Exercício
+            </button>
+          </div>
+        </div>
+
+        <div class="st-table-wrap">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>Aula</th>
+                <th>#</th>
+                <th>Título</th>
+                <th>Dificuldade</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="exercises-body">
+              {% for ex in exercises %}
+              <tr>
+                <td style="color:var(--text-secondary);font-size:12px;">{{ ex.lesson.title }}</td>
+                <td style="font-family:var(--font-mono);color:var(--text-secondary);">{{ ex.number }}</td>
+                <td style="font-weight:500;">{{ ex.title }}</td>
+                <td>
+                  {% if ex.difficulty == 'easy' %}
+                    <span class="st-chip st-chip-active">Fácil</span>
+                  {% elif ex.difficulty == 'medium' %}
+                    <span class="st-chip st-chip-level">Médio</span>
+                  {% else %}
+                    <span class="st-chip st-chip-inactive">Difícil</span>
+                  {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                  <button class="st-btn-edit" onclick="editExercise({{ ex.pk }}, {{ ex.lesson.pk }}, {{ ex.number }}, '{{ ex.title|escapejs }}', '{{ ex.description|escapejs }}', '{{ ex.difficulty }}', '{{ ex.exercise_type }}', '{{ ex.option_a|escapejs }}', '{{ ex.option_b|escapejs }}', '{{ ex.option_c|escapejs }}', '{{ ex.option_d|escapejs }}', '{{ ex.correct_option }}')">
+                    Editar
+                  </button>
+                  <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_exercise_delete' ex.pk %}', 'Excluir exercício &quot;{{ ex.title|escapejs }}&quot;?')">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="st-empty">Nenhum exercício cadastrado. Clique em "Novo Exercício" para adicionar.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
     </div><!-- /.db-content -->
   </main>
 </div>
@@ -693,7 +819,7 @@
     <button class="st-modal-close" onclick="closeModal('modal-lesson')">×</button>
     <p class="st-modal-title" id="modal-lesson-title">Nova Aula</p>
 
-    <form id="form-lesson" method="post">
+    <form id="form-lesson" method="post" enctype="multipart/form-data">
       {% csrf_token %}
 
       <div class="st-field">
@@ -722,8 +848,13 @@
       </div>
 
       <div class="st-field">
-        <label>URL do Vídeo</label>
-        <input type="url" name="video_url" id="l-video_url" placeholder="https://youtube.com/..." />
+        <label>Arquivo de Vídeo <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">(MP4 — tem prioridade sobre URL)</span></label>
+        <input type="file" name="video_file" id="l-video_file" accept="video/*" />
+      </div>
+
+      <div class="st-field">
+        <label>URL do Vídeo <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">(YouTube — usado se não houver arquivo)</span></label>
+        <input type="url" name="video_url" id="l-video_url" placeholder="https://youtube.com/watch?v=..." />
       </div>
 
       <div class="st-field">
@@ -805,6 +936,150 @@
   </div>
 </div>
 
+<!-- ═══════════ MODAL: MATERIAL ════════════════════════════ -->
+<div class="st-overlay" id="modal-material">
+  <div class="st-modal">
+    <button class="st-modal-close" onclick="closeModal('modal-material')">×</button>
+    <p class="st-modal-title" id="modal-material-title">Novo Material</p>
+
+    <form id="form-material" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="st-field">
+        <label>Aula *</label>
+        <select name="lesson" id="mat-lesson" required>
+          {% for l in lessons %}
+            <option value="{{ l.pk }}">{{ l.module.title }} — {{ l.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="st-field">
+        <label>Nome *</label>
+        <input type="text" name="name" id="mat-name" maxlength="200" required />
+      </div>
+
+      <div class="st-field-row">
+        <div class="st-field">
+          <label>Tipo *</label>
+          <select name="file_type" id="mat-file_type" required>
+            <option value="pdf">PDF</option>
+            <option value="mp3">Áudio MP3</option>
+            <option value="mp4">Vídeo MP4</option>
+            <option value="xlsx">Planilha</option>
+            <option value="other">Outro</option>
+          </select>
+        </div>
+        <div class="st-field">
+          <label>Ordem</label>
+          <input type="number" name="order" id="mat-order" min="0" max="999" value="0" />
+        </div>
+      </div>
+
+      <div class="st-field" id="mat-file-wrap">
+        <label>Arquivo <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">(obrigatório ao criar)</span></label>
+        <input type="file" name="file" id="mat-file" />
+      </div>
+
+      <div class="st-modal-actions">
+        <button type="button" class="st-modal-cancel" onclick="closeModal('modal-material')">Cancelar</button>
+        <button type="submit" class="st-modal-submit">Salvar Material</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: EXERCÍCIO ═══════════════════════════ -->
+<div class="st-overlay" id="modal-exercise">
+  <div class="st-modal">
+    <button class="st-modal-close" onclick="closeModal('modal-exercise')">×</button>
+    <p class="st-modal-title" id="modal-exercise-title">Novo Exercício</p>
+
+    <form id="form-exercise" method="post">
+      {% csrf_token %}
+
+      <div class="st-field">
+        <label>Aula *</label>
+        <select name="lesson" id="ex-lesson" required>
+          {% for l in lessons %}
+            <option value="{{ l.pk }}">{{ l.module.title }} — {{ l.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="st-field-row">
+        <div class="st-field">
+          <label>Número *</label>
+          <input type="number" name="number" id="ex-number" min="1" max="999" required />
+        </div>
+        <div class="st-field">
+          <label>Dificuldade *</label>
+          <select name="difficulty" id="ex-difficulty" required>
+            <option value="easy">Fácil</option>
+            <option value="medium">Médio</option>
+            <option value="hard">Difícil</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="st-field">
+        <label>Tipo *</label>
+        <select name="exercise_type" id="ex-type" required onchange="toggleQuizFields()">
+          <option value="practice">Prática</option>
+          <option value="quiz">Múltipla Escolha</option>
+        </select>
+      </div>
+
+      <div class="st-field">
+        <label>Título *</label>
+        <input type="text" name="title" id="ex-title" maxlength="200" required />
+      </div>
+
+      <div class="st-field">
+        <label id="ex-desc-label">Descrição *</label>
+        <textarea name="description" id="ex-description" rows="3" required></textarea>
+      </div>
+
+      <!-- Quiz-only fields -->
+      <div id="ex-quiz-fields" style="display:none;">
+        <div style="background:rgba(112,56,248,.06);border:1px solid rgba(112,56,248,.2);border-radius:var(--radius-md);padding:16px;margin-bottom:18px;">
+          <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:12px;">Opções de resposta</p>
+          <div class="st-field" style="margin-bottom:10px;">
+            <label>A) *</label>
+            <input type="text" name="option_a" id="ex-opt-a" maxlength="300" />
+          </div>
+          <div class="st-field" style="margin-bottom:10px;">
+            <label>B) *</label>
+            <input type="text" name="option_b" id="ex-opt-b" maxlength="300" />
+          </div>
+          <div class="st-field" style="margin-bottom:10px;">
+            <label>C)</label>
+            <input type="text" name="option_c" id="ex-opt-c" maxlength="300" placeholder="Opcional" />
+          </div>
+          <div class="st-field" style="margin-bottom:10px;">
+            <label>D)</label>
+            <input type="text" name="option_d" id="ex-opt-d" maxlength="300" placeholder="Opcional" />
+          </div>
+          <div class="st-field" style="margin-bottom:0;">
+            <label>Resposta correta *</label>
+            <select name="correct_option" id="ex-correct">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="st-modal-actions">
+        <button type="button" class="st-modal-cancel" onclick="closeModal('modal-exercise')">Cancelar</button>
+        <button type="submit" class="st-modal-submit">Salvar Exercício</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ═══════════ MODAL: CONFIRMAR EXCLUSÃO ═════════════════ -->
 <div class="st-overlay" id="modal-delete">
   <div class="st-modal" style="max-width:420px;text-align:center;">
@@ -827,6 +1102,8 @@ const TAB_TITLES = {
   modules: 'Módulos',
   lessons: 'Aulas',
   achievements: 'Conquistas',
+  materials: 'Materiais',
+  exercises: 'Exercícios',
   users: 'Usuários',
 };
 
@@ -912,6 +1189,7 @@ function openModal_lesson_create() {
   document.getElementById('l-order').value = '';
   document.getElementById('l-duration').value = '0';
   document.getElementById('l-title').value = '';
+  document.getElementById('l-video_file').value = '';
   document.getElementById('l-video_url').value = '';
   document.getElementById('l-description').value = '';
   document.getElementById('l-objectives').value = '';
@@ -967,6 +1245,76 @@ function editAchievement(pk, title, desc, icon, condType, condVal, isActive) {
 document.querySelectorAll('[onclick="openModal(\'modal-achievement\')"]').forEach(btn => {
   btn.onclick = openModal_ach_create;
 });
+
+/* ── MATERIAL MODAL ──────────────────────────────────────── */
+const CREATE_MAT_URL = "{% url 'core:studio_material_create' %}";
+
+function openModal_material_create() {
+  document.getElementById('modal-material-title').textContent = 'Novo Material';
+  document.getElementById('form-material').action = CREATE_MAT_URL;
+  document.getElementById('mat-name').value = '';
+  document.getElementById('mat-file_type').value = 'pdf';
+  document.getElementById('mat-order').value = '0';
+  document.getElementById('mat-file').value = '';
+  document.getElementById('mat-file-wrap').style.display = '';
+  openModal('modal-material');
+}
+
+function editMaterial(pk, lessonPk, name, fileType, order) {
+  document.getElementById('modal-material-title').textContent = 'Editar Material';
+  document.getElementById('form-material').action = `/studio/materiais/${pk}/editar/`;
+  document.getElementById('mat-lesson').value = lessonPk;
+  document.getElementById('mat-name').value = name;
+  document.getElementById('mat-file_type').value = fileType;
+  document.getElementById('mat-order').value = order;
+  document.getElementById('mat-file').value = '';
+  document.getElementById('mat-file-wrap').style.display = '';
+  openModal('modal-material');
+}
+
+/* ── EXERCÍCIO MODAL ─────────────────────────────────────── */
+const CREATE_EX_URL = "{% url 'core:studio_exercise_create' %}";
+
+function toggleQuizFields() {
+  const isQuiz = document.getElementById('ex-type').value === 'quiz';
+  document.getElementById('ex-quiz-fields').style.display = isQuiz ? '' : 'none';
+}
+
+function openModal_exercise_create() {
+  document.getElementById('modal-exercise-title').textContent = 'Novo Exercício';
+  document.getElementById('form-exercise').action = CREATE_EX_URL;
+  document.getElementById('ex-lesson').value = '';
+  document.getElementById('ex-number').value = '';
+  document.getElementById('ex-difficulty').value = 'easy';
+  document.getElementById('ex-type').value = 'practice';
+  document.getElementById('ex-title').value = '';
+  document.getElementById('ex-description').value = '';
+  document.getElementById('ex-opt-a').value = '';
+  document.getElementById('ex-opt-b').value = '';
+  document.getElementById('ex-opt-c').value = '';
+  document.getElementById('ex-opt-d').value = '';
+  document.getElementById('ex-correct').value = 'A';
+  toggleQuizFields();
+  openModal('modal-exercise');
+}
+
+function editExercise(pk, lessonPk, number, title, desc, difficulty, exType, optA, optB, optC, optD, correct) {
+  document.getElementById('modal-exercise-title').textContent = 'Editar Exercício';
+  document.getElementById('form-exercise').action = `/studio/exercicios/${pk}/editar/`;
+  document.getElementById('ex-lesson').value = lessonPk;
+  document.getElementById('ex-number').value = number;
+  document.getElementById('ex-difficulty').value = difficulty;
+  document.getElementById('ex-type').value = exType || 'practice';
+  document.getElementById('ex-title').value = title;
+  document.getElementById('ex-description').value = desc;
+  document.getElementById('ex-opt-a').value = optA || '';
+  document.getElementById('ex-opt-b').value = optB || '';
+  document.getElementById('ex-opt-c').value = optC || '';
+  document.getElementById('ex-opt-d').value = optD || '';
+  document.getElementById('ex-correct').value = correct || 'A';
+  toggleQuizFields();
+  openModal('modal-exercise');
+}
 
 /* ── CONFIRMAR EXCLUSÃO ───────────────────────────────────── */
 function confirmDelete(url, msg) {
