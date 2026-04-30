@@ -305,7 +305,7 @@
 
     <div class="db-sidebar-foot">
       <div class="db-user-card">
-        <div class="db-avatar" style="background:var(--brand);">{{ request.user.first_name|first|upper }}</div>
+        {% if user_profile.avatar %}<img src="{{ user_profile.avatar.url }}" alt="" class="db-avatar-img" />{% else %}<div class="db-avatar" style="background:var(--brand);">{{ request.user.first_name|first|upper }}</div>{% endif %}
         <div>
           <p class="db-user-name">{{ request.user.get_full_name }}</p>
           <p class="db-user-plan" style="color:var(--brand);">Superusuário</p>

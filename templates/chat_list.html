@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conquistas — MUSILAB</title>
+  <title>Chat — MUSILAB</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -32,14 +32,13 @@
       <a href="{% url 'courses:module_list' %}" class="db-nav-link">
         <span class="db-nav-icon">🎵</span> Módulos
       </a>
-
       <a href="{% url 'progress:progress' %}" class="db-nav-link">
         <span class="db-nav-icon">📈</span> Meu Progresso
       </a>
-      <a href="{% url 'achievements:achievements' %}" class="db-nav-link active">
+      <a href="{% url 'achievements:achievements' %}" class="db-nav-link">
         <span class="db-nav-icon">🏆</span> Conquistas
       </a>
-      <a href="{% url 'chat:chat_list' %}" class="db-nav-link">
+      <a href="{% url 'chat:chat_list' %}" class="db-nav-link active">
         <span class="db-nav-icon">💬</span> Chat
         <span class="chat-badge" id="chat-unread-badge" style="display:none;"></span>
       </a>
@@ -78,7 +77,7 @@
   <main class="db-main">
 
     <header class="db-topbar">
-      <h1 class="db-topbar-title">Conquistas</h1>
+      <h1 class="db-topbar-title">Chat</h1>
       <div class="db-topbar-actions">
         <button class="db-icon-btn" id="notif-btn" aria-label="Notificações" onclick="toggleNotifPanel()">
           🔔 <span class="badge" id="notif-badge" style="display:none;"></span>
@@ -88,72 +87,99 @@
 
     <div class="db-content">
 
-      <!-- Summary banner -->
-      <div class="achv-summary">
-        <div>
-          <div class="achv-summary-num">{{ unlocked_count }}<span>/{{ total }}</span></div>
-          <p class="achv-summary-label">conquistas desbloqueadas</p>
-        </div>
-        <div class="achv-summary-bar-wrap">
-          <div class="achv-summary-bar-label">
-            <span>Progresso total</span>
-            <span>{{ pct }}%</span>
-          </div>
-          <div class="pbar" style="height:8px;border-radius:4px;">
-            <div class="pbar-fill" data-width="{{ pct }}%" style="width:0;height:8px;border-radius:4px;"></div>
-          </div>
-          <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">Continue estudando para desbloquear mais conquistas.</p>
-        </div>
+      {% if all_students %}
+      <!-- Admin: search to start new conversation -->
+      <div class="chat-search-wrap">
+        <input type="text" id="student-search" class="chat-search-input" placeholder="Buscar aluno pelo nome ou e-mail…" autocomplete="off" />
       </div>
-
-      <!-- Unlocked -->
-      {% if unlocked %}
-      <p class="achv-section-title">Desbloqueadas ✨</p>
-      <div class="achv-grid">
-        {% for a in unlocked %}
-        <div class="achv-card unlocked">
-          <span class="achv-unlocked-tag">OBTIDA</span>
-          <div class="achv-icon unlocked-icon">{{ a.icon }}</div>
-          <p class="achv-title">{{ a.title }}</p>
-          <p class="achv-desc">{{ a.description }}</p>
-        </div>
+      <div class="chat-list" id="student-list" style="display:none; margin-bottom:32px;">
+        {% for s in all_students %}
+        <a href="{% url 'chat:chat_room' s.pk %}"
+           class="chat-conv-item"
+           data-name="{{ s.get_full_name|lower }} {{ s.username|lower }}"
+           data-email="{{ s.email|lower }}">
+          {% if s.profile.avatar %}
+          <img src="{{ s.profile.avatar.url }}" alt="" class="chat-conv-avatar" style="object-fit:cover;" />
+          {% else %}
+          <div class="chat-conv-avatar">{{ s.first_name|first|upper }}</div>
+          {% endif %}
+          <div class="chat-conv-info">
+            <p class="chat-conv-name">{{ s.get_full_name|default:s.username }}</p>
+            <p class="chat-conv-last" style="font-size:11px;color:var(--brand);">Aluno</p>
+            <p class="chat-conv-last" style="font-size:11px;">{{ s.email }}</p>
+          </div>
+        </a>
         {% endfor %}
       </div>
       {% endif %}
 
-      <!-- Locked -->
-      {% if locked %}
-      <p class="achv-section-title">Bloqueadas 🔒</p>
-      <div class="achv-grid">
-        {% for a in locked %}
-        <div class="achv-card locked">
-          <div class="achv-icon locked-icon">{{ a.icon }}</div>
-          <p class="achv-title">{{ a.title }}</p>
-          <p class="achv-desc">{{ a.description }}</p>
-        </div>
+      {% if conversations %}
+      {% if all_students %}<p class="chat-section-label">Conversas recentes</p>{% endif %}
+      <div class="chat-list">
+        {% for conv in conversations %}
+        <a href="{% url 'chat:chat_room' conv.user.pk %}"
+           class="chat-conv-item{% if conv.unread %} unread{% endif %}">
+          {% if conv.photo %}
+          <img src="{{ conv.photo }}" alt="" class="chat-conv-avatar" style="object-fit:cover;" />
+          {% else %}
+          <div class="chat-conv-avatar">{{ conv.user.first_name|first|upper }}</div>
+          {% endif %}
+          <div class="chat-conv-info">
+            <p class="chat-conv-name">{{ conv.user.get_full_name|default:conv.user.username }}</p>
+            <p class="chat-conv-email">{{ conv.role }}</p>
+            {% if all_students %}
+            <p style="font-size:11px;color:var(--text-secondary);">{{ conv.user.email }}</p>
+            {% endif %}
+            <p class="chat-conv-last">
+              {% if conv.last_message %}
+                {{ conv.last_message.text|truncatechars:60 }}
+              {% else %}
+                Nenhuma mensagem ainda
+              {% endif %}
+            </p>
+          </div>
+          <div class="chat-conv-meta">
+            {% if conv.last_message %}
+            <span class="chat-conv-time">{{ conv.last_message.created_at|date:"H:i" }}</span>
+            {% endif %}
+            {% if conv.unread %}
+            <span class="chat-conv-badge">{{ conv.unread }}</span>
+            {% endif %}
+          </div>
+        </a>
         {% endfor %}
       </div>
-      {% endif %}
-
-      {% if not unlocked and not locked %}
-      <div style="text-align:center;padding:80px;color:var(--text-secondary);">
-        Nenhuma conquista cadastrada ainda.
+      {% else %}
+      <div class="chat-empty">
+        {% if all_students %}
+          <p>Nenhuma conversa ainda. Use a busca acima para iniciar.</p>
+        {% else %}
+          <p>Nenhuma conversa ainda.</p>
+        {% endif %}
       </div>
       {% endif %}
 
     </div><!-- /db-content -->
+
+    <script>
+      const searchInput = document.getElementById('student-search');
+      if (searchInput) {
+        const studentList = document.getElementById('student-list');
+        const items = studentList.querySelectorAll('.chat-conv-item');
+        searchInput.addEventListener('input', function () {
+          const q = this.value.trim().toLowerCase();
+          if (!q) { studentList.style.display = 'none'; return; }
+          studentList.style.display = 'flex';
+          items.forEach(item => {
+            const match = item.dataset.name.includes(q) || item.dataset.email.includes(q);
+            item.style.display = match ? '' : 'none';
+          });
+        });
+      }
+    </script>
   </main>
 
 </div><!-- /db-layout -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script>
-  document.querySelectorAll('.pbar-fill[data-width]').forEach(el => {
-    setTimeout(() => { el.style.width = el.dataset.width; }, 300);
-  });
-  gsap.from('.achv-card.unlocked', { opacity: 0, y: 28, scale: 0.95, duration: 0.5, stagger: 0.1, ease: 'back.out(1.4)', delay: 0.2 });
-  gsap.from('.achv-card.locked', { opacity: 0, y: 20, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.5 });
-</script>
 
 <!-- Notification Panel -->
 <div class="notif-backdrop" id="notif-backdrop" onclick="closeNotifPanel()"></div>
@@ -164,6 +190,7 @@
   </div>
   <div class="notif-list" id="notif-list"></div>
 </div>
+
 <script src="{% static 'assets/notifications.js' %}"></script>
 <script src="{% static 'assets/chat.js' %}"></script>
 </body>

@@ -41,6 +41,7 @@ class Profile(models.Model):
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='iniciante')
     goal = models.CharField(max_length=20, choices=GOAL_CHOICES, blank=True)
     plan = models.CharField(max_length=10, choices=PLAN_CHOICES, default='free')
+    role = models.CharField(max_length=100, blank=True)
     is_public = models.BooleanField(default=False)
     share_usage_data = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

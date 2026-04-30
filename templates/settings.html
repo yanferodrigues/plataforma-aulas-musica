@@ -39,6 +39,10 @@
       <a href="{% url 'achievements:achievements' %}" class="db-nav-link">
         <span class="db-nav-icon">🏆</span> Conquistas
       </a>
+      <a href="{% url 'chat:chat_list' %}" class="db-nav-link">
+        <span class="db-nav-icon">💬</span> Chat
+        <span class="chat-badge" id="chat-unread-badge" style="display:none;"></span>
+      </a>
 
       {% if request.user.is_superuser %}
       <p class="db-nav-section-label">Admin</p>
@@ -61,7 +65,7 @@
 
     <div class="db-sidebar-foot">
       <div class="db-user-card">
-        <div class="db-avatar">{{ request.user.first_name|first|upper }}</div>
+        {% if user_profile.avatar %}<img src="{{ user_profile.avatar.url }}" alt="" class="db-avatar-img" />{% else %}<div class="db-avatar">{{ request.user.first_name|first|upper }}</div>{% endif %}
         <div>
           <p class="db-user-name">{{ request.user.get_full_name }}</p>
           <p class="db-user-plan">Plano Pro</p>
@@ -83,6 +87,17 @@
     </header>
 
     <div class="db-content" style="max-width:760px;">
+
+      {% if messages %}
+      <div class="auth-alerts" style="margin-bottom:20px;">
+        {% for message in messages %}
+        <div class="auth-alert auth-alert--{% if 'error' in message.tags %}error{% else %}success{% endif %}">
+          <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% else %}✓{% endif %}</span>
+          <span class="auth-alert-text">{{ message }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
       <!-- Notificações -->
       <div class="settings-card">
@@ -233,6 +248,31 @@
         </div>
       </div>
 
+      {% if request.user.is_superuser %}
+      <!-- Função (superusuários) -->
+      <form method="post">
+        {% csrf_token %}
+        <div class="settings-card">
+          <p class="settings-card-title">Função na escola</p>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+            Essa função aparece para os alunos no chat.
+          </p>
+          <div class="settings-row" style="border-bottom:none;align-items:center;gap:16px;">
+            <input
+              type="text"
+              name="role"
+              value="{{ prof.role }}"
+              placeholder="Ex: Professor de Violão, Coordenador…"
+              style="flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text-primary);font-family:var(--font-ui);font-size:13px;outline:none;transition:border-color .2s;"
+              onfocus="this.style.borderColor='var(--brand)'"
+              onblur="this.style.borderColor='var(--glass-border)'"
+            />
+            <button type="submit" class="btn btn-primary" style="padding:10px 22px;font-size:13px;border-radius:var(--radius-md);white-space:nowrap;">Salvar</button>
+          </div>
+        </div>
+      </form>
+      {% endif %}
+
       <!-- Zona de perigo -->
       <div class="danger-card">
         <p class="danger-card-title">Zona de perigo</p>
@@ -262,5 +302,6 @@
   <div class="notif-list" id="notif-list"></div>
 </div>
 <script src="{% static 'assets/notifications.js' %}"></script>
+<script src="{% static 'assets/chat.js' %}"></script>
 </body>
 </html>

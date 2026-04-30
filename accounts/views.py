@@ -4,6 +4,10 @@ import logging
 import urllib.parse
 import requests as _requests
 
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+
 logger = logging.getLogger(__name__)
 
 from django.shortcuts import render, redirect
@@ -17,7 +21,7 @@ from django.http import JsonResponse
 from django.db.models import Sum
 from progress.models import LessonProgress, StudyStreak
 from achievements.models import UserAchievement
-from .models import Notification
+from .models import Notification, Profile
 
 _GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
 _GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
@@ -43,7 +47,7 @@ def notifications_api(request):
     qs = Notification.objects.filter(user=request.user)
     unread = qs.filter(is_read=False).count()
     if request.method == 'POST':
-        qs.filter(is_read=False).update(is_read=True)
+        qs.delete()
         return JsonResponse({'ok': True})
     data = [
         {
@@ -148,42 +152,150 @@ def _profile_stats(user):
 
 
 @login_required(login_url='accounts:login')
+def avatar_upload(request):
+    if request.method != 'POST' or 'avatar' not in request.FILES:
+        return JsonResponse({'error': 'invalid'}, status=400)
+    prof, _ = Profile.objects.get_or_create(user=request.user)
+    prof.avatar = request.FILES['avatar']
+    prof.save()
+    return JsonResponse({'url': prof.avatar.url})
+
+
+@login_required(login_url='accounts:login')
 def profile(request):
+    user = request.user
+    prof, _ = Profile.objects.get_or_create(user=user)
+
     if request.method == 'POST':
-        user = request.user
         user.first_name = request.POST.get('first_name', user.first_name).strip()
         user.last_name = request.POST.get('last_name', user.last_name).strip()
         user.email = request.POST.get('email', user.email).strip()
         user.save()
 
-        current_pw = request.POST.get('current_pw', '')
-        new_pw = request.POST.get('new_pw', '')
-        confirm_pw = request.POST.get('confirm_pw', '')
-
-        if current_pw:
-            if not user.check_password(current_pw):
-                messages.error(request, 'Senha atual incorreta.')
-                return redirect('accounts:profile')
-            if new_pw != confirm_pw:
-                messages.error(request, 'As novas senhas não coincidem.')
-                return redirect('accounts:profile')
-            user.set_password(new_pw)
-            user.save()
-            login(request, user)
+        prof.phone = request.POST.get('phone', prof.phone).strip()
+        prof.bio = request.POST.get('bio', prof.bio).strip()
+        prof.instrument = request.POST.get('instrument', prof.instrument)
+        prof.level = request.POST.get('level', prof.level)
+        prof.goal = request.POST.get('goal', prof.goal)
+        if 'avatar' in request.FILES:
+            prof.avatar = request.FILES['avatar']
+        prof.save()
 
         messages.success(request, 'Perfil atualizado com sucesso.')
         return redirect('accounts:profile')
 
-    return render(request, 'profile.html', _profile_stats(request.user))
+    return render(request, 'profile.html', {**_profile_stats(user), 'prof': prof})
 
 
 @login_required(login_url='accounts:login')
 def settings_view(request):
-    return render(request, 'settings.html')
+    prof, _ = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'POST' and request.user.is_superuser:
+        prof.role = request.POST.get('role', prof.role).strip()
+        prof.save()
+        messages.success(request, 'Configurações salvas.')
+        return redirect('accounts:settings')
+    return render(request, 'settings.html', {'prof': prof})
+
+
+@login_required(login_url='accounts:login')
+def request_password_change(request):
+    if request.method != 'POST':
+        return redirect('accounts:profile')
+    user = request.user
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    link = request.build_absolute_uri(f'/accounts/senha/confirmar/{uid}/{token}/')
+    subject = 'Alteração de senha — MUSILAB'
+    body = (
+        f'Olá, {user.first_name or user.username}!\n\n'
+        f'Recebemos uma solicitação para alterar a senha da sua conta.\n\n'
+        f'Clique no link abaixo para definir uma nova senha:\n{link}\n\n'
+        f'O link expira em 1 hora. Se você não solicitou, ignore este email.\n\n'
+        f'— Equipe MUSILAB'
+    )
+    try:
+        send_mail(
+            subject=subject,
+            message=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        messages.success(request, 'Link enviado! Verifique seu e-mail para continuar.')
+    except Exception as e:
+        logger.error('Falha ao enviar email de alteração de senha para %s: %s', user.email, e)
+        messages.error(request, f'Erro ao enviar e-mail: {e}')
+    return redirect('accounts:profile')
+
+
+def confirm_password_change(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, User.DoesNotExist):
+        user = None
+
+    if not user or not default_token_generator.check_token(user, token):
+        return render(request, 'password_change_confirm.html', {'invalid': True})
+
+    if request.method == 'POST':
+        new_pw = request.POST.get('new_pw', '')
+        confirm_pw = request.POST.get('confirm_pw', '')
+        if len(new_pw) < 8:
+            return render(request, 'password_change_confirm.html', {
+                'error': 'A senha deve ter pelo menos 8 caracteres.',
+                'uidb64': uidb64, 'token': token,
+            })
+        if new_pw != confirm_pw:
+            return render(request, 'password_change_confirm.html', {
+                'error': 'As senhas não coincidem.',
+                'uidb64': uidb64, 'token': token,
+            })
+        user.set_password(new_pw)
+        user.save()
+        return render(request, 'password_change_confirm.html', {'done': True})
+
+    return render(request, 'password_change_confirm.html', {'uidb64': uidb64, 'token': token})
 
 
 def password_reset(request):
-    return redirect('accounts:login')
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
+
+        if user:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            link = request.build_absolute_uri(f'/accounts/senha/confirmar/{uid}/{token}/')
+            subject = 'Recuperação de senha — MUSILAB'
+            body = (
+                f'Olá, {user.first_name or user.username}!\n\n'
+                f'Recebemos uma solicitação para redefinir a senha da sua conta.\n\n'
+                f'Clique no link abaixo para definir uma nova senha:\n{link}\n\n'
+                f'O link expira em 1 hora. Se você não solicitou, ignore este email.\n\n'
+                f'— Equipe MUSILAB'
+            )
+            try:
+                send_mail(
+                    subject=subject,
+                    message=body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                logger.error('Falha ao enviar email de recuperação para %s: %s', user.email, e)
+                messages.error(request, f'Erro ao enviar e-mail: {e}')
+                return render(request, 'password_reset.html', {'email': email})
+
+        messages.success(request, 'Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.')
+        return render(request, 'password_reset.html', {'sent': True})
+
+    return render(request, 'password_reset.html')
 
 
 # ── OAuth helpers ──────────────────────────────────────────────────────────────
