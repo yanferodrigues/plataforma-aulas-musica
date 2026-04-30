@@ -28,4 +28,6 @@ urlpatterns = [
     path('studio/exercicios/novo/', views.studio_exercise_save, name='studio_exercise_create'),
     path('studio/exercicios/<int:pk>/editar/', views.studio_exercise_save, name='studio_exercise_edit'),
     path('studio/exercicios/<int:pk>/excluir/', views.studio_exercise_delete, name='studio_exercise_delete'),
+
+    path('studio/usuarios/<int:pk>/excluir/', views.studio_user_delete, name='studio_user_delete'),
 ]

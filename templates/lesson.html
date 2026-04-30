@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <link rel="icon" type="image/png" href="{% static 'assets/logo-musilab.png' %}" />
 </head>
 <body>
 
@@ -87,14 +88,6 @@
                       <button class="vp-menu-item" data-speed="1.25">1.25×</button>
                       <button class="vp-menu-item" data-speed="1.5">1.5×</button>
                       <button class="vp-menu-item" data-speed="2">2×</button>
-                    </div>
-                  </div>
-                  <!-- Qualidade -->
-                  <div class="vp-menu-wrap">
-                    <button class="vp-btn vp-menu-btn" id="vp-qual-btn" aria-label="Qualidade">Auto</button>
-                    <div class="vp-menu" id="vp-qual-menu">
-                      <p class="vp-menu-label">Qualidade</p>
-                      <button class="vp-menu-item active" id="vp-qual-item">Auto</button>
                     </div>
                   </div>
                   <!-- Volume -->
@@ -281,8 +274,10 @@
     <aside class="lesson-sidebar">
       <div class="ls-header">
         <h3>{{ module.title }}</h3>
-        <p class="ls-progress-label">{{ completed_count }} de {{ total_count }} aulas concluídas · {{ module_pct }}%</p>
-        <div class="pbar" style="margin-top:10px;"><div class="pbar-fill" data-width="{{ module_pct }}%" style="width:0"></div></div>
+        <p class="ls-progress-label">
+          <span id="ls-done-count">{{ completed_count }}</span> de {{ total_count }} aulas concluídas · <span id="ls-pct">{{ module_pct }}</span>%
+        </p>
+        <div class="pbar" style="margin-top:10px;"><div class="pbar-fill" id="ls-pbar" data-width="{{ module_pct }}%" style="width:0"></div></div>
       </div>
 
       <div class="ls-lessons">
@@ -332,86 +327,195 @@
   }
   </script>
 
+  <!-- ── Progress tracking ── -->
+  <style>
+    .lesson-complete-toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--success); color: #fff;
+      padding: 14px 28px; border-radius: var(--radius-xl);
+      font-family: var(--font-ui); font-size: 15px; font-weight: 600;
+      box-shadow: 0 8px 32px rgba(76,175,138,.35);
+      opacity: 0; transition: opacity .35s, transform .35s; z-index: 9999; white-space: nowrap;
+    }
+    .lesson-complete-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+  <script>
+  (function () {
+    var LESSON_ID    = {{ lesson.pk }};
+    var RESUME_POS   = {{ resume_position }};
+    var LESSON_DONE  = {{ already_completed|yesno:"true,false" }};
+    var TOTAL_COUNT  = {{ total_count }};
+    var PROGRESS_URL = '{% url "progress:update" %}';
+    var CSRF         = '{{ csrf_token }}';
+    var _lastSaved   = -10;
+
+    function saveProgress(currentTime, duration) {
+      var t = Math.floor(currentTime || 0);
+      var d = Math.floor(duration   || 0);
+      if (t - _lastSaved < 5 && t < d * 0.9) return;
+      _lastSaved = t;
+      fetch(PROGRESS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': CSRF,
+        },
+        body: 'lesson_id=' + LESSON_ID + '&current_time=' + t + '&duration=' + d,
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { if (data.newly_completed) onLessonComplete(); })
+      .catch(function () {});
+    }
+
+    function onLessonComplete() {
+      if (LESSON_DONE) return;
+      LESSON_DONE = true;
+
+      // Sidebar: marcar aula atual como concluída
+      var item = document.querySelector('.ls-item.active');
+      if (item) {
+        item.classList.remove('active');
+        item.classList.add('done');
+        var num = item.querySelector('.ls-num');
+        if (num) num.textContent = '✓';
+      }
+
+      // Atualizar contagem e barra do módulo
+      var doneEl = document.getElementById('ls-done-count');
+      var pctEl  = document.getElementById('ls-pct');
+      var pbar   = document.getElementById('ls-pbar');
+      if (doneEl && pctEl) {
+        var done = parseInt(doneEl.textContent) + 1;
+        var pct  = Math.round(done / TOTAL_COUNT * 100);
+        doneEl.textContent = done;
+        pctEl.textContent  = pct;
+        if (pbar) pbar.style.width = pct + '%';
+      }
+
+      // Toast
+      var toast = document.createElement('div');
+      toast.className = 'lesson-complete-toast';
+      toast.textContent = '✓ Aula concluída!';
+      document.body.appendChild(toast);
+      setTimeout(function () { toast.classList.add('show'); }, 50);
+      setTimeout(function () {
+        toast.classList.remove('show');
+        setTimeout(function () { toast.remove(); }, 400);
+      }, 3500);
+    }
+
+    // Expor para os players
+    window._saveProgress   = saveProgress;
+    window._resumePos      = RESUME_POS;
+    window._lessonDone     = LESSON_DONE;
+    window._onLessonComplete = onLessonComplete;
+  })();
+  </script>
+
   {% if video_file_url %}
   <!-- ── Player JS ── -->
   <script>
   (function () {
-    var vid  = document.getElementById('vid');
-    var wrap = document.getElementById('player-wrap');
+    var vid      = document.getElementById('vid');
+    var wrap     = document.getElementById('player-wrap');
     if (!vid || !wrap) return;
 
-    var bigPlay    = document.getElementById('vp-big-play');
-    var playBtn    = document.getElementById('vp-play-btn');
-    var played     = document.getElementById('vp-played');
-    var buffered   = document.getElementById('vp-buffered');
-    var thumb      = document.getElementById('vp-thumb');
-    var progWrap   = document.getElementById('vp-progress-wrap');
-    var timeDisp   = document.getElementById('vp-time');
-    var volBtn     = document.getElementById('vp-vol-btn');
-    var volSlider  = document.getElementById('vp-vol');
-    var fsBtn      = document.getElementById('vp-fs-btn');
-    var loading    = document.getElementById('vp-loading');
-    var speedBtn   = document.getElementById('vp-speed-btn');
-    var speedMenu  = document.getElementById('vp-speed-menu');
-    var qualBtn    = document.getElementById('vp-qual-btn');
-    var qualMenu   = document.getElementById('vp-qual-menu');
-    var qualItem   = document.getElementById('vp-qual-item');
+    var bigPlay  = document.getElementById('vp-big-play');
+    var playBtn  = document.getElementById('vp-play-btn');
+    var played   = document.getElementById('vp-played');
+    var buffered = document.getElementById('vp-buffered');
+    var thumb    = document.getElementById('vp-thumb');
+    var progWrap = document.getElementById('vp-progress-wrap');
+    var timeDisp = document.getElementById('vp-time');
+    var volBtn   = document.getElementById('vp-vol-btn');
+    var volSlider= document.getElementById('vp-vol');
+    var fsBtn    = document.getElementById('vp-fs-btn');
+    var loading  = document.getElementById('vp-loading');
+    var speedBtn = document.getElementById('vp-speed-btn');
+    var speedMenu= document.getElementById('vp-speed-menu');
+    var controls = document.getElementById('vp-controls');
 
+    /* ── Helpers ── */
     function fmt(s) {
       s = Math.floor(s || 0);
       var m = Math.floor(s / 60), ss = s % 60;
       return m + ':' + (ss < 10 ? '0' : '') + ss;
     }
-
     function updateBar() {
-      var pct = vid.duration ? vid.currentTime / vid.duration * 100 : 0;
-      played.style.width = pct + '%';
-      thumb.style.left   = pct + '%';
+      if (!vid.duration) return;
+      var pct = vid.currentTime / vid.duration * 100;
+      played.style.width  = pct + '%';
+      thumb.style.left    = pct + '%';
       timeDisp.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
       if (vid.buffered.length) {
         buffered.style.width = (vid.buffered.end(vid.buffered.length - 1) / vid.duration * 100) + '%';
       }
     }
-
     function setPlay(playing) {
-      playBtn.textContent = playing ? '⏸' : '▶';
-      bigPlay.style.display = playing ? 'none' : 'flex';
+      playBtn.textContent      = playing ? '⏸' : '▶';
+      bigPlay.style.display    = playing ? 'none' : 'flex';
       wrap.classList.toggle('vp-paused', !playing);
     }
 
-    vid.addEventListener('timeupdate',    updateBar);
-    vid.addEventListener('loadedmetadata',updateBar);
-    vid.addEventListener('play',          function () { setPlay(true);  });
-    vid.addEventListener('pause',         function () { setPlay(false); });
-    vid.addEventListener('ended',         function () { setPlay(false); });
-    vid.addEventListener('waiting',       function () { loading.classList.add('active'); });
-    vid.addEventListener('canplay',       function () { loading.classList.remove('active'); });
+    /* ── Resume: robusto para vídeo em cache ── */
+    function applyResume() {
+      if (window._resumePos > 4 && !window._lessonDone && vid.duration > window._resumePos + 5) {
+        vid.currentTime = window._resumePos;
+      }
+    }
+    if (vid.readyState >= 1) { applyResume(); } /* metadados já prontos */
+    else { vid.addEventListener('loadedmetadata', applyResume, { once: true }); }
 
+    /* ── Eventos base ── */
+    vid.addEventListener('timeupdate', function () {
+      updateBar();
+      if (window._saveProgress) window._saveProgress(vid.currentTime, vid.duration);
+    });
+    vid.addEventListener('loadedmetadata', updateBar);
+    vid.addEventListener('play',    function () { setPlay(true); });
+    vid.addEventListener('pause',   function () { setPlay(false); });
+    vid.addEventListener('ended',   function () {
+      setPlay(false);
+      if (window._saveProgress) window._saveProgress(vid.duration, vid.duration);
+    });
+    vid.addEventListener('waiting', function () { loading.classList.add('active'); });
+    vid.addEventListener('canplay', function () { loading.classList.remove('active'); });
+
+    /* ── Play/pause toggle ── */
     function toggle() { vid.paused ? vid.play() : vid.pause(); }
     playBtn.addEventListener('click', toggle);
     bigPlay.addEventListener('click', toggle);
-    vid.addEventListener('click', toggle);
+    vid.addEventListener('click',    toggle);
 
-    /* ── Seek ── */
-    var seeking = false;
-    function seek(e) {
-      var r = progWrap.getBoundingClientRect();
-      var pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    /* ── Seek (mouse + touch) ── */
+    var isSeeking = false;
+    function seekTo(clientX) {
+      var r   = progWrap.getBoundingClientRect();
+      var pct = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
       vid.currentTime = pct * vid.duration;
+      updateBar();
     }
-    progWrap.addEventListener('mousedown', function (e) { seeking = true; seek(e); });
-    document.addEventListener('mousemove', function (e) { if (seeking) seek(e); });
-    document.addEventListener('mouseup',   function ()  { seeking = false; });
+    progWrap.addEventListener('mousedown', function (e) {
+      e.preventDefault(); isSeeking = true; seekTo(e.clientX);
+    });
+    document.addEventListener('mousemove', function (e) { if (isSeeking) seekTo(e.clientX); });
+    document.addEventListener('mouseup',   function ()  { isSeeking = false; });
+    progWrap.addEventListener('touchstart', function (e) {
+      e.preventDefault(); seekTo(e.touches[0].clientX);
+    }, { passive: false });
+    progWrap.addEventListener('touchmove', function (e) {
+      e.preventDefault(); seekTo(e.touches[0].clientX);
+    }, { passive: false });
 
     /* ── Volume ── */
     volSlider.addEventListener('input', function () {
-      vid.volume = parseFloat(volSlider.value);
-      vid.muted  = vid.volume === 0;
+      vid.volume     = parseFloat(volSlider.value);
+      vid.muted      = vid.volume === 0;
       volBtn.textContent = (vid.muted || vid.volume === 0) ? '🔇' : '🔊';
     });
     volBtn.addEventListener('click', function () {
-      vid.muted = !vid.muted;
-      volSlider.value = vid.muted ? 0 : vid.volume;
+      vid.muted          = !vid.muted;
+      volSlider.value    = vid.muted ? 0 : vid.volume;
       volBtn.textContent = vid.muted ? '🔇' : '🔊';
     });
 
@@ -427,23 +531,20 @@
     /* ── Teclado ── */
     document.addEventListener('keydown', function (e) {
       if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-      if (e.code === 'Space')       { e.preventDefault(); toggle(); }
-      if (e.code === 'ArrowRight')  { vid.currentTime = Math.min(vid.duration, vid.currentTime + 10); }
-      if (e.code === 'ArrowLeft')   { vid.currentTime = Math.max(0, vid.currentTime - 10); }
-      if (e.code === 'KeyM')        { volBtn.click(); }
-      if (e.code === 'KeyF')        { fsBtn.click(); }
+      if (e.code === 'Space')      { e.preventDefault(); toggle(); }
+      if (e.code === 'ArrowRight') { vid.currentTime = Math.min(vid.duration, vid.currentTime + 10); }
+      if (e.code === 'ArrowLeft')  { vid.currentTime = Math.max(0, vid.currentTime - 10); }
+      if (e.code === 'KeyM')       { volBtn.click(); }
+      if (e.code === 'KeyF')       { fsBtn.click(); }
     });
 
     /* ── Velocidade ── */
-    function closeMenus() {
-      speedMenu.classList.remove('open');
-      qualMenu.classList.remove('open');
-    }
+    function closeMenus() { speedMenu.classList.remove('open'); }
     speedBtn.addEventListener('click', function (e) {
       e.stopPropagation();
-      var opening = !speedMenu.classList.contains('open');
+      var open = !speedMenu.classList.contains('open');
       closeMenus();
-      if (opening) speedMenu.classList.add('open');
+      if (open) speedMenu.classList.add('open');
     });
     speedMenu.querySelectorAll('.vp-menu-item').forEach(function (item) {
       item.addEventListener('click', function (e) {
@@ -456,38 +557,19 @@
         closeMenus();
       });
     });
-
-    /* ── Qualidade ── */
-    vid.addEventListener('loadedmetadata', function () {
-      var h = vid.videoHeight;
-      var label = h >= 2160 ? '4K' : h >= 1440 ? '1440p' : h >= 1080 ? '1080p' : h >= 720 ? '720p' : h >= 480 ? '480p' : h >= 360 ? '360p' : 'Auto';
-      qualBtn.textContent = label;
-      qualItem.textContent = label;
-    });
-    qualBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var opening = !qualMenu.classList.contains('open');
-      closeMenus();
-      if (opening) qualMenu.classList.add('open');
-    });
-    qualMenu.querySelectorAll('.vp-menu-item').forEach(function (item) {
-      item.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); });
-    });
-
-    /* ── Fechar menus ao clicar fora ── */
     document.addEventListener('click', closeMenus);
 
     /* ── Auto-hide controls ── */
     var hideTimer;
-    wrap.addEventListener('mousemove', function () {
+    function showControls() {
+      controls.style.opacity = '1';
       clearTimeout(hideTimer);
-      document.getElementById('vp-controls').style.opacity = '1';
-      if (!vid.paused) hideTimer = setTimeout(function () {
-        document.getElementById('vp-controls').style.opacity = '0';
-      }, 2800);
-    });
+      if (!vid.paused) hideTimer = setTimeout(function () { controls.style.opacity = '0'; }, 3000);
+    }
+    wrap.addEventListener('mousemove',  showControls);
+    wrap.addEventListener('touchstart', showControls, { passive: true });
     wrap.addEventListener('mouseleave', function () {
-      if (!vid.paused) document.getElementById('vp-controls').style.opacity = '0';
+      if (!vid.paused) controls.style.opacity = '0';
     });
   })();
   </script>
@@ -495,20 +577,41 @@
   {% elif youtube_id %}
   <!-- ── YouTube IFrame API ── -->
   <script>
+    var _ytPlayer = null;
+    var _ytInterval = null;
+
     window.onYouTubeIframeAPIReady = function () {
-      new YT.Player('yt-player', {
+      _ytPlayer = new YT.Player('yt-player', {
         videoId: '{{ youtube_id }}',
-        playerVars: {
-          rel: 0,
-          modestbranding: 1,
-          origin: window.location.origin,
-        },
+        playerVars: { rel: 0, modestbranding: 1, origin: window.location.origin },
         events: {
+          onReady: function (e) {
+            var dur = e.target.getDuration();
+            if (window._resumePos > 0 && !window._lessonDone && dur > window._resumePos + 5) {
+              e.target.seekTo(window._resumePos, true);
+            }
+          },
+          onStateChange: function (e) {
+            if (e.data === YT.PlayerState.PLAYING) {
+              _ytInterval = setInterval(function () {
+                if (!_ytPlayer) return;
+                window._saveProgress && window._saveProgress(
+                  _ytPlayer.getCurrentTime(),
+                  _ytPlayer.getDuration()
+                );
+              }, 5000);
+            } else {
+              clearInterval(_ytInterval);
+              if (_ytPlayer && window._saveProgress) {
+                window._saveProgress(_ytPlayer.getCurrentTime(), _ytPlayer.getDuration());
+              }
+            }
+          },
           onError: function () {
             var el = document.getElementById('yt-error');
             if (el) el.style.display = 'flex';
-          }
-        }
+          },
+        },
       });
     };
     (function () {

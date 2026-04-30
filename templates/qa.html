@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <link rel="icon" type="image/png" href="{% static 'assets/logo-musilab.png' %}" />
   <style>
     .qa-layout { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
 
@@ -115,6 +116,14 @@
     .qa-reply-form { display: none; margin-top: 14px; }
     .qa-reply-form.open { display: block; }
 
+    .qa-delete-btn {
+      background: none; border: none; color: var(--text-secondary);
+      font-size: 13px; cursor: pointer; padding: 4px 8px;
+      border-radius: var(--radius-xs); transition: color .2s, background .2s;
+      line-height: 1; flex-shrink: 0;
+    }
+    .qa-delete-btn:hover { color: var(--error); background: rgba(248,88,88,.1); }
+
     .qa-empty {
       text-align: center; padding: 60px 24px;
       background: var(--glass); border: 1px solid var(--glass-border);
@@ -163,15 +172,23 @@
   <div class="qa-card" id="q{{ q.pk }}">
 
     <!-- Cabeçalho da pergunta -->
-    <div class="qa-user-row">
-      <div class="qa-avatar">{{ q.user.first_name|first|upper|default:q.user.username|first|upper }}</div>
-      <div>
-        <p class="qa-username">
-          {{ q.user.get_full_name|default:q.user.username }}
-          {% if q.user.is_superuser %}<span class="qa-prof-badge">Professor</span>{% endif %}
-        </p>
-        <p class="qa-meta">{{ q.created_at|timesince }} atrás</p>
+    <div class="qa-user-row" style="justify-content:space-between;">
+      <div class="qa-user-row" style="gap:inherit;">
+        <div class="qa-avatar">{{ q.user.first_name|first|upper|default:q.user.username|first|upper }}</div>
+        <div>
+          <p class="qa-username">
+            {{ q.user.get_full_name|default:q.user.username }}
+            {% if q.user.is_superuser %}<span class="qa-prof-badge">Professor</span>{% endif %}
+          </p>
+          <p class="qa-meta">{{ q.created_at|timesince }} atrás</p>
+        </div>
       </div>
+      {% if request.user.is_superuser %}
+      <form method="post" action="{% url 'courses:delete_question' module.pk lesson.pk q.pk %}" onsubmit="return confirm('Apagar esta pergunta e todas as suas respostas?');">
+        {% csrf_token %}
+        <button type="submit" class="qa-delete-btn" title="Apagar pergunta">✕</button>
+      </form>
+      {% endif %}
     </div>
 
     <p class="qa-text">{{ q.text }}</p>
@@ -181,21 +198,29 @@
     <div class="qa-answers">
       {% for ans in q.answers.all %}
       <div class="qa-answer {% if ans.is_professor_answer %}prof-answer{% endif %}">
-        <div class="qa-user-row" style="margin-bottom:8px;">
-          <div class="qa-avatar {% if ans.is_professor_answer %}prof{% endif %}" style="width:30px;height:30px;font-size:12px;">
-            {{ ans.user.first_name|first|upper|default:ans.user.username|first|upper }}
+        <div class="qa-user-row" style="margin-bottom:8px;justify-content:space-between;">
+          <div class="qa-user-row" style="gap:inherit;">
+            <div class="qa-avatar {% if ans.is_professor_answer %}prof{% endif %}" style="width:30px;height:30px;font-size:12px;">
+              {{ ans.user.first_name|first|upper|default:ans.user.username|first|upper }}
+            </div>
+            <div>
+              <p class="qa-username" style="font-size:13px;">
+                {% if ans.is_professor_answer %}
+                  {{ ans.user.get_full_name|default:ans.user.username }}
+                  <span class="qa-prof-badge">Professor</span>
+                {% else %}
+                  {{ ans.user.get_full_name|default:ans.user.username }}
+                {% endif %}
+              </p>
+              <p class="qa-meta">{{ ans.created_at|timesince }} atrás</p>
+            </div>
           </div>
-          <div>
-            <p class="qa-username" style="font-size:13px;">
-              {% if ans.is_professor_answer %}
-                {{ ans.user.get_full_name|default:ans.user.username }}
-                <span class="qa-prof-badge">Professor</span>
-              {% else %}
-                {{ ans.user.get_full_name|default:ans.user.username }}
-              {% endif %}
-            </p>
-            <p class="qa-meta">{{ ans.created_at|timesince }} atrás</p>
-          </div>
+          {% if request.user.is_superuser %}
+          <form method="post" action="{% url 'courses:delete_answer' module.pk lesson.pk ans.pk %}" onsubmit="return confirm('Apagar esta resposta?');">
+            {% csrf_token %}
+            <button type="submit" class="qa-delete-btn" title="Apagar resposta">✕</button>
+          </form>
+          {% endif %}
         </div>
         <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;">{{ ans.text }}</p>
       </div>

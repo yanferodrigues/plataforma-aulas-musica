@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <link rel="icon" type="image/png" href="{% static 'assets/logo-musilab.png' %}" />
 </head>
 <body>
 
@@ -75,9 +76,9 @@
     <header class="db-topbar">
       <h1 class="db-topbar-title">Perfil</h1>
       <div class="db-topbar-actions">
-        <a href="#" class="db-icon-btn" aria-label="Notificações">
-          🔔 <span class="badge"></span>
-        </a>
+        <button class="db-icon-btn" id="notif-btn" aria-label="Notificações" onclick="toggleNotifPanel()">
+          🔔 <span class="badge" id="notif-badge" style="display:none;"></span>
+        </button>
       </div>
     </header>
 
@@ -240,5 +241,16 @@
   gsap.from('.profile-card', { opacity: 0, x: -24, duration: 0.5, ease: 'power2.out' });
   gsap.from('.settings-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out', delay: 0.15 });
 </script>
+
+<!-- Notification Panel -->
+<div class="notif-backdrop" id="notif-backdrop" onclick="closeNotifPanel()"></div>
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-head">
+    <span class="notif-panel-title">Notificações</span>
+    <button class="notif-mark-all" onclick="markAllRead()">Marcar tudo como lido</button>
+  </div>
+  <div class="notif-list" id="notif-list"></div>
+</div>
+<script src="{% static 'assets/notifications.js' %}"></script>
 </body>
 </html>

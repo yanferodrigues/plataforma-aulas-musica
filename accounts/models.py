@@ -71,6 +71,22 @@ class NotificationSettings(models.Model):
         return f'Notificações de {self.user.username}'
 
 
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notificação'
+        verbose_name_plural = 'Notificações'
+
+    def __str__(self):
+        return f'{self.subject} → {self.user.username}'
+
+
 class PlaybackSettings(models.Model):
 
     QUALITY_CHOICES = [

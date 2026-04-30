@@ -1,5 +1,10 @@
+import os
+import re
+import mimetypes
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, FileResponse, Http404, StreamingHttpResponse
+from django.urls import reverse
 from courses.models import Module, Lesson, Question, Answer
 from progress.models import LessonProgress, ModuleProgress
 
@@ -80,11 +85,15 @@ def dashboard(request):
 
     continue_pct = 0
     remaining_min = None
-    if last_lp and last_lp.lesson.duration_minutes:
-        total_sec = last_lp.lesson.duration_minutes * 60
-        continue_pct = min(100, round(last_lp.watch_time_seconds / total_sec * 100)) if total_sec else 0
-        watched_min = last_lp.watch_time_seconds // 60
-        remaining_min = max(0, last_lp.lesson.duration_minutes - watched_min)
+    if last_lp:
+        if last_lp.completed:
+            continue_pct = 100
+            remaining_min = 0
+        elif last_lp.lesson.duration_minutes:
+            total_sec = last_lp.lesson.duration_minutes * 60
+            continue_pct = min(99, round(last_lp.watch_time_seconds / total_sec * 100)) if total_sec else 0
+            watched_min = last_lp.watch_time_seconds // 60
+            remaining_min = max(0, last_lp.lesson.duration_minutes - watched_min)
 
     context = {
         'modules': modules_data,
@@ -168,6 +177,7 @@ def lesson_detail(request, module_pk, pk):
 
     objectives_list = [o.strip() for o in lesson.objectives.split('\n') if o.strip()] if lesson.objectives else []
 
+    current_lp = lp_map.get(lesson.pk)
     context = {
         'module': module,
         'lesson': lesson,
@@ -181,10 +191,12 @@ def lesson_detail(request, module_pk, pk):
         'materials': lesson.materials.all(),
         'exercises': lesson.exercises.all(),
         'questions': lesson.questions.select_related('user').prefetch_related('answers__user').all(),
-        'video_file_url': lesson.video_file.url if lesson.video_file else None,
+        'video_file_url': reverse('courses:video_serve', args=[lesson.pk]) if lesson.video_file else None,
         'embed_url': _embed_url(lesson.video_url),
         'youtube_id': _youtube_id(lesson.video_url),
         'video_url': lesson.video_url,
+        'resume_position': current_lp.resume_position if current_lp else 0,
+        'already_completed': current_lp.completed if current_lp else False,
     }
     return render(request, 'lesson.html', context)
 
@@ -221,3 +233,70 @@ def lesson_qa(request, module_pk, pk):
         'total_questions': questions.count(),
     }
     return render(request, 'qa.html', context)
+
+
+@login_required(login_url='accounts:login')
+def delete_question(request, module_pk, pk, question_pk):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+    if request.method == 'POST':
+        question = get_object_or_404(Question, pk=question_pk, lesson__pk=pk, lesson__module__pk=module_pk)
+        question.delete()
+    return redirect('courses:lesson_qa', module_pk=module_pk, pk=pk)
+
+
+@login_required(login_url='accounts:login')
+def delete_answer(request, module_pk, pk, answer_pk):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+    if request.method == 'POST':
+        answer = get_object_or_404(Answer, pk=answer_pk, question__lesson__pk=pk, question__lesson__module__pk=module_pk)
+        answer.delete()
+    return redirect('courses:lesson_qa', module_pk=module_pk, pk=pk)
+
+
+@login_required(login_url='accounts:login')
+def video_serve(request, pk):
+    """Serve vídeo com suporte completo a HTTP Range Requests (RFC 7233)."""
+    lesson = get_object_or_404(Lesson, pk=pk, is_active=True)
+    if not lesson.video_file:
+        raise Http404('Nenhum arquivo de vídeo para esta aula.')
+
+    file_path   = lesson.video_file.path
+    file_size   = os.path.getsize(file_path)
+    content_type, _ = mimetypes.guess_type(lesson.video_file.name)
+    content_type = content_type or 'video/mp4'
+
+    range_header = request.META.get('HTTP_RANGE', '').strip()
+    range_match  = re.match(r'bytes=(\d+)-(\d*)', range_header) if range_header else None
+
+    if range_match:
+        start = int(range_match.group(1))
+        end   = int(range_match.group(2)) if range_match.group(2) else file_size - 1
+        end   = min(end, file_size - 1)
+        length = end - start + 1
+
+        def _stream(path, offset, size, chunk=65536):
+            with open(path, 'rb') as f:
+                f.seek(offset)
+                remaining = size
+                while remaining > 0:
+                    data = f.read(min(chunk, remaining))
+                    if not data:
+                        break
+                    remaining -= len(data)
+                    yield data
+
+        response = StreamingHttpResponse(
+            _stream(file_path, start, length),
+            status=206,
+            content_type=content_type,
+        )
+        response['Content-Range']  = f'bytes {start}-{end}/{file_size}'
+        response['Content-Length'] = length
+    else:
+        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+        response['Content-Length'] = file_size
+
+    response['Accept-Ranges'] = 'bytes'
+    return response

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFormAnimations();
   initPasswordToggles();
   initFormValidation();
+  initAutofillDetection();
   initFormSubmit();
   initAlerts();
 });
@@ -48,6 +49,17 @@ function initPasswordToggles() {
       const visible = input.type === 'text';
       input.type  = visible ? 'password' : 'text';
       btn.textContent = visible ? '👁' : '🙈';
+    });
+  });
+}
+
+/* ─── AUTOFILL DETECTION ─────────────────────────────────── */
+function initAutofillDetection() {
+  document.querySelectorAll('.form-input').forEach(input => {
+    input.addEventListener('animationstart', e => {
+      if (e.animationName === 'autofill-detect') {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
     });
   });
 }

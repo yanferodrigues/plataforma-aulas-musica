@@ -5,4 +5,5 @@ app_name = 'progress'
 
 urlpatterns = [
     path('', views.progress, name='progress'),
+    path('update/', views.update_progress, name='update'),
 ]

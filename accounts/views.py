@@ -1,19 +1,61 @@
 import os
 import secrets
+import logging
 import urllib.parse
 import requests as _requests
+
+logger = logging.getLogger(__name__)
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import JsonResponse
 from django.db.models import Sum
 from progress.models import LessonProgress, StudyStreak
 from achievements.models import UserAchievement
+from .models import Notification
 
 _GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
 _GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
+
+
+def send_notification(user, subject, message):
+    """Envia email e salva notificação no banco para o usuário."""
+    Notification.objects.create(user=user, subject=subject, message=message)
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.error('Falha ao enviar email para %s: %s', user.email, e)
+
+
+@login_required(login_url='accounts:login')
+def notifications_api(request):
+    qs = Notification.objects.filter(user=request.user)
+    unread = qs.filter(is_read=False).count()
+    if request.method == 'POST':
+        qs.filter(is_read=False).update(is_read=True)
+        return JsonResponse({'ok': True})
+    data = [
+        {
+            'id': n.pk,
+            'subject': n.subject,
+            'message': n.message[:150] + ('…' if len(n.message) > 150 else ''),
+            'is_read': n.is_read,
+            'created_at': n.created_at.strftime('%d/%m/%Y %H:%M'),
+        }
+        for n in qs[:30]
+    ]
+    return JsonResponse({'notifications': data, 'unread': unread})
 
 
 def login_view(request):
@@ -72,6 +114,17 @@ def register(request):
             last_name=last_name,
         )
         login(request, user)
+
+        send_notification(
+            user=user,
+            subject='Bem-vindo ao MUSILAB!',
+            message=(
+                f'Olá, {first_name or email}!\n\n'
+                'Sua conta foi criada com sucesso. Bom estudo!\n\n'
+                '— Equipe MUSILAB'
+            ),
+        )
+
         return redirect('courses:dashboard')
 
     return render(request, 'register.html')

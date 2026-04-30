@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <link rel="icon" type="image/png" href="{% static 'assets/logo-musilab.png' %}" />
 </head>
 <body>
 
@@ -83,10 +84,10 @@
             <span style="font-size:16px;color:var(--text-secondary);">🔍</span>
             <input type="text" placeholder="Buscar módulos ou aulas…" />
           </div>
-          <a href="#" class="db-icon-btn" aria-label="Notificações">
+          <button class="db-icon-btn" id="notif-btn" aria-label="Notificações" onclick="toggleNotifPanel()">
             🔔
-            <span class="badge"></span>
-          </a>
+            <span class="badge" id="notif-badge" style="display:none;"></span>
+          </button>
         </div>
       </header>
 
@@ -137,7 +138,11 @@
           {% for item in modules %}
           <div class="db-mod-card">
             <div class="db-mod-cover">
+              {% if item.module.thumbnail %}
+              <img src="{{ item.module.thumbnail.url }}" alt="{{ item.module.title }}" />
+              {% else %}
               <div class="cover-bg {{ item.color_class }}"></div>
+              {% endif %}
               <span class="db-mod-num">MÓDULO {{ item.module.order|stringformat:"02d" }}</span>
             </div>
             <div class="db-mod-body">
@@ -165,7 +170,18 @@
 
   </div><!-- /db-layout -->
 
+  <!-- Notification Panel -->
+  <div class="notif-backdrop" id="notif-backdrop" onclick="closeNotifPanel()"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-panel-head">
+      <span class="notif-panel-title">Notificações</span>
+      <button class="notif-mark-all" onclick="markAllRead()">Marcar tudo como lido</button>
+    </div>
+    <div class="notif-list" id="notif-list"></div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="{% static 'assets/dashboard.js' %}"></script>
+  <script src="{% static 'assets/notifications.js' %}"></script>
 </body>
 </html>

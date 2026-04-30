@@ -9,6 +9,7 @@ class LessonProgress(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
     completed = models.BooleanField(default=False)
     watch_time_seconds = models.PositiveIntegerField(default=0)
+    resume_position = models.PositiveIntegerField(default=0)
     completed_at = models.DateTimeField(blank=True, null=True)
     last_watched_at = models.DateTimeField(auto_now=True)
 

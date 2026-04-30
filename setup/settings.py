@@ -29,7 +29,7 @@ SECRET_KEY = str(os.getenv("SECRET_KEY"))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost','10.211.100.68','127.0.0.1']
 
 
 # Application definition
@@ -141,3 +141,12 @@ USE_L10N = True
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/courses/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+
+# ── Email ──────────────────────────────────────────────────────────────────────
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

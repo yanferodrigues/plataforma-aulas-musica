@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'style/styles.css' %}" />
+  <link rel="icon" type="image/png" href="{% static 'assets/logo-musilab.png' %}" />
   <style>
     /* ── STUDIO OVERRIDES ─────────────────────────────── */
     .studio-sidebar { background: #110d1e; border-right: 1px solid rgba(112,56,248,.15); }
@@ -608,6 +609,7 @@
                 <th>Cadastro</th>
                 <th>Acesso</th>
                 <th>Admin</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody id="users-body">
@@ -635,9 +637,18 @@
                     <span style="color:var(--text-secondary);font-size:12px;">—</span>
                   {% endif %}
                 </td>
+                <td style="white-space:nowrap;">
+                  {% if not u.is_superuser and u != request.user %}
+                  <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_user_delete' u.pk %}', 'Excluir usuário &quot;{{ u.get_full_name|default:u.username|escapejs }}&quot;?')">
+                    Excluir
+                  </button>
+                  {% else %}
+                  <span style="color:var(--text-secondary);font-size:12px;">—</span>
+                  {% endif %}
+                </td>
               </tr>
               {% empty %}
-              <tr><td colspan="6" class="st-empty">Nenhum usuário encontrado.</td></tr>
+              <tr><td colspan="7" class="st-empty">Nenhum usuário encontrado.</td></tr>
               {% endfor %}
             </tbody>
           </table>

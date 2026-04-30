@@ -9,4 +9,7 @@ urlpatterns = [
     path('modules/<int:pk>/', views.module_detail, name='module_detail'),
     path('modules/<int:module_pk>/lessons/<int:pk>/', views.lesson_detail, name='lesson_detail'),
     path('modules/<int:module_pk>/lessons/<int:pk>/comunidade/', views.lesson_qa, name='lesson_qa'),
+    path('modules/<int:module_pk>/lessons/<int:pk>/comunidade/pergunta/<int:question_pk>/apagar/', views.delete_question, name='delete_question'),
+    path('modules/<int:module_pk>/lessons/<int:pk>/comunidade/resposta/<int:answer_pk>/apagar/', views.delete_answer, name='delete_answer'),
+    path('lessons/<int:pk>/video/', views.video_serve, name='video_serve'),
 ]

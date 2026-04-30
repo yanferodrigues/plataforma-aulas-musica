@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db import IntegrityError
 from courses.models import Module, Lesson, Material, Exercise
 from achievements.models import Achievement
 
@@ -58,20 +59,23 @@ def studio_module_save(request, pk=None):
         'is_active': request.POST.get('is_active') == 'on',
     }
 
-    if pk:
-        obj = get_object_or_404(Module, pk=pk)
-        for k, v in data.items():
-            setattr(obj, k, v)
-        if 'thumbnail' in request.FILES:
-            obj.thumbnail = request.FILES['thumbnail']
-        obj.save()
-        messages.success(request, f'Módulo "{obj.title}" atualizado.')
-    else:
-        obj = Module(**data)
-        if 'thumbnail' in request.FILES:
-            obj.thumbnail = request.FILES['thumbnail']
-        obj.save()
-        messages.success(request, f'Módulo "{obj.title}" criado.')
+    try:
+        if pk:
+            obj = get_object_or_404(Module, pk=pk)
+            for k, v in data.items():
+                setattr(obj, k, v)
+            if 'thumbnail' in request.FILES:
+                obj.thumbnail = request.FILES['thumbnail']
+            obj.save()
+            messages.success(request, f'Módulo "{obj.title}" atualizado.')
+        else:
+            obj = Module(**data)
+            if 'thumbnail' in request.FILES:
+                obj.thumbnail = request.FILES['thumbnail']
+            obj.save()
+            messages.success(request, f'Módulo "{obj.title}" criado.')
+    except IntegrityError:
+        messages.error(request, f'Já existe um módulo com a ordem {data["order"]}. Escolha um número diferente.')
 
     return redirect('core:studio')
 
@@ -104,19 +108,22 @@ def studio_lesson_save(request, pk=None):
         'is_active': request.POST.get('is_active') == 'on',
     }
 
-    if pk:
-        obj = get_object_or_404(Lesson, pk=pk)
-        for k, v in data.items():
-            setattr(obj, k, v)
-        if 'video_file' in request.FILES:
-            obj.video_file = request.FILES['video_file']
-        obj.save()
-        messages.success(request, f'Aula "{obj.title}" atualizada.')
-    else:
-        if 'video_file' in request.FILES:
-            data['video_file'] = request.FILES['video_file']
-        obj = Lesson.objects.create(**data)
-        messages.success(request, f'Aula "{obj.title}" criada.')
+    try:
+        if pk:
+            obj = get_object_or_404(Lesson, pk=pk)
+            for k, v in data.items():
+                setattr(obj, k, v)
+            if 'video_file' in request.FILES:
+                obj.video_file = request.FILES['video_file']
+            obj.save()
+            messages.success(request, f'Aula "{obj.title}" atualizada.')
+        else:
+            if 'video_file' in request.FILES:
+                data['video_file'] = request.FILES['video_file']
+            obj = Lesson.objects.create(**data)
+            messages.success(request, f'Aula "{obj.title}" criada.')
+    except IntegrityError:
+        messages.error(request, f'Já existe uma aula com a ordem {data["order"]} neste módulo. Escolha um número diferente.')
 
     return redirect('core:studio')
 
@@ -235,15 +242,18 @@ def studio_exercise_save(request, pk=None):
         'correct_option': request.POST.get('correct_option', '').strip() if ex_type == 'quiz' else '',
     }
 
-    if pk:
-        obj = get_object_or_404(Exercise, pk=pk)
-        for k, v in data.items():
-            setattr(obj, k, v)
-        obj.save()
-        messages.success(request, f'Exercício "{obj.title}" atualizado.')
-    else:
-        obj = Exercise.objects.create(**data)
-        messages.success(request, f'Exercício "{obj.title}" criado.')
+    try:
+        if pk:
+            obj = get_object_or_404(Exercise, pk=pk)
+            for k, v in data.items():
+                setattr(obj, k, v)
+            obj.save()
+            messages.success(request, f'Exercício "{obj.title}" atualizado.')
+        else:
+            obj = Exercise.objects.create(**data)
+            messages.success(request, f'Exercício "{obj.title}" criado.')
+    except IntegrityError:
+        messages.error(request, f'Já existe um exercício com o número {data["number"]} nesta aula. Escolha um número diferente.')
 
     return redirect('core:studio')
 
@@ -254,5 +264,22 @@ def studio_exercise_delete(request, pk):
     name = obj.title
     obj.delete()
     messages.success(request, f'Exercício "{name}" excluído.')
+    return redirect('core:studio')
+
+
+# ── USUÁRIOS ─────────────────────────────────────────────────
+
+@superuser_required
+def studio_user_delete(request, pk):
+    obj = get_object_or_404(User, pk=pk)
+    if obj == request.user:
+        messages.error(request, 'Você não pode excluir sua própria conta.')
+        return redirect('core:studio')
+    if obj.is_superuser:
+        messages.error(request, 'Não é possível excluir outro superusuário.')
+        return redirect('core:studio')
+    name = obj.get_full_name() or obj.username
+    obj.delete()
+    messages.success(request, f'Usuário "{name}" excluído.')
     return redirect('core:studio')
 
