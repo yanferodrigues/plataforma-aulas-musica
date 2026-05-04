@@ -91,6 +91,26 @@ def studio_module_delete(request, pk):
 
 # ── AULAS ────────────────────────────────────────────────────
 
+def _notify_new_lesson(lesson):
+    from accounts.views import send_notification
+    from django.contrib.auth.models import User as _User
+    users = _User.objects.filter(
+        notification_settings__new_lessons=True,
+        is_active=True,
+        is_superuser=False,
+    )
+    for user in users:
+        send_notification(
+            user=user,
+            subject=f'Nova aula disponível: {lesson.title}',
+            message=(
+                f'Uma nova aula foi adicionada ao módulo "{lesson.module.title}":\n\n'
+                f'{lesson.title}\n\n'
+                f'Acesse agora e continue aprendendo!\n\n— Equipe MUSILAB'
+            ),
+        )
+
+
 @superuser_required
 def studio_lesson_save(request, pk=None):
     if request.method != 'POST':
@@ -111,17 +131,22 @@ def studio_lesson_save(request, pk=None):
     try:
         if pk:
             obj = get_object_or_404(Lesson, pk=pk)
+            was_active = obj.is_active
             for k, v in data.items():
                 setattr(obj, k, v)
             if 'video_file' in request.FILES:
                 obj.video_file = request.FILES['video_file']
             obj.save()
             messages.success(request, f'Aula "{obj.title}" atualizada.')
+            if not was_active and obj.is_active:
+                _notify_new_lesson(obj)
         else:
             if 'video_file' in request.FILES:
                 data['video_file'] = request.FILES['video_file']
             obj = Lesson.objects.create(**data)
             messages.success(request, f'Aula "{obj.title}" criada.')
+            if obj.is_active:
+                _notify_new_lesson(obj)
     except IntegrityError:
         messages.error(request, f'Já existe uma aula com a ordem {data["order"]} neste módulo. Escolha um número diferente.')
 

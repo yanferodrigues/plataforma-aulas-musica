@@ -1,12 +1,19 @@
 import os
 import re
+import json
 import mimetypes
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, FileResponse, Http404, StreamingHttpResponse
 from django.urls import reverse
 from courses.models import Module, Lesson, Question, Answer
-from progress.models import LessonProgress, ModuleProgress
+from progress.models import LessonProgress, ModuleProgress, ExerciseAnswer
+
+
+def _playback_settings(user):
+    from accounts.models import PlaybackSettings
+    ps, _ = PlaybackSettings.objects.get_or_create(user=user)
+    return ps
 
 
 def _fmt_duration(minutes):
@@ -177,6 +184,11 @@ def lesson_detail(request, module_pk, pk):
 
     objectives_list = [o.strip() for o in lesson.objectives.split('\n') if o.strip()] if lesson.objectives else []
 
+    answered_exercises = {
+        ea.exercise_id: ea.selected_option
+        for ea in ExerciseAnswer.objects.filter(user=request.user, exercise__lesson=lesson)
+    }
+
     current_lp = lp_map.get(lesson.pk)
     context = {
         'module': module,
@@ -197,6 +209,9 @@ def lesson_detail(request, module_pk, pk):
         'video_url': lesson.video_url,
         'resume_position': current_lp.resume_position if current_lp else 0,
         'already_completed': current_lp.completed if current_lp else False,
+        'playback_settings': _playback_settings(request.user),
+        'answered_exercise_pks': set(answered_exercises.keys()),
+        'answered_exercises_json': json.dumps(answered_exercises),
     }
     return render(request, 'lesson.html', context)
 
@@ -223,6 +238,20 @@ def lesson_qa(request, module_pk, pk):
                     text=text,
                     is_professor_answer=request.user.is_superuser,
                 )
+                if q.user != request.user:
+                    from accounts.views import send_notification
+                    respondent = request.user.get_full_name() or request.user.username
+                    role = getattr(request.user, 'profile', None)
+                    role_label = f' ({role.role})' if role and role.role else ''
+                    send_notification(
+                        user=q.user,
+                        subject=f'Sua pergunta recebeu uma resposta',
+                        message=(
+                            f'{respondent}{role_label} respondeu sua pergunta na aula "{lesson.title}":\n\n'
+                            f'Pergunta: {q.text}\n\n'
+                            f'Resposta: {text}'
+                        ),
+                    )
         return redirect('courses:lesson_qa', module_pk=module_pk, pk=pk)
 
     questions = lesson.questions.select_related('user').prefetch_related('answers__user').order_by('-created_at')

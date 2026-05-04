@@ -907,9 +907,17 @@
           <label>Ícone (emoji) *</label>
           <input type="text" name="icon" id="a-icon" maxlength="10" placeholder="🏆" required />
         </div>
-        <div class="st-field">
+        <div class="st-field" id="a-condition_value-wrap">
           <label>Valor da condição *</label>
           <input type="number" name="condition_value" id="a-condition_value" min="1" value="1" required />
+        </div>
+        <div class="st-field" id="a-module-wrap" style="display:none;">
+          <label>Módulo *</label>
+          <select id="a-module-select" onchange="document.getElementById('a-condition_value').value = this.value">
+            {% for m in modules %}
+              <option value="{{ m.pk }}">{{ m.title }}</option>
+            {% endfor %}
+          </select>
         </div>
       </div>
 
@@ -925,7 +933,7 @@
 
       <div class="st-field">
         <label>Tipo de condição *</label>
-        <select name="condition_type" id="a-condition_type" required>
+        <select name="condition_type" id="a-condition_type" required onchange="onConditionTypeChange(this.value)">
           {% for val, label in condition_choices %}
             <option value="{{ val }}">{{ label }}</option>
           {% endfor %}
@@ -1238,7 +1246,22 @@ function openModal_ach_create() {
   document.getElementById('a-condition_type').value = 'first_lesson';
   document.getElementById('a-condition_value').value = '1';
   document.getElementById('a-is_active').checked = true;
+  onConditionTypeChange('first_lesson');
   openModal('modal-achievement');
+}
+
+function onConditionTypeChange(val) {
+  const isSpecific = val === 'specific_module';
+  const isNoValue = val === 'first_lesson' || val === 'module_complete' || val === 'early_access' || val === 'all_modules';
+  document.getElementById('a-condition_value-wrap').style.display = isSpecific || isNoValue ? 'none' : '';
+  document.getElementById('a-module-wrap').style.display = isSpecific ? '' : 'none';
+  if (isSpecific) {
+    const sel = document.getElementById('a-module-select');
+    if (sel.options.length) document.getElementById('a-condition_value').value = sel.value;
+  }
+  if (isNoValue) {
+    document.getElementById('a-condition_value').value = '1';
+  }
 }
 
 function editAchievement(pk, title, desc, icon, condType, condVal, isActive) {
@@ -1250,6 +1273,11 @@ function editAchievement(pk, title, desc, icon, condType, condVal, isActive) {
   document.getElementById('a-condition_type').value = condType;
   document.getElementById('a-condition_value').value = condVal;
   document.getElementById('a-is_active').checked = isActive;
+  onConditionTypeChange(condType);
+  if (condType === 'specific_module') {
+    document.getElementById('a-module-select').value = condVal;
+    document.getElementById('a-condition_value').value = condVal;
+  }
   openModal('modal-achievement');
 }
 

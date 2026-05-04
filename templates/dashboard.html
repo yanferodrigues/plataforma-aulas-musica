@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -29,20 +29,20 @@
         <p class="db-nav-section-label">Principal</p>
 
         <a href="{% url 'courses:dashboard' %}" class="db-nav-link active">
-          <span class="db-nav-icon">🏠</span> Início
+          <img src="{% static 'assets/icons/icons8-casa-50.png' %}" class="db-nav-icon" alt=""> Início
         </a>
         <a href="{% url 'courses:module_list' %}" class="db-nav-link">
-          <span class="db-nav-icon">🎵</span> Módulos
+          <img src="{% static 'assets/icons/icons8-música-48.png' %}" class="db-nav-icon" alt=""> Módulos
         </a>
 
         <a href="{% url 'progress:progress' %}" class="db-nav-link">
-          <span class="db-nav-icon">📈</span> Meu Progresso
+          <img src="{% static 'assets/icons/icons8-positive-dynamic-64.png' %}" class="db-nav-icon" alt=""> Meu Progresso
         </a>
         <a href="{% url 'achievements:achievements' %}" class="db-nav-link">
-          <span class="db-nav-icon">🏆</span> Conquistas
+          <img src="{% static 'assets/icons/icons8-troféu-50.png' %}" class="db-nav-icon" alt=""> Conquistas
         </a>
         <a href="{% url 'chat:chat_list' %}" class="db-nav-link">
-          <span class="db-nav-icon">💬</span> Chat
+          <img src="{% static 'assets/icons/icons8-bate-papo-48.png' %}" class="db-nav-icon" alt=""> Chat
           <span class="chat-badge" id="chat-unread-badge" style="display:none;"></span>
         </a>
 
@@ -56,13 +56,13 @@
         <p class="db-nav-section-label">Conta</p>
 
         <a href="{% url 'accounts:profile' %}" class="db-nav-link">
-          <span class="db-nav-icon">👤</span> Perfil
+          <img src="{% static 'assets/icons/icons8-usuário-homem-com-círculo-50.png' %}" class="db-nav-icon" alt=""> Perfil
         </a>
         <a href="{% url 'accounts:settings' %}" class="db-nav-link">
-          <span class="db-nav-icon">⚙️</span> Configurações
+          <img src="{% static 'assets/icons/icons8-configurações-50.png' %}" class="db-nav-icon" alt=""> Configurações
         </a>
         <a href="{% url 'accounts:logout' %}" class="db-nav-link">
-          <span class="db-nav-icon">🚪</span> Sair
+          <img src="{% static 'assets/icons/icons8-porta-50.png' %}" class="db-nav-icon" alt=""> Sair
         </a>
       </nav>
 
@@ -85,11 +85,11 @@
         <h1 class="db-topbar-title">Início</h1>
         <div class="db-topbar-actions">
           <div class="db-search">
-            <span style="font-size:16px;color:var(--text-secondary);">🔍</span>
+            <span style="font-size:16px;color:var(--text-secondary);"><img src="{% static 'assets/icons/icons8-pesquisar-50.png' %}" alt="" style="width:16px;height:16px;opacity:.5;"></span>
             <input type="text" placeholder="Buscar módulos ou aulas…" />
           </div>
           <button class="db-icon-btn" id="notif-btn" aria-label="Notificações" onclick="toggleNotifPanel()">
-            🔔
+            <img src="{% static 'assets/icons/icons8-sino-48.png' %}" alt="" style="width:18px;height:18px;">
             <span class="badge" id="notif-badge" style="display:none;"></span>
           </button>
         </div>

@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -27,20 +27,20 @@
     <nav class="db-nav">
       <p class="db-nav-section-label">Principal</p>
       <a href="{% url 'courses:dashboard' %}" class="db-nav-link">
-        <span class="db-nav-icon">🏠</span> Início
+        <img src="{% static 'assets/icons/icons8-casa-50.png' %}" class="db-nav-icon" alt=""> Início
       </a>
       <a href="{% url 'courses:module_list' %}" class="db-nav-link">
-        <span class="db-nav-icon">🎵</span> Módulos
+        <img src="{% static 'assets/icons/icons8-música-48.png' %}" class="db-nav-icon" alt=""> Módulos
       </a>
 
       <a href="{% url 'progress:progress' %}" class="db-nav-link">
-        <span class="db-nav-icon">📈</span> Meu Progresso
+        <img src="{% static 'assets/icons/icons8-positive-dynamic-64.png' %}" class="db-nav-icon" alt=""> Meu Progresso
       </a>
       <a href="{% url 'achievements:achievements' %}" class="db-nav-link">
-        <span class="db-nav-icon">🏆</span> Conquistas
+        <img src="{% static 'assets/icons/icons8-troféu-50.png' %}" class="db-nav-icon" alt=""> Conquistas
       </a>
       <a href="{% url 'chat:chat_list' %}" class="db-nav-link">
-        <span class="db-nav-icon">💬</span> Chat
+        <img src="{% static 'assets/icons/icons8-bate-papo-48.png' %}" class="db-nav-icon" alt=""> Chat
         <span class="chat-badge" id="chat-unread-badge" style="display:none;"></span>
       </a>
 
@@ -53,13 +53,13 @@
 
       <p class="db-nav-section-label">Conta</p>
       <a href="{% url 'accounts:profile' %}" class="db-nav-link">
-        <span class="db-nav-icon">👤</span> Perfil
+        <img src="{% static 'assets/icons/icons8-usuário-homem-com-círculo-50.png' %}" class="db-nav-icon" alt=""> Perfil
       </a>
       <a href="{% url 'accounts:settings' %}" class="db-nav-link active">
-        <span class="db-nav-icon">⚙️</span> Configurações
+        <img src="{% static 'assets/icons/icons8-configurações-50.png' %}" class="db-nav-icon" alt=""> Configurações
       </a>
       <a href="{% url 'accounts:logout' %}" class="db-nav-link">
-        <span class="db-nav-icon">🚪</span> Sair
+        <img src="{% static 'assets/icons/icons8-porta-50.png' %}" class="db-nav-icon" alt=""> Sair
       </a>
     </nav>
 
@@ -81,7 +81,7 @@
       <h1 class="db-topbar-title">Configurações</h1>
       <div class="db-topbar-actions">
         <button class="db-icon-btn" id="notif-btn" aria-label="Notificações" onclick="toggleNotifPanel()">
-          🔔 <span class="badge" id="notif-badge" style="display:none;"></span>
+          <img src="{% static 'assets/icons/icons8-sino-48.png' %}" alt="" style="width:18px;height:18px;"> <span class="badge" id="notif-badge" style="display:none;"></span>
         </button>
       </div>
     </header>
@@ -109,7 +109,7 @@
             <p class="settings-row-desc">Receba um resumo semanal do seu avanço nos módulos.</p>
           </div>
           <label class="toggle">
-            <input type="checkbox" checked />
+            <input type="checkbox" id="progress_emails" {% if notif_settings.progress_emails %}checked{% endif %} />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -120,7 +120,7 @@
             <p class="settings-row-desc">Notificações diárias para manter sua sequência ativa.</p>
           </div>
           <label class="toggle">
-            <input type="checkbox" checked />
+            <input type="checkbox" id="study_reminders" {% if notif_settings.study_reminders %}checked{% endif %} />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -131,29 +131,18 @@
             <p class="settings-row-desc">Aviso quando novos conteúdos forem adicionados à plataforma.</p>
           </div>
           <label class="toggle">
-            <input type="checkbox" />
+            <input type="checkbox" id="new_lessons" {% if notif_settings.new_lessons %}checked{% endif %} />
             <span class="toggle-slider"></span>
           </label>
         </div>
 
-        <div class="settings-row">
+        <div class="settings-row" style="border-bottom:none;">
           <div class="settings-row-info">
             <p class="settings-row-label">Conquistas desbloqueadas</p>
             <p class="settings-row-desc">Notificação imediata ao ganhar uma nova conquista.</p>
           </div>
           <label class="toggle">
-            <input type="checkbox" checked />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="settings-row">
-          <div class="settings-row-info">
-            <p class="settings-row-label">Comunicados da MUSILAB</p>
-            <p class="settings-row-desc">Newsletters, ofertas e novidades da plataforma.</p>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" />
+            <input type="checkbox" id="achievements_unlocked" {% if notif_settings.achievements_unlocked %}checked{% endif %} />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -169,37 +158,20 @@
             <p class="settings-row-desc">Avançar para a próxima aula automaticamente ao terminar.</p>
           </div>
           <label class="toggle">
-            <input type="checkbox" checked />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="settings-row">
-          <div class="settings-row-info">
-            <p class="settings-row-label">Legendas por padrão</p>
-            <p class="settings-row-desc">Exibir legendas automáticas em todas as aulas.</p>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" />
+            <input type="checkbox" id="autoplay" {% if playback_settings.autoplay %}checked{% endif %} />
             <span class="toggle-slider"></span>
           </label>
         </div>
 
         <div class="settings-row" style="border-bottom:none;">
           <div class="settings-row-info">
-            <p class="settings-row-label">Qualidade de vídeo padrão</p>
-            <p class="settings-row-desc">Define a resolução inicial ao abrir uma aula.</p>
+            <p class="settings-row-label">Legendas por padrão</p>
+            <p class="settings-row-desc">Ativar legendas automáticas em aulas com vídeo do YouTube.</p>
           </div>
-          <select
-            style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:8px 14px;color:var(--text-primary);font-family:var(--font-ui);font-size:13px;outline:none;cursor:pointer;transition:border-color .3s;"
-            onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--glass-border)'"
-          >
-            <option>Auto</option>
-            <option>1080p</option>
-            <option selected>720p</option>
-            <option>480p</option>
-            <option>360p</option>
-          </select>
+          <label class="toggle">
+            <input type="checkbox" id="default_captions" {% if playback_settings.default_captions %}checked{% endif %} />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
 
@@ -207,24 +179,13 @@
       <div class="settings-card">
         <p class="settings-card-title">Privacidade</p>
 
-        <div class="settings-row">
+        <div class="settings-row" style="border-bottom:none;">
           <div class="settings-row-info">
             <p class="settings-row-label">Perfil público</p>
             <p class="settings-row-desc">Outros alunos podem ver seu progresso e conquistas.</p>
           </div>
           <label class="toggle">
-            <input type="checkbox" />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="settings-row" style="border-bottom:none;">
-          <div class="settings-row-info">
-            <p class="settings-row-label">Compartilhar dados de uso</p>
-            <p class="settings-row-desc">Ajuda a melhorar a plataforma com dados anônimos de navegação.</p>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" checked />
+            <input type="checkbox" id="is_public" {% if prof.is_public %}checked{% endif %} />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -288,8 +249,74 @@
 </div><!-- /db-layout -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+  .settings-toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    padding: 10px 22px; font-size: 13px; color: var(--text-primary);
+    backdrop-filter: blur(12px); opacity: 0; transition: opacity .3s, transform .3s;
+    pointer-events: none; z-index: 9999;
+  }
+  .settings-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .settings-toast.error { border-color: #f55; color: #f55; }
+</style>
+<div class="settings-toast" id="settings-toast"></div>
 <script>
   gsap.from('.settings-card, .danger-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out' });
+
+  const SAVE_URL = "{% url 'accounts:save_settings' %}";
+  const CSRF = "{{ csrf_token }}";
+  let _toastTimer = null;
+
+  function showToast(msg, error) {
+    const t = document.getElementById('settings-toast');
+    t.textContent = msg;
+    t.className = 'settings-toast show' + (error ? ' error' : '');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2000);
+  }
+
+  function saveSetting(section, data) {
+    const body = new URLSearchParams({ section, ...data });
+    fetch(SAVE_URL, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    })
+    .then(r => r.json())
+    .then(d => showToast(d.ok ? 'Salvo' : 'Erro ao salvar', !d.ok))
+    .catch(() => showToast('Erro ao salvar', true));
+  }
+
+  function saveNotifications() {
+    saveSetting('notifications', {
+      progress_emails:      document.getElementById('progress_emails').checked ? 'true' : 'false',
+      study_reminders:      document.getElementById('study_reminders').checked ? 'true' : 'false',
+      new_lessons:          document.getElementById('new_lessons').checked ? 'true' : 'false',
+      achievements_unlocked: document.getElementById('achievements_unlocked').checked ? 'true' : 'false',
+    });
+  }
+
+  function savePlayback() {
+    saveSetting('playback', {
+      autoplay:         document.getElementById('autoplay').checked ? 'true' : 'false',
+      default_captions: document.getElementById('default_captions').checked ? 'true' : 'false',
+    });
+  }
+
+  function savePrivacy() {
+    saveSetting('privacy', {
+      is_public: document.getElementById('is_public').checked ? 'true' : 'false',
+    });
+  }
+
+  ['progress_emails', 'study_reminders', 'new_lessons', 'achievements_unlocked']
+    .forEach(id => document.getElementById(id).addEventListener('change', saveNotifications));
+
+  ['autoplay', 'default_captions']
+    .forEach(id => document.getElementById(id).addEventListener('change', savePlayback));
+
+  document.getElementById('is_public').addEventListener('change', savePrivacy);
 </script>
 
 <!-- Notification Panel -->

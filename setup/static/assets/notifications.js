@@ -53,7 +53,7 @@
       headers: { 'X-CSRFToken': getCsrf() },
     });
     setBadge(0);
-    renderList([]);
+    document.querySelectorAll('.notif-item.notif-unread').forEach(el => el.classList.remove('notif-unread'));
   }
 
   window.toggleNotifPanel = function () {

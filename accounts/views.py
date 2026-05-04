@@ -21,25 +21,32 @@ from django.http import JsonResponse
 from django.db.models import Sum
 from progress.models import LessonProgress, StudyStreak
 from achievements.models import UserAchievement
-from .models import Notification, Profile
+from .models import Notification, Profile, NotificationSettings, PlaybackSettings
 
 _GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
 _GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
 
 
-def send_notification(user, subject, message):
-    """Envia email e salva notificação no banco para o usuário."""
+def send_notification(user, subject, message, pref_key=None):
+    """Salva notificação no banco (sino) e envia email se a preferência permitir."""
     Notification.objects.create(user=user, subject=subject, message=message)
-    try:
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-    except Exception as e:
-        logger.error('Falha ao enviar email para %s: %s', user.email, e)
+    send_email = True
+    if pref_key:
+        try:
+            send_email = getattr(user.notification_settings, pref_key, True)
+        except NotificationSettings.DoesNotExist:
+            pass
+    if send_email:
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.error('Falha ao enviar email para %s: %s', user.email, e)
 
 
 @login_required(login_url='accounts:login')
@@ -47,7 +54,7 @@ def notifications_api(request):
     qs = Notification.objects.filter(user=request.user)
     unread = qs.filter(is_read=False).count()
     if request.method == 'POST':
-        qs.delete()
+        qs.update(is_read=True)
         return JsonResponse({'ok': True})
     data = [
         {
@@ -195,7 +202,46 @@ def settings_view(request):
         prof.save()
         messages.success(request, 'Configurações salvas.')
         return redirect('accounts:settings')
-    return render(request, 'settings.html', {'prof': prof})
+    notif_settings, _ = NotificationSettings.objects.get_or_create(user=request.user)
+    playback_settings, _ = PlaybackSettings.objects.get_or_create(user=request.user)
+    return render(request, 'settings.html', {
+        'prof': prof,
+        'notif_settings': notif_settings,
+        'playback_settings': playback_settings,
+    })
+
+
+@login_required(login_url='accounts:login')
+def save_settings(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'method not allowed'}, status=405)
+
+    section = request.POST.get('section')
+    user = request.user
+
+    if section == 'notifications':
+        ns, _ = NotificationSettings.objects.get_or_create(user=user)
+        ns.progress_emails = request.POST.get('progress_emails') == 'true'
+        ns.study_reminders = request.POST.get('study_reminders') == 'true'
+        ns.new_lessons = request.POST.get('new_lessons') == 'true'
+        ns.achievements_unlocked = request.POST.get('achievements_unlocked') == 'true'
+        ns.save()
+
+    elif section == 'playback':
+        ps, _ = PlaybackSettings.objects.get_or_create(user=user)
+        ps.autoplay = request.POST.get('autoplay') == 'true'
+        ps.default_captions = request.POST.get('default_captions') == 'true'
+        ps.save()
+
+    elif section == 'privacy':
+        p, _ = Profile.objects.get_or_create(user=user)
+        p.is_public = request.POST.get('is_public') == 'true'
+        p.save()
+
+    else:
+        return JsonResponse({'error': 'invalid section'}, status=400)
+
+    return JsonResponse({'ok': True})
 
 
 @login_required(login_url='accounts:login')

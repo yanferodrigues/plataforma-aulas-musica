@@ -200,6 +200,9 @@
         <!-- ── TAB: EXERCÍCIOS ────────────────────── -->
         <div class="tab-panel" id="tab-exercises">
           {% if exercises %}
+          <p class="ex-counter" id="ex-counter">
+            <span id="ex-done-num">{{ answered_exercise_pks|length }}</span> de {{ exercises|length }} exercício{{ exercises|length|pluralize:"s" }} respondido{{ exercises|length|pluralize:"s" }}
+          </p>
           <div class="exercises-list">
             {% for ex in exercises %}
             <div class="ex-card">
@@ -214,13 +217,16 @@
                     {% elif ex.difficulty == 'medium' %}Médio
                     {% else %}Difícil{% endif %}
                   </span>
+                  {% if ex.pk in answered_exercise_pks %}
+                  <span class="ex-diff" style="background:rgba(76,175,138,.12);color:var(--success);border:1px solid rgba(76,175,138,.25);">✓ Feito</span>
+                  {% endif %}
                 </div>
               </div>
               <h4 class="ex-title">{{ ex.title }}</h4>
               <p class="ex-desc">{{ ex.description }}</p>
 
               {% if ex.exercise_type == 'quiz' and ex.option_a %}
-              <div class="quiz-options" id="quiz-{{ ex.pk }}">
+              <div class="quiz-options" id="quiz-{{ ex.pk }}" data-correct="{{ ex.correct_option }}">
                 <button class="quiz-opt" data-opt="A" onclick="pickOpt(this, '{{ ex.pk }}', 'A', '{{ ex.correct_option }}')">
                   <span class="quiz-opt-letter">A</span> {{ ex.option_a }}
                 </button>
@@ -238,6 +244,14 @@
                 </button>
                 {% endif %}
                 <p class="quiz-feedback" id="qfb-{{ ex.pk }}" style="display:none;"></p>
+              </div>
+              {% elif ex.exercise_type == 'practice' %}
+              <div class="practice-done-wrap" id="practice-done-{{ ex.pk }}">
+                {% if ex.pk in answered_exercise_pks %}
+                <span class="ex-done-badge">✓ Exercício concluído</span>
+                {% else %}
+                <button class="btn-mark-done" onclick="markPracticeDone({{ ex.pk }})">✓ Marcar como feito</button>
+                {% endif %}
               </div>
               {% endif %}
             </div>
@@ -303,28 +317,88 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="{% static 'assets/lesson.js' %}"></script>
 
-  <!-- ── Quiz JS ── -->
+  <!-- ── Exercise JS ── -->
   <script>
-  function pickOpt(btn, quizId, chosen, correct) {
-    var wrap = document.getElementById('quiz-' + quizId);
-    if (!wrap) return;
+  var ANSWERED_EXERCISES = {{ answered_exercises_json|safe }};
+  var SUBMIT_EXERCISE_URL = '{% url "progress:submit_exercise" %}';
+
+  function _applyQuizResult(wrap, quizId, chosen, correct) {
     var opts = wrap.querySelectorAll('.quiz-opt');
     opts.forEach(function(o) { o.disabled = true; });
+    wrap.dataset.answered = '1';
+    var chosen_btn = wrap.querySelector('.quiz-opt[data-opt="' + chosen + '"]');
     var fb = document.getElementById('qfb-' + quizId);
+    if (!fb) return;
     if (chosen === correct) {
-      btn.classList.add('correct');
+      if (chosen_btn) chosen_btn.classList.add('correct');
       fb.textContent = '✓ Correto!';
       fb.className = 'quiz-feedback ok';
     } else {
-      btn.classList.add('wrong');
-      opts.forEach(function(o) {
-        if (o.dataset.opt === correct) o.classList.add('revealed');
-      });
+      if (chosen_btn) chosen_btn.classList.add('wrong');
+      opts.forEach(function(o) { if (o.dataset.opt === correct) o.classList.add('revealed'); });
       fb.textContent = '✗ Incorreto — a resposta certa é ' + correct + '.';
       fb.className = 'quiz-feedback err';
     }
     fb.style.display = '';
   }
+
+  function pickOpt(btn, quizId, chosen, correct) {
+    var wrap = document.getElementById('quiz-' + quizId);
+    if (!wrap || wrap.dataset.answered) return;
+    _applyQuizResult(wrap, quizId, chosen, correct);
+    _submitExercise(quizId, chosen);
+  }
+
+  function markPracticeDone(exerciseId) {
+    var wrap = document.getElementById('practice-done-' + exerciseId);
+    if (!wrap || wrap.dataset.done) return;
+    wrap.dataset.done = '1';
+    wrap.innerHTML = '<span class="ex-done-badge">✓ Exercício concluído</span>';
+    _updateDoneHeader(exerciseId);
+    _submitExercise(exerciseId, '');
+  }
+
+  function _updateDoneHeader(exerciseId) {
+    var card = document.getElementById('practice-done-' + exerciseId) ||
+               document.getElementById('quiz-' + exerciseId);
+    if (card) {
+      var header = card.closest('.ex-card');
+      if (header) {
+        var badges = header.querySelector('.ex-header div');
+        if (badges && !badges.querySelector('.ex-done-green')) {
+          var badge = document.createElement('span');
+          badge.className = 'ex-diff ex-done-green';
+          badge.style.cssText = 'background:rgba(76,175,138,.12);color:var(--success);border:1px solid rgba(76,175,138,.25);';
+          badge.textContent = '✓ Feito';
+          badges.appendChild(badge);
+        }
+      }
+    }
+    var doneEl = document.getElementById('ex-done-num');
+    if (doneEl) doneEl.textContent = parseInt(doneEl.textContent) + 1;
+  }
+
+  function _submitExercise(exerciseId, selectedOption) {
+    var csrf = (window._csrf) || '{{ csrf_token }}';
+    fetch(SUBMIT_EXERCISE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrf },
+      body: 'exercise_id=' + exerciseId + '&selected_option=' + encodeURIComponent(selectedOption),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { if (data.newly_completed && window._onLessonComplete) window._onLessonComplete(); })
+    .catch(function() {});
+  }
+
+  // Restore answered quiz state on page load
+  document.addEventListener('DOMContentLoaded', function () {
+    Object.keys(ANSWERED_EXERCISES).forEach(function (exId) {
+      var selected = ANSWERED_EXERCISES[exId];
+      var wrap = document.getElementById('quiz-' + exId);
+      if (!wrap) return;
+      _applyQuizResult(wrap, exId, selected, wrap.dataset.correct);
+    });
+  });
   </script>
 
   <!-- ── Progress tracking ── -->
@@ -348,6 +422,8 @@
     var PROGRESS_URL = '{% url "progress:update" %}';
     var CSRF         = '{{ csrf_token }}';
     var _lastSaved   = -10;
+    var NEXT_LESSON_URL = "{% if next_lesson %}{% url 'courses:lesson_detail' module.pk next_lesson.pk %}{% endif %}";
+    var AUTOPLAY = {{ playback_settings.autoplay|yesno:"true,false" }};
 
     function saveProgress(currentTime, duration) {
       var t = Math.floor(currentTime || 0);
@@ -404,11 +480,37 @@
       }, 3500);
     }
 
-    // Expor para os players
+    var _autoplayTimer = null;
+    function startAutoplayCountdown() {
+      if (!AUTOPLAY || !NEXT_LESSON_URL) return;
+      var overlay = document.getElementById('autoplay-overlay');
+      var countEl = document.getElementById('autoplay-count');
+      if (!overlay) return;
+      var secs = 5;
+      countEl.textContent = secs;
+      overlay.style.display = 'flex';
+      _autoplayTimer = setInterval(function () {
+        secs--;
+        countEl.textContent = secs;
+        if (secs <= 0) {
+          clearInterval(_autoplayTimer);
+          window.location.href = NEXT_LESSON_URL;
+        }
+      }, 1000);
+    }
+    function cancelAutoplay() {
+      clearInterval(_autoplayTimer);
+      var overlay = document.getElementById('autoplay-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    // Expor para os players e exercise JS
     window._saveProgress   = saveProgress;
     window._resumePos      = RESUME_POS;
     window._lessonDone     = LESSON_DONE;
     window._onLessonComplete = onLessonComplete;
+    window._startAutoplayCountdown = startAutoplayCountdown;
+    window._csrf = CSRF;
   })();
   </script>
 
@@ -477,6 +579,7 @@
     vid.addEventListener('ended',   function () {
       setPlay(false);
       if (window._saveProgress) window._saveProgress(vid.duration, vid.duration);
+      if (window._startAutoplayCountdown) window._startAutoplayCountdown();
     });
     vid.addEventListener('waiting', function () { loading.classList.add('active'); });
     vid.addEventListener('canplay', function () { loading.classList.remove('active'); });
@@ -583,7 +686,13 @@
     window.onYouTubeIframeAPIReady = function () {
       _ytPlayer = new YT.Player('yt-player', {
         videoId: '{{ youtube_id }}',
-        playerVars: { rel: 0, modestbranding: 1, origin: window.location.origin },
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          origin: window.location.origin,
+          cc_load_policy: {{ playback_settings.default_captions|yesno:"1,0" }},
+          cc_lang_pref: 'pt',
+        },
         events: {
           onReady: function (e) {
             var dur = e.target.getDuration();
@@ -605,6 +714,9 @@
               if (_ytPlayer && window._saveProgress) {
                 window._saveProgress(_ytPlayer.getCurrentTime(), _ytPlayer.getDuration());
               }
+              if (e.data === YT.PlayerState.ENDED && window._startAutoplayCountdown) {
+                window._startAutoplayCountdown();
+              }
             }
           },
           onError: function () {
@@ -621,5 +733,14 @@
     })();
   </script>
   {% endif %}
+
+<!-- Autoplay overlay -->
+{% if next_lesson %}
+<div id="autoplay-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <p style="color:#fff;font-family:var(--font-ui);font-size:18px;">Próxima aula em <strong id="autoplay-count">5</strong>s…</p>
+  <p style="color:rgba(255,255,255,.7);font-size:14px;">{{ next_lesson.title }}</p>
+  <button onclick="cancelAutoplay()" style="margin-top:8px;padding:10px 28px;border-radius:var(--radius-md);background:var(--glass);border:1px solid var(--glass-border);color:#fff;font-family:var(--font-ui);font-size:14px;cursor:pointer;">Cancelar</button>
+</div>
+{% endif %}
 </body>
 </html>

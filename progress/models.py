@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from courses.models import Module, Lesson
+from courses.models import Module, Lesson, Exercise
 
 
 class LessonProgress(models.Model):
@@ -8,6 +8,7 @@ class LessonProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_progress')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
     completed = models.BooleanField(default=False)
+    video_watched = models.BooleanField(default=False)
     watch_time_seconds = models.PositiveIntegerField(default=0)
     resume_position = models.PositiveIntegerField(default=0)
     completed_at = models.DateTimeField(blank=True, null=True)
@@ -56,6 +57,22 @@ class ModuleProgress(models.Model):
     @property
     def is_complete(self):
         return self.completed_at is not None
+
+
+class ExerciseAnswer(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exercise_answers')
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, related_name='answers')
+    selected_option = models.CharField(max_length=1, blank=True)
+    answered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Resposta de Exercício'
+        verbose_name_plural = 'Respostas de Exercícios'
+        unique_together = ('user', 'exercise')
+
+    def __str__(self):
+        return f'{self.user.username} — Exercício {self.exercise.number} ({self.exercise.lesson.title})'
 
 
 class StudyStreak(models.Model):

@@ -19,4 +19,5 @@ urlpatterns = [
 
     path('notifications/', views.notifications_api, name='notifications_api'),
     path('avatar/', views.avatar_upload, name='avatar_upload'),
+    path('settings/save/', views.save_settings, name='save_settings'),
 ]
