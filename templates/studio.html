@@ -511,7 +511,7 @@
                   {% endif %}
                 </td>
                 <td style="white-space:nowrap;">
-                  <button class="st-btn-edit" onclick="editLesson({{ l.pk }}, {{ l.module.pk }}, '{{ l.title|escapejs }}', '{{ l.description|escapejs }}', '{{ l.objectives|escapejs }}', '{{ l.video_url|escapejs }}', {{ l.duration_minutes }}, {{ l.order }}, {{ l.is_active|yesno:'true,false' }})">
+                  <button class="st-btn-edit" onclick="editLesson({{ l.pk }}, {{ l.module.pk }}, '{{ l.title|escapejs }}', '{{ l.description|escapejs }}', '{{ l.objectives|escapejs }}', '{{ l.roteiro|escapejs }}', '{{ l.video_url|escapejs }}', {{ l.duration_minutes }}, {{ l.order }}, {{ l.is_active|yesno:'true,false' }})">
                     Editar
                   </button>
                   <button class="st-btn-del" onclick="confirmDelete('{% url 'core:studio_lesson_delete' l.pk %}', 'Excluir aula &quot;{{ l.title|escapejs }}&quot;?')">
@@ -879,6 +879,11 @@
       </div>
 
       <div class="st-field">
+        <label>Roteiro <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">(visível apenas para admins)</span></label>
+        <textarea name="roteiro" id="l-roteiro" rows="5" placeholder="Roteiro interno da aula, anotações, tópicos a cobrir…"></textarea>
+      </div>
+
+      <div class="st-field">
         <div class="st-field-check">
           <input type="checkbox" name="is_active" id="l-is_active" checked />
           <label for="l-is_active">Aula ativa (visível para alunos)</label>
@@ -1212,11 +1217,12 @@ function openModal_lesson_create() {
   document.getElementById('l-video_url').value = '';
   document.getElementById('l-description').value = '';
   document.getElementById('l-objectives').value = '';
+  document.getElementById('l-roteiro').value = '';
   document.getElementById('l-is_active').checked = true;
   openModal('modal-lesson');
 }
 
-function editLesson(pk, modulePk, title, desc, objectives, videoUrl, duration, order, isActive) {
+function editLesson(pk, modulePk, title, desc, objectives, roteiro, videoUrl, duration, order, isActive) {
   document.getElementById('modal-lesson-title').textContent = 'Editar Aula';
   document.getElementById('form-lesson').action = `/studio/aulas/${pk}/editar/`;
   document.getElementById('l-module').value = modulePk;
@@ -1226,6 +1232,7 @@ function editLesson(pk, modulePk, title, desc, objectives, videoUrl, duration, o
   document.getElementById('l-video_url').value = videoUrl;
   document.getElementById('l-description').value = desc;
   document.getElementById('l-objectives').value = objectives;
+  document.getElementById('l-roteiro').value = roteiro;
   document.getElementById('l-is_active').checked = isActive;
   openModal('modal-lesson');
 }

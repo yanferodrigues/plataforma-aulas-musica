@@ -45,6 +45,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     objectives = models.TextField(blank=True)
+    roteiro = models.TextField(blank=True)
     video_url = models.URLField(blank=True)
     video_file = models.FileField(upload_to='lessons/videos/', blank=True, null=True)
     duration_minutes = models.PositiveSmallIntegerField(default=0)

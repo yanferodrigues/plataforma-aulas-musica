@@ -122,6 +122,7 @@ def studio_lesson_save(request, pk=None):
         'title': request.POST.get('title', '').strip(),
         'description': request.POST.get('description', '').strip(),
         'objectives': request.POST.get('objectives', '').strip(),
+        'roteiro': request.POST.get('roteiro', '').strip(),
         'video_url': request.POST.get('video_url', '').strip(),
         'duration_minutes': int(request.POST.get('duration_minutes') or 0),
         'order': int(request.POST.get('order') or 1),

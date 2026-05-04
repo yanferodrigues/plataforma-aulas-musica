@@ -39,6 +39,7 @@ function initCardEntrance() {
     {
       opacity: 1, y: 0, scale: 1,
       duration: 0.7, stagger: 0.1, ease: 'power3.out', delay: 0.3,
+      clearProps: 'transform',
     }
   );
 
@@ -46,7 +47,7 @@ function initCardEntrance() {
   if (continueCard) {
     gsap.fromTo(continueCard,
       { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.1 }
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.1, clearProps: 'transform' }
     );
   }
 
@@ -54,7 +55,7 @@ function initCardEntrance() {
   if (topbarTitle) {
     gsap.fromTo(topbarTitle,
       { opacity: 0, x: -20 },
-      { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out', delay: 0.05 }
+      { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out', delay: 0.05, clearProps: 'transform' }
     );
   }
 }

@@ -143,6 +143,13 @@
           </div>
         </div>
 
+        {% if request.user.is_superuser and lesson.roteiro %}
+        <div class="roteiro-admin-box">
+          <div class="roteiro-admin-label">📋 Roteiro (admin)</div>
+          <div class="roteiro-admin-body">{{ lesson.roteiro|linebreaksbr }}</div>
+        </div>
+        {% endif %}
+
         <!-- Tabs -->
         <div class="tabs-bar">
           <button class="tab-btn active" data-tab="content">Conteúdo</button>
@@ -171,6 +178,10 @@
           {% if not lesson.description and not objectives_list %}
           <p style="color:var(--text-secondary);padding:32px 0;">Conteúdo da aula ainda não disponível.</p>
           {% endif %}
+
+          <div class="tab-next-bar">
+            <button class="tab-next-btn" onclick="switchTab('material')">Ver Material →</button>
+          </div>
         </div>
 
         <!-- ── TAB: MATERIAL ──────────────────────── -->
@@ -195,6 +206,10 @@
           {% else %}
           <p style="color:var(--text-secondary);padding:32px 0;">Nenhum material disponível para esta aula.</p>
           {% endif %}
+
+          <div class="tab-next-bar">
+            <button class="tab-next-btn" onclick="switchTab('exercises')">Ver Exercícios →</button>
+          </div>
         </div>
 
         <!-- ── TAB: EXERCÍCIOS ────────────────────── -->
@@ -260,6 +275,10 @@
           {% else %}
           <p style="color:var(--text-secondary);padding:32px 0;">Nenhum exercício disponível para esta aula.</p>
           {% endif %}
+
+          <div class="tab-next-bar">
+            <button class="tab-next-btn" onclick="switchTab('qa')">Ver Q&amp;A →</button>
+          </div>
         </div>
 
         <!-- ── TAB: Q&A ───────────────────────────── -->

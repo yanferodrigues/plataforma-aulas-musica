@@ -242,8 +242,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-  gsap.from('.profile-card', { opacity: 0, x: -24, duration: 0.5, ease: 'power2.out' });
-  gsap.from('.settings-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out', delay: 0.15 });
+  gsap.from('.profile-card', { opacity: 0, x: -24, duration: 0.5, ease: 'power2.out', clearProps: 'transform' });
+  gsap.from('.settings-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out', delay: 0.15, clearProps: 'transform' });
 
   document.getElementById('avatar-input').addEventListener('change', async function () {
     const file = this.files[0];

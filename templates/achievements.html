@@ -151,8 +151,8 @@
   document.querySelectorAll('.pbar-fill[data-width]').forEach(el => {
     setTimeout(() => { el.style.width = el.dataset.width; }, 300);
   });
-  gsap.from('.achv-card.unlocked', { opacity: 0, y: 28, scale: 0.95, duration: 0.5, stagger: 0.1, ease: 'back.out(1.4)', delay: 0.2 });
-  gsap.from('.achv-card.locked', { opacity: 0, y: 20, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.5 });
+  gsap.from('.achv-card.unlocked', { opacity: 0, y: 28, scale: 0.95, duration: 0.5, stagger: 0.1, ease: 'back.out(1.4)', delay: 0.2, clearProps: 'transform' });
+  gsap.from('.achv-card.locked', { opacity: 0, y: 20, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.5, clearProps: 'transform' });
 </script>
 
 <!-- Notification Panel -->

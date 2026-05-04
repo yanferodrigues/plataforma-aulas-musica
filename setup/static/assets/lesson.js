@@ -30,6 +30,15 @@ function initTabs() {
   });
 }
 
+function switchTab(target) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
+  if (btn) {
+    btn.click();
+    document.querySelector('.tabs-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+window.switchTab = switchTab;
+
 /* ─── PROGRESS BARS ─────────────────────────────────────── */
 function initProgressBars() {
   const observer = new IntersectionObserver(entries => {
@@ -79,12 +88,12 @@ function initLessonEntrance() {
 
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-  tl.fromTo('.lesson-topbar', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, 0);
-  tl.fromTo('.video-wrap',    { opacity: 0, y: 30 },  { opacity: 1, y: 0, duration: 0.7 }, 0.15);
-  tl.fromTo('.lesson-info',   { opacity: 0, y: 24 },  { opacity: 1, y: 0, duration: 0.6 }, 0.35);
+  tl.fromTo('.lesson-topbar', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, clearProps: 'transform' }, 0);
+  tl.fromTo('.video-wrap',    { opacity: 0, y: 30 },  { opacity: 1, y: 0, duration: 0.7, clearProps: 'transform' }, 0.15);
+  tl.fromTo('.lesson-info',   { opacity: 0, y: 24 },  { opacity: 1, y: 0, duration: 0.6, clearProps: 'transform' }, 0.35);
   tl.fromTo('.tabs-bar',      { opacity: 0 },          { opacity: 1, duration: 0.5 },        0.5);
-  tl.fromTo('.tab-panel.active', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5 }, 0.6);
-  tl.fromTo('.lesson-sidebar', { opacity: 0, x: 30 },  { opacity: 1, x: 0, duration: 0.7 }, 0.2);
+  tl.fromTo('.tab-panel.active', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, clearProps: 'transform' }, 0.6);
+  tl.fromTo('.lesson-sidebar', { opacity: 0, x: 30 },  { opacity: 1, x: 0, duration: 0.7, clearProps: 'transform' }, 0.2);
 }
 
 /* ─── SIDEBAR ACTIVE ITEM SCROLL ─────────────────────────── */

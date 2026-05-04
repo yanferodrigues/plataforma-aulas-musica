@@ -262,7 +262,7 @@
 </style>
 <div class="settings-toast" id="settings-toast"></div>
 <script>
-  gsap.from('.settings-card, .danger-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out' });
+  gsap.from('.settings-card, .danger-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.1, ease: 'power2.out', clearProps: 'transform' });
 
   const SAVE_URL = "{% url 'accounts:save_settings' %}";
   const CSRF = "{{ csrf_token }}";
