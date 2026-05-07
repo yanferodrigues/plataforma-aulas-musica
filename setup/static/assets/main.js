@@ -26,8 +26,48 @@ function initAll() {
   initCounters();
 }
 
-/* ─── 3. SMOOTH SCROLL (removido — scroll nativo) ──────── */
-function initLenis() {}
+/* ─── 3. SMOOTH SCROLL (Lenis) ─────────────────────────── */
+function initLenis() {
+  if (typeof Lenis === 'undefined') return;
+
+  // Respeita prefers-reduced-motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const lenis = new Lenis({
+    duration: 1.35,                                       // mais alto = mais suave/preguiçoso
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // expoOut — desaceleração natural
+    smoothWheel: true,
+    wheelMultiplier: 0.95,                                 // leve "amortecimento" da roda
+    touchMultiplier: 1.4,
+    lerp: 0.09,                                            // interpolação por frame (menor = mais lento)
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+  });
+
+  // Sincroniza Lenis com o ScrollTrigger do GSAP (evita gap/jitter nas animações)
+  if (typeof ScrollTrigger !== 'undefined') {
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  } else {
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  }
+
+  // Anchors internos (#id) — usa Lenis pra rolagem suave
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const href = a.getAttribute('href');
+      if (!href || href === '#') return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: -60, duration: 1.6 });
+    });
+  });
+
+  window.__lenis = lenis;
+}
 
 /* ─── 4. NAV SCROLL STATE ──────────────────────────────── */
 function initNavScroll() {

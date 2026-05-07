@@ -9,8 +9,8 @@
    VARIABLES
    ============================================================ */
 :root {
-  --bg-primary:    #08050f;
-  --bg-secondary:  #130c1e;
+  --bg-primary:    #000000;
+  --bg-secondary:  #060308;
   --brand:         #7038F8;
   --hover:         #AC8BFF;
   --text-primary:  #F5F3F7;
@@ -26,6 +26,7 @@
   --font-display: 'Plus Jakarta Sans', sans-serif;
   --font-ui:      'Inter', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+  --font-brand:   "Oswald", sans-serif;
 
   --radius-xs:  4px;
   --radius-sm:  8px;
@@ -53,9 +54,17 @@
 
 html {
   font-size: 16px;
-  scroll-behavior: smooth;
+  /* scroll-behavior nativo desligado — Lenis (main.js) faz o smooth scroll */
+  scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
 }
+
+/* Lenis hooks (recomendados pela doc) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
 
 body {
   background: var(--bg-primary);
@@ -159,10 +168,10 @@ img, video { max-width: 100%; display: block; }
 .pl-note:nth-child(4) { animation-delay: 1.14s; }
 
 .pl-brand {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 5vw, 44px);
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-family: var(--font-brand);
+  font-size: clamp(30px, 3.6vw, 34px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--text-primary);
   opacity: 0;
   animation: pl-fade 0.6s ease 1.3s forwards;
@@ -213,18 +222,21 @@ img, video { max-width: 100%; display: block; }
 }
 
 .nav-logo {
-  font-family: var(--font-display);
+  font-family: var(--font-brand);
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.01em;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
 }
-.nav-logo em { font-style: normal; color: var(--brand); }
+.nav-logo em {
+  font-style: normal;
+  color: var(--brand);
+}
 
 .nav-logo-img {
   height: 60px;
@@ -367,6 +379,439 @@ img, video { max-width: 100%; display: block; }
   max-width: var(--container);
   margin: 0 auto;
   padding: 0 clamp(20px, 6vw, 100px);
+}
+
+.hero-art {
+  position: absolute;
+  top: 50%;
+  right: clamp(-40px, 2vw, 60px);
+  transform: translateY(-50%);
+  width: clamp(360px, 42vw, 720px);
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  filter: blur(0.5px) saturate(0.85) contrast(1.05);
+  -webkit-mask-image: radial-gradient(ellipse 65% 65% at 55% 50%, #000 35%, rgba(0,0,0,0.55) 60%, transparent 85%);
+          mask-image: radial-gradient(ellipse 65% 65% at 55% 50%, #000 35%, rgba(0,0,0,0.55) 60%, transparent 85%);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+}
+
+@media (max-width: 900px) {
+  .hero-art {
+    opacity: 0.22;
+    width: 80vw;
+    right: -10vw;
+  }
+}
+
+/* ============================================================
+   GRUNGE LAYER — pixação, spray, stickers, fita, drips
+   ============================================================ */
+.grunge-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  color: var(--brand);
+}
+
+/* ── Pixação gigante "MUSILAB" no fundo do hero ──────────── */
+.graffiti-tag {
+  position: absolute;
+  font-family: 'Bungee Shade', 'Permanent Marker', cursive;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(172, 139, 255, 0.22);
+          text-stroke: 2px rgba(172, 139, 255, 0.22);
+  filter: url(#spray-rough);
+  user-select: none;
+}
+.graffiti-tag--big {
+  bottom: 4%;
+  left: -3%;
+  font-size: clamp(80px, 14vw, 210px);
+  transform: rotate(-7deg);
+  opacity: 0.75;
+}
+.graffiti-tag--big span {
+  color: rgba(112, 56, 248, 0.28);
+  -webkit-text-stroke: 0;
+          text-stroke: 0;
+  font-family: 'Permanent Marker', cursive;
+  font-style: italic;
+  display: inline-block;
+  transform: rotate(4deg) translateY(-0.06em);
+}
+
+/* ── Splatters de spray ──────────────────────────────────── */
+.paint-splat {
+  position: absolute;
+  background: radial-gradient(circle at 35% 40%,
+              rgba(112, 56, 248, 0.55) 0%,
+              rgba(112, 56, 248, 0.22) 35%,
+              transparent 70%);
+  border-radius: 50%;
+  filter: url(#spray-heavy) blur(1px);
+  mix-blend-mode: screen;
+}
+.paint-splat--1 {
+  width: 360px; height: 280px;
+  top: 18%; right: 8%;
+  transform: rotate(18deg);
+  opacity: 0.7;
+}
+.paint-splat--2 {
+  width: 220px; height: 180px;
+  bottom: 22%; left: 8%;
+  transform: rotate(-25deg);
+  opacity: 0.55;
+}
+.paint-splat--3 {
+  width: 140px; height: 120px;
+  top: 8%; left: 38%;
+  background: radial-gradient(circle, rgba(172, 139, 255, 0.35) 0%, transparent 65%);
+  opacity: 0.6;
+}
+
+/* ── Risco de marcador na "parede" ───────────────────────── */
+.wall-scribble {
+  position: absolute;
+  top: 14%;
+  right: 6%;
+  font-family: 'Permanent Marker', cursive;
+  font-size: clamp(14px, 1.4vw, 20px);
+  color: rgba(172, 139, 255, 0.5);
+  transform: rotate(-4deg);
+  filter: url(#marker-stroke);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── Símbolos de pixador (X + coroa) ─────────────────────── */
+.tag-x, .tag-crown {
+  position: absolute;
+  color: rgba(172, 139, 255, 0.55);
+  pointer-events: none;
+}
+.tag-x {
+  width: 56px; height: 56px;
+  top: 30%; right: 14%;
+  transform: rotate(12deg);
+  opacity: 0.7;
+}
+.tag-crown {
+  width: 90px; height: 56px;
+  bottom: 24%; right: 9%;
+  transform: rotate(10deg);
+  color: rgba(112, 56, 248, 0.65);
+}
+
+/* ── Fita crepe rasgada no canto ─────────────────────────── */
+.duct-tape {
+  position: absolute;
+  background: rgba(220, 210, 180, 0.18);
+  background-image:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 40%,
+      rgba(255, 255, 255, 0.04) 60%,
+      transparent 100%),
+    repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, 0.06) 0 1px,
+      transparent 1px 3px);
+  filter: url(#spray-rough);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.duct-tape--corner {
+  top: 22px;
+  right: -30px;
+  width: 220px;
+  height: 36px;
+  transform: rotate(28deg);
+  opacity: 0.65;
+}
+
+/* ── Tira de tijolos pixados na borda inferior ───────────── */
+.brick-strip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  opacity: 0.35;
+  background-image:
+    /* spray por cima */
+    radial-gradient(ellipse 200px 40px at 25% 30%, rgba(112, 56, 248, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 150px 30px at 70% 60%, rgba(172, 139, 255, 0.5) 0%, transparent 70%),
+    /* padrão de tijolos */
+    linear-gradient(335deg, transparent 49%, rgba(172, 139, 255, 0.18) 49%, rgba(172, 139, 255, 0.18) 51%, transparent 51%),
+    repeating-linear-gradient(90deg,
+      rgba(40, 25, 60, 0.4) 0 80px,
+      rgba(20, 12, 30, 0.4) 80px 82px),
+    repeating-linear-gradient(0deg,
+      rgba(40, 25, 60, 0.4) 0 22px,
+      rgba(20, 12, 30, 0.4) 22px 24px);
+  mask-image: linear-gradient(to top, #000 0%, #000 30%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 30%, transparent 100%);
+  filter: url(#spray-rough);
+}
+
+/* ── Grão analógico ──────────────────────────────────────── */
+.grunge-grain {
+  position: absolute;
+  inset: 0;
+  filter: url(#grain-overlay);
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* ── Eyebrow do hero com vibe de pixação ─────────────────── */
+.hero-eyebrow {
+  position: relative;
+}
+.hero-eyebrow::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -50px;
+  width: 36px; height: 6px;
+  background: var(--brand);
+  filter: url(#spray-rough);
+  opacity: 0.6;
+  transform: translateY(-50%);
+}
+
+/* ── Mobile: reduz quantidade de elementos grunge ────────── */
+@media (max-width: 900px) {
+  .graffiti-tag--big { font-size: 18vw; opacity: 0.55; }
+  .wall-scribble, .tag-crown { display: none; }
+  .paint-splat--1 { width: 220px; height: 180px; }
+}
+
+/* ============================================================
+   GRUNGE — acentos nas seções (features / módulos / testimonials)
+   ============================================================ */
+.tag {
+  position: relative;
+}
+.tag::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  right: -4px;
+  bottom: -3px;
+  background: var(--brand);
+  opacity: 0.10;
+  filter: url(#spray-rough);
+  z-index: -1;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* Marcador embaixo do section-h2 */
+.section-h2 {
+  position: relative;
+  display: inline-block;
+}
+.section-h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  width: 80px;
+  height: 5px;
+  background: var(--brand);
+  filter: url(#marker-stroke);
+  border-radius: 50%;
+}
+
+/* Fita crepe no topo dos feat-cards */
+.feat-card {
+  position: relative;
+}
+.feat-card::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 70px;
+  height: 18px;
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.10) 40%,
+      rgba(255, 255, 255, 0.04) 60%,
+      transparent 100%),
+    rgba(220, 210, 180, 0.16);
+  background-blend-mode: screen;
+  filter: url(#spray-rough);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
+  z-index: 2;
+}
+.feat-card:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) rotate(-2deg) translateY(-2px);
+}
+
+/* Numero dos módulos em estilo pixação */
+.mod-index {
+  font-family: 'Bungee Shade', 'Permanent Marker', cursive !important;
+  filter: url(#spray-rough);
+}
+
+/* Aspas dos depoimentos como spray */
+.testi-mark {
+  font-family: 'Permanent Marker', cursive !important;
+  filter: url(#marker-stroke);
+  color: var(--brand) !important;
+}
+
+/* ============================================================
+   GRUNGE SCATTER — sprays + riscos minuciosos por toda a página
+   ============================================================ */
+
+/* Garante âncora de posicionamento em todas as seções */
+.features, .mods-preview, .stats, .testimonials, .cta-section, footer {
+  position: relative;
+}
+
+/* Camada de espalhamento por seção */
+.section-graffiti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  color: var(--brand);
+  overflow: hidden;
+}
+.section-graffiti > * {
+  position: absolute;
+}
+
+/* Garante que o conteúdo das seções fique acima da camada */
+.features > .container,
+.mods-preview > .container,
+.stats   > .container,
+.testimonials > .container,
+.cta-section > .container,
+.cta-section > .cta-glow-wrap,
+footer > .container { position: relative; z-index: 1; }
+
+/* ── Mancha de spray pequena (radial blob) ─────────────── */
+.gx-spray {
+  width: 140px;
+  height: 110px;
+  background: radial-gradient(circle at 40% 45%,
+              rgba(112, 56, 248, 0.45) 0%,
+              rgba(112, 56, 248, 0.15) 40%,
+              transparent 72%);
+  filter: url(#spray-heavy) blur(1px);
+  mix-blend-mode: screen;
+  border-radius: 50%;
+}
+.gx-spray--sm { width: 80px; height: 60px; opacity: 0.7; }
+.gx-spray--xs { width: 50px; height: 40px; opacity: 0.55; }
+.gx-spray--lilac {
+  background: radial-gradient(circle, rgba(172, 139, 255, 0.4) 0%, transparent 70%);
+}
+
+/* ── Risco de marcador (linha curta, irregular) ─────────── */
+.gx-dash {
+  width: 42px;
+  height: 4px;
+  background: var(--brand);
+  filter: url(#marker-stroke);
+  border-radius: 50%;
+  opacity: 0.7;
+}
+.gx-dash--long { width: 90px; height: 3px; }
+.gx-dash--thick { height: 7px; }
+
+/* ── Cluster de pingos de spray ─────────────────────────── */
+.gx-dots {
+  width: 90px;
+  height: 90px;
+  background:
+    radial-gradient(circle 2px at 12% 22%, rgba(172,139,255,0.85), transparent 70%),
+    radial-gradient(circle 1px at 30% 12%, rgba(172,139,255,0.6), transparent 70%),
+    radial-gradient(circle 3px at 48% 35%, rgba(112,56,248,0.7), transparent 70%),
+    radial-gradient(circle 1px at 60% 58%, rgba(172,139,255,0.55), transparent 70%),
+    radial-gradient(circle 2px at 75% 18%, rgba(172,139,255,0.7), transparent 70%),
+    radial-gradient(circle 1px at 82% 70%, rgba(172,139,255,0.55), transparent 70%),
+    radial-gradient(circle 2px at 22% 78%, rgba(172,139,255,0.6), transparent 70%),
+    radial-gradient(circle 1px at 50% 88%, rgba(172,139,255,0.5), transparent 70%),
+    radial-gradient(circle 1px at 90% 40%, rgba(172,139,255,0.5), transparent 70%);
+  filter: url(#spray-rough);
+}
+.gx-dots--lg { width: 160px; height: 160px; }
+
+/* ── SVGs de scribble (asterisco, X, swirl, seta, tick) ─── */
+.gx-svg { color: var(--brand); }
+.gx-svg path,
+.gx-svg line { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; filter: url(#spray-rough); }
+.gx-svg.is-marker path,
+.gx-svg.is-marker line { filter: url(#marker-stroke); }
+
+/* tamanhos */
+.gx-sz-12 { width: 12px; height: 12px; }
+.gx-sz-18 { width: 18px; height: 18px; }
+.gx-sz-24 { width: 24px; height: 24px; }
+.gx-sz-32 { width: 32px; height: 32px; }
+.gx-sz-44 { width: 44px; height: 44px; }
+.gx-sz-60 { width: 60px; height: 60px; }
+.gx-sz-80 { width: 80px; height: 80px; }
+
+.gx-op-30 { opacity: 0.30; }
+.gx-op-50 { opacity: 0.50; }
+.gx-op-70 { opacity: 0.70; }
+
+.gx-color-lilac { color: var(--hover); }
+
+/* ── Risco vertical fino (com leve drip) ─────────────────── */
+.gx-tick {
+  width: 2px;
+  height: 28px;
+  background: var(--brand);
+  filter: url(#marker-stroke);
+  opacity: 0.65;
+  border-radius: 2px;
+}
+.gx-tick::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: -1px;
+  width: 4px; height: 4px;
+  background: var(--brand);
+  border-radius: 50%;
+  filter: blur(0.4px);
+}
+
+/* ── Linha tracejada estilo borda de pixador ─────────────── */
+.gx-divider {
+  height: 1px;
+  width: 100%;
+  background: repeating-linear-gradient(90deg,
+    var(--brand) 0 8px,
+    transparent 8px 16px);
+  filter: url(#spray-rough);
+  opacity: 0.35;
+}
+
+@media (max-width: 900px) {
+  .section-graffiti .gx-spray:not(.gx-spray--xs) { display: none; }
+  .gx-dots--lg { display: none; }
 }
 
 .hero-eyebrow {
@@ -581,6 +1026,35 @@ img, video { max-width: 100%; display: block; }
   padding: var(--section-py) 0;
   overflow: hidden;
 }
+
+/* Imagem decorativa de fundo — meio da página, posição "aleatória" */
+.mods-art {
+  position: absolute;
+  top: 0%;
+  right: clamp(-50px, 4vw, 80px);
+  width: clamp(320px, 38vw, 620px);
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: screen;
+  filter: blur(0.6px) saturate(0.85) contrast(1.05);
+
+  -webkit-mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 28%, rgba(0,0,0,0.5) 60%, transparent 86%);
+          mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 28%, rgba(0,0,0,0.5) 60%, transparent 86%);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+}
+
+@media (max-width: 900px) {
+  .mods-art {
+    opacity: 0.16;
+    width: 75vw;
+    left: -12vw;
+    top: 0%;
+    transform: rotate(6deg) scaleX(-1);
+  }
+}
 .mods-preview-head {
   display: flex;
   align-items: flex-end;
@@ -739,7 +1213,36 @@ img, video { max-width: 100%; display: block; }
    ============================================================ */
 .testimonials {
   padding: var(--section-py) 0;
+  overflow: hidden;
 }
+
+/* Imagem decorativa de fundo — espelhada do hero-art, agora à direita */
+.testi-art {
+  position: absolute;
+  bottom: -6%;
+  left: clamp(-60px, -2vw, -20px);
+  width: clamp(360px, 44vw, 760px);
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.38;
+  mix-blend-mode: screen;
+  filter: blur(0.5px) saturate(0.85) contrast(1.05);
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 55% 55%, #000 30%, rgba(0,0,0,0.5) 58%, transparent 85%);
+          mask-image: radial-gradient(ellipse 60% 60% at 55% 55%, #000 30%, rgba(0,0,0,0.5) 58%, transparent 85%);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+}
+
+@media (max-width: 900px) {
+  .testi-art {
+    opacity: 0.18;
+    width: 80vw;
+    right: -15vw;
+    bottom: -4%;
+  }
+}
+
 .testimonials-head { margin-bottom: 68px; }
 .testimonials-grid {
   display: grid;
@@ -879,18 +1382,21 @@ footer {
   margin-bottom: 64px;
 }
 .footer-logo {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 700;
+  font-family: var(--font-brand);
+  font-size: 16px;
+  font-weight: 400;
   color: var(--text-primary);
   text-decoration: none;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
-.footer-logo em { font-style: normal; color: var(--brand); }
+.footer-logo em {
+  font-style: normal;
+  color: var(--brand);
+}
 
 .footer-logo-img {
   height: 52px;
@@ -1014,19 +1520,22 @@ footer {
   text-align: center;
 }
 .auth-logo {
-  font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 700;
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 400;
   color: var(--text-primary);
   text-decoration: none;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 52px;
 }
-.auth-logo em { font-style: normal; color: var(--brand); }
+.auth-logo em {
+  font-style: normal;
+  color: var(--brand);
+}
 
 .auth-logo-img {
   height: 80px;
@@ -1445,21 +1954,24 @@ footer {
   overflow: hidden;
 }
 .db-sidebar-logo {
-  padding: 30px 26px 24px;
+  padding: 30px 0px 24px;
   border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
 }
 .db-sidebar-logo a {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.01em;
   display: flex;
   align-items: center;
 }
-.db-sidebar-logo a em { font-style: normal; color: var(--brand); }
+.db-sidebar-logo a em {
+  font-style: normal;
+  color: var(--brand);
+}
 
 .sidebar-logo-img {
   height: 60px;
