@@ -49,7 +49,7 @@
         {% if request.user.is_superuser %}
         <p class="db-nav-section-label">Admin</p>
         <a href="{% url 'core:studio' %}" class="db-nav-link">
-          <span class="db-nav-icon">🎛️</span> Studio
+          <span class="db-nav-icon ms">tune</span> Studio
         </a>
         {% endif %}
 
@@ -101,7 +101,7 @@
         <!-- Greeting -->
         <div style="margin-bottom:32px;">
           <h2 style="font-family:var(--font-display);font-size:clamp(22px,3vw,34px);font-weight:600;color:var(--text-primary);margin-bottom:6px;">
-            Olá, {{ request.user.first_name }} 👋
+            Olá, {{ request.user.first_name }}
           </h2>
           <p style="color:var(--text-secondary);font-size:15px;">
             Continue de onde parou. Você está indo muito bem!
@@ -111,7 +111,7 @@
         <!-- Continue watching -->
         {% if last_progress %}
         <div class="continue-card">
-          <div class="continue-icon">🎵</div>
+          <div class="continue-icon"><span class="ms ms-fill ms-lg">music_note</span></div>
           <div class="continue-info">
             <p class="continue-label">{% if last_progress.completed %}Revisitar{% else %}Continue assistindo{% endif %}</p>
             <h3 class="continue-title">{{ last_progress.lesson.module.title }}</h3>
@@ -153,7 +153,7 @@
               <h3 class="db-mod-title">{{ item.module.title }}</h3>
               <p class="db-mod-desc">{{ item.module.description }}</p>
               <div class="db-mod-meta">
-                <span class="db-meta-chip"><span>🎬</span> {{ item.module.total_lessons }} aulas</span>
+                <span class="db-meta-chip"><span class="ms ms-sm">play_circle</span> {{ item.module.total_lessons }} aulas</span>
                 <span class="db-meta-chip"><span>⏱</span> {{ item.duration_display }}</span>
               </div>
               <div class="db-mod-progress-wrap">

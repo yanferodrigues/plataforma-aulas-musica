@@ -22,7 +22,7 @@
       <!-- Top bar -->
       <nav class="lesson-topbar">
         <div class="breadcrumb">
-          <a href="{% url 'courses:dashboard' %}" class="bc-home">🏠</a>
+          <a href="{% url 'courses:dashboard' %}" class="bc-home"><span class="ms">home</span></a>
           <span class="bc-sep">/</span>
           <a href="{% url 'courses:module_detail' module.pk %}" class="bc-mod">{{ module.title }}</a>
           <span class="bc-sep">/</span>
@@ -90,11 +90,35 @@
                       <button class="vp-menu-item" data-speed="2">2×</button>
                     </div>
                   </div>
+                  <!-- Qualidade -->
+                  {% if available_qualities %}
+                  <div class="vp-menu-wrap">
+                    <button class="vp-btn vp-menu-btn vp-quality-btn" id="vp-quality-btn" aria-label="Qualidade">
+                      <span class="vp-q-label">Auto</span>
+                      <span class="vp-q-badge" id="vp-q-badge"></span>
+                    </button>
+                    <div class="vp-menu vp-quality-menu" id="vp-quality-menu">
+                      <p class="vp-menu-label">Qualidade</p>
+                      <button class="vp-menu-item active" data-quality="auto">
+                        <span class="vp-q-row"><span>Automático</span><span class="vp-q-hint" id="vp-q-auto-hint">—</span></span>
+                      </button>
+                      {% for q in available_qualities reversed %}
+                      <button class="vp-menu-item" data-quality="{{ q }}">
+                        <span class="vp-q-row">
+                          <span>{{ q }}{% if q == '1080p' %} · Full HD{% elif q == '720p' %} · HD{% endif %}</span>
+                          {% if q == '1080p' %}<span class="vp-q-tag">HD</span>{% endif %}
+                        </span>
+                      </button>
+                      {% endfor %}
+                      <p class="vp-menu-foot" id="vp-q-net">Detectando conexão…</p>
+                    </div>
+                  </div>
+                  {% endif %}
                   <!-- Volume -->
-                  <button class="vp-btn" id="vp-vol-btn" aria-label="Mudo">🔊</button>
+                  <button class="vp-btn" id="vp-vol-btn" aria-label="Mudo"><span class="ms ms-white">volume_up</span></button>
                   <input type="range" id="vp-vol" class="vp-vol-slider" min="0" max="1" step="0.05" value="1" />
                   <!-- Fullscreen -->
-                  <button class="vp-btn" id="vp-fs-btn" aria-label="Tela cheia">⛶</button>
+                  <button class="vp-btn" id="vp-fs-btn" aria-label="Tela cheia"><span class="ms ms-white">fullscreen</span></button>
                 </div>
               </div>
             </div>
@@ -103,7 +127,7 @@
             <!-- ── YouTube IFrame API (div → player criado pela API) ── -->
             <div id="yt-player" style="position:absolute;inset:0;"></div>
             <div id="yt-error" style="display:none;position:absolute;inset:0;background:rgba(15,12,22,.97);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center;z-index:5;">
-              <p style="font-size:44px;">🎬</p>
+              <p><span class="ms ms-fill ms-2xl">play_circle</span></p>
               <p style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text-primary);">Reprodução bloqueada</p>
               <p style="font-size:14px;color:var(--text-secondary);max-width:340px;line-height:1.7;">O proprietário do vídeo desativou a reprodução incorporada.</p>
               <a href="{{ video_url }}" target="_blank" rel="noopener noreferrer"
@@ -131,7 +155,7 @@
 
         <!-- Lesson info -->
         <div class="lesson-info">
-          <span class="lesson-tag">♩ Módulo {{ module.order|stringformat:"02d" }} — {{ module.title }}</span>
+          <span class="lesson-tag"><span class="ms ms-fill ms-sm">music_note</span> Módulo {{ module.order|stringformat:"02d" }} — {{ module.title }}</span>
           <h1 class="lesson-title">{{ lesson.title }}</h1>
           <div class="lesson-meta-row">
             {% if lesson.duration_minutes %}
@@ -139,13 +163,13 @@
             {% endif %}
             <span class="lesson-meta-item"><span class="meta-dot"></span>{{ module.get_level_display }}</span>
             <span class="lesson-meta-item"><span class="meta-dot"></span>Aula {{ lesson.order }} de {{ total_count }}</span>
-            <span class="lesson-meta-item"><span>📅</span> Atualizado em {{ lesson.updated_at|date:"M Y" }}</span>
+            <span class="lesson-meta-item"><span class="ms ms-sm">calendar_today</span> Atualizado em {{ lesson.updated_at|date:"M Y" }}</span>
           </div>
         </div>
 
         {% if request.user.is_superuser and lesson.roteiro %}
         <div class="roteiro-admin-box">
-          <div class="roteiro-admin-label">📋 Roteiro (admin)</div>
+          <div class="roteiro-admin-label"><span class="ms ms-sm">description</span> Roteiro (admin)</div>
           <div class="roteiro-admin-body">{{ lesson.roteiro|linebreaksbr }}</div>
         </div>
         {% endif %}
@@ -191,11 +215,11 @@
             {% for mat in materials %}
             <a href="{{ mat.file.url }}" class="mat-item" download>
               <div class="mat-icon">
-                {% if mat.file_type == 'pdf' %}📄
-                {% elif mat.file_type == 'mp3' %}🎵
-                {% elif mat.file_type == 'mp4' %}🎬
-                {% elif mat.file_type == 'xlsx' %}📊
-                {% else %}📁{% endif %}
+                {% if mat.file_type == 'pdf' %}<span class="ms ms-lg">picture_as_pdf</span>
+                {% elif mat.file_type == 'mp3' %}<span class="ms ms-fill ms-lg">music_note</span>
+                {% elif mat.file_type == 'mp4' %}<span class="ms ms-fill ms-lg">play_circle</span>
+                {% elif mat.file_type == 'xlsx' %}<span class="ms ms-lg">table_chart</span>
+                {% else %}<span class="ms ms-lg">folder</span>{% endif %}
               </div>
               <span class="mat-name">{{ mat.name }}</span>
               <span class="mat-size">{{ mat.get_file_type_display }}{% if mat.size_kb %} · {{ mat.size_kb }} KB{% endif %}</span>
@@ -233,7 +257,7 @@
                     {% else %}Difícil{% endif %}
                   </span>
                   {% if ex.pk in answered_exercise_pks %}
-                  <span class="ex-diff" style="background:rgba(76,175,138,.12);color:var(--success);border:1px solid rgba(76,175,138,.25);">✓ Feito</span>
+                  <span class="ex-diff" style="background:rgba(76,175,138,.12);color:var(--success);border:1px solid rgba(76,175,138,.25);"><span class="ms ms-sm ms-success">check</span> Feito</span>
                   {% endif %}
                 </div>
               </div>
@@ -263,9 +287,9 @@
               {% elif ex.exercise_type == 'practice' %}
               <div class="practice-done-wrap" id="practice-done-{{ ex.pk }}">
                 {% if ex.pk in answered_exercise_pks %}
-                <span class="ex-done-badge">✓ Exercício concluído</span>
+                <span class="ex-done-badge"><span class="ms ms-sm ms-success">check</span> Exercício concluído</span>
                 {% else %}
-                <button class="btn-mark-done" onclick="markPracticeDone({{ ex.pk }})">✓ Marcar como feito</button>
+                <button class="btn-mark-done" onclick="markPracticeDone({{ ex.pk }})"><span class="ms ms-sm">check</span> Marcar como feito</button>
                 {% endif %}
               </div>
               {% endif %}
@@ -284,7 +308,7 @@
         <!-- ── TAB: Q&A ───────────────────────────── -->
         <div class="tab-panel" id="tab-qa">
           <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:40px 32px;text-align:center;">
-            <p style="font-size:44px;margin-bottom:16px;">💬</p>
+            <p style="margin-bottom:16px;"><span class="ms ms-fill ms-2xl">forum</span></p>
             <p style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Comunidade desta aula</p>
             <p style="font-size:14px;color:var(--text-secondary);max-width:420px;margin:0 auto 28px;line-height:1.7;">
               Tire dúvidas, veja respostas de professores e interaja com outros alunos sobre o conteúdo desta aula.
@@ -317,7 +341,7 @@
         {% for item in lessons_status %}
         <a href="{% url 'courses:lesson_detail' module.pk item.lesson.pk %}"
            class="ls-item {% if item.completed %}done{% elif item.is_current %}active{% endif %}">
-          <div class="ls-num">{% if item.completed %}✓{% else %}{{ item.lesson.order }}{% endif %}</div>
+          <div class="ls-num">{% if item.completed %}<span class="ms ms-success">check</span>{% else %}{{ item.lesson.order }}{% endif %}</div>
           <div class="ls-item-info">
             <p class="ls-item-title">{{ item.lesson.title }}</p>
             {% if item.lesson.duration_minutes %}
@@ -350,12 +374,12 @@
     if (!fb) return;
     if (chosen === correct) {
       if (chosen_btn) chosen_btn.classList.add('correct');
-      fb.textContent = '✓ Correto!';
+      fb.innerHTML = '<span class="ms ms-sm ms-success">check</span> Correto!';
       fb.className = 'quiz-feedback ok';
     } else {
       if (chosen_btn) chosen_btn.classList.add('wrong');
       opts.forEach(function(o) { if (o.dataset.opt === correct) o.classList.add('revealed'); });
-      fb.textContent = '✗ Incorreto — a resposta certa é ' + correct + '.';
+      fb.innerHTML = '<span class="ms ms-sm ms-danger">close</span> Incorreto — a resposta certa é ' + correct + '.';
       fb.className = 'quiz-feedback err';
     }
     fb.style.display = '';
@@ -372,7 +396,7 @@
     var wrap = document.getElementById('practice-done-' + exerciseId);
     if (!wrap || wrap.dataset.done) return;
     wrap.dataset.done = '1';
-    wrap.innerHTML = '<span class="ex-done-badge">✓ Exercício concluído</span>';
+    wrap.innerHTML = '<span class="ex-done-badge"><span class="ms ms-sm ms-success">check</span> Exercício concluído</span>';
     _updateDoneHeader(exerciseId);
     _submitExercise(exerciseId, '');
   }
@@ -388,7 +412,7 @@
           var badge = document.createElement('span');
           badge.className = 'ex-diff ex-done-green';
           badge.style.cssText = 'background:rgba(76,175,138,.12);color:var(--success);border:1px solid rgba(76,175,138,.25);';
-          badge.textContent = '✓ Feito';
+          badge.innerHTML = '<span class="ms ms-sm ms-success">check</span> Feito';
           badges.appendChild(badge);
         }
       }
@@ -472,7 +496,7 @@
         item.classList.remove('active');
         item.classList.add('done');
         var num = item.querySelector('.ls-num');
-        if (num) num.textContent = '✓';
+        if (num) num.innerHTML = '<span class="ms ms-success">check</span>';
       }
 
       // Atualizar contagem e barra do módulo
@@ -490,7 +514,7 @@
       // Toast
       var toast = document.createElement('div');
       toast.className = 'lesson-complete-toast';
-      toast.textContent = '✓ Aula concluída!';
+      toast.innerHTML = '<span class="ms ms-sm ms-success">check</span> Aula concluída!';
       document.body.appendChild(toast);
       setTimeout(function () { toast.classList.add('show'); }, 50);
       setTimeout(function () {
@@ -554,7 +578,206 @@
     var loading  = document.getElementById('vp-loading');
     var speedBtn = document.getElementById('vp-speed-btn');
     var speedMenu= document.getElementById('vp-speed-menu');
+    var qualityBtn  = document.getElementById('vp-quality-btn');
+    var qualityMenu = document.getElementById('vp-quality-menu');
+    var qLabel      = qualityBtn ? qualityBtn.querySelector('.vp-q-label') : null;
+    var qBadge      = document.getElementById('vp-q-badge');
+    var qNetEl      = document.getElementById('vp-q-net');
+    var qAutoHint   = document.getElementById('vp-q-auto-hint');
     var controls = document.getElementById('vp-controls');
+
+    /* ── Qualidade adaptativa ─────────────────────────────── */
+    var QUALITY_URLS = {{ quality_urls_json|safe }};
+    var QUALITY_ORDER = ['360p', '480p', '720p', '1080p']; // baixo → alto
+    var AVAILABLE = QUALITY_ORDER.filter(function (q) { return !!QUALITY_URLS[q]; });
+    var hasMultiQuality = AVAILABLE.length > 1;
+    var STORAGE_KEY = 'gog_video_quality';
+
+    // Estado
+    var userMode = 'auto';          // 'auto' ou um nível específico
+    var activeQuality = null;       // qualidade atualmente carregada
+    var stallEvents = [];           // timestamps de eventos de buffering
+    var lastUpgradeAttempt = 0;
+    var smoothPlayTimer = null;
+
+    function pickFromBandwidth(mbps) {
+      // Limites conservadores (overhead de TCP, picos)
+      if (mbps >= 6)   return '1080p';
+      if (mbps >= 3)   return '720p';
+      if (mbps >= 1.3) return '480p';
+      return '360p';
+    }
+
+    function pickFromEffectiveType(et) {
+      if (et === '4g')          return '720p';
+      if (et === '3g')          return '480p';
+      if (et === '2g' || et === 'slow-2g') return '360p';
+      return '720p';
+    }
+
+    function clamp(q) {
+      // Encontra a qualidade ≤ q dentre as disponíveis; se nenhuma menor, pega a menor disponível
+      var idx = QUALITY_ORDER.indexOf(q);
+      for (var i = idx; i >= 0; i--) {
+        if (AVAILABLE.indexOf(QUALITY_ORDER[i]) !== -1) return QUALITY_ORDER[i];
+      }
+      return AVAILABLE[0];
+    }
+
+    function detectAutoQuality() {
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      var chosen;
+      var hint = '';
+      if (conn && typeof conn.downlink === 'number' && conn.downlink > 0) {
+        chosen = pickFromBandwidth(conn.downlink);
+        hint = conn.downlink.toFixed(1) + ' Mbps';
+      } else if (conn && conn.effectiveType) {
+        chosen = pickFromEffectiveType(conn.effectiveType);
+        hint = conn.effectiveType.toUpperCase();
+      } else {
+        chosen = '720p';
+        hint = 'sem dados';
+      }
+      if (qAutoHint) qAutoHint.textContent = hint;
+      if (qNetEl)    qNetEl.textContent = 'Conexão: ' + hint;
+      return clamp(chosen);
+    }
+
+    function switchTo(quality, opts) {
+      opts = opts || {};
+      if (!QUALITY_URLS[quality]) return;
+      if (quality === activeQuality && !opts.force) return;
+
+      var wasPaused = vid.paused;
+      var savedTime = vid.currentTime || window._resumePos || 0;
+      var savedRate = vid.playbackRate;
+      var savedVol  = vid.volume;
+      var savedMute = vid.muted;
+
+      activeQuality = quality;
+      // Atualiza o <source> child (caso o navegador releia) e também o src direto
+      var srcEl = vid.querySelector('source');
+      if (srcEl) srcEl.src = QUALITY_URLS[quality];
+      vid.src = QUALITY_URLS[quality];
+
+      function resume() {
+        vid.removeEventListener('loadedmetadata', resume);
+        try { vid.currentTime = savedTime; } catch (e) {}
+        vid.playbackRate = savedRate;
+        vid.volume = savedVol;
+        vid.muted  = savedMute;
+        if (!wasPaused) {
+          var p = vid.play();
+          if (p && p.catch) p.catch(function () {});
+        }
+      }
+      vid.addEventListener('loadedmetadata', resume);
+      vid.load();
+
+      // UI
+      if (qLabel) qLabel.textContent = userMode === 'auto' ? 'Auto' : quality;
+      if (qBadge) qBadge.textContent = quality;
+      qualityMenu && qualityMenu.querySelectorAll('.vp-menu-item').forEach(function (i) {
+        i.classList.toggle('active', i.dataset.quality === userMode);
+      });
+    }
+
+    function applyUserMode(mode) {
+      userMode = mode;
+      try { localStorage.setItem(STORAGE_KEY, mode); } catch (e) {}
+      if (mode === 'auto') {
+        switchTo(detectAutoQuality());
+      } else {
+        switchTo(mode);
+      }
+    }
+
+    function downgradeOneStep() {
+      if (userMode !== 'auto' || !activeQuality) return;
+      var idx = AVAILABLE.indexOf(activeQuality);
+      if (idx <= 0) return; // já no mínimo
+      var next = AVAILABLE[idx - 1];
+      if (qNetEl) qNetEl.textContent = 'Travando — reduzindo para ' + next;
+      switchTo(next);
+      lastUpgradeAttempt = Date.now();
+    }
+
+    function tryUpgrade() {
+      if (userMode !== 'auto' || !activeQuality) return;
+      var idx = AVAILABLE.indexOf(activeQuality);
+      if (idx >= AVAILABLE.length - 1) return;
+      // Só sobe se houve playback estável por 45s e conexão sugere
+      var since = Date.now() - lastUpgradeAttempt;
+      if (since < 45000) return;
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && typeof conn.downlink === 'number' && conn.downlink > 0) {
+        var recommended = clamp(pickFromBandwidth(conn.downlink));
+        if (AVAILABLE.indexOf(recommended) > idx) {
+          if (qNetEl) qNetEl.textContent = 'Conexão melhorou — testando ' + recommended;
+          switchTo(recommended);
+          lastUpgradeAttempt = Date.now();
+        }
+      }
+    }
+
+    function registerStall() {
+      var now = Date.now();
+      stallEvents = stallEvents.filter(function (t) { return now - t < 30000; });
+      stallEvents.push(now);
+      // 2+ travadas em 30s → cai um nível
+      if (stallEvents.length >= 2) {
+        downgradeOneStep();
+        stallEvents = [];
+      }
+    }
+
+    if (hasMultiQuality) {
+      // Restaura preferência salva
+      var saved = null;
+      try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+      if (saved && (saved === 'auto' || AVAILABLE.indexOf(saved) !== -1)) {
+        userMode = saved;
+      }
+      var initial = userMode === 'auto' ? detectAutoQuality() : userMode;
+      // Inicializa sem disparar load() (o vídeo já está com src do servidor)
+      activeQuality = initial;
+      switchTo(initial, { force: true });
+
+      // Clique nos itens do menu
+      qualityMenu.querySelectorAll('.vp-menu-item').forEach(function (item) {
+        item.addEventListener('click', function (e) {
+          e.stopPropagation();
+          applyUserMode(this.dataset.quality);
+          closeMenus();
+        });
+      });
+      qualityBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = !qualityMenu.classList.contains('open');
+        closeMenus();
+        if (open) qualityMenu.classList.add('open');
+      });
+
+      // Eventos de buffering — alimentam o detector de travamento
+      vid.addEventListener('waiting',  registerStall);
+      vid.addEventListener('stalled',  registerStall);
+
+      // A cada 20s, tenta subir se a conexão melhorou
+      setInterval(tryUpgrade, 20000);
+
+      // Reage a mudanças reais de rede (chrome / android)
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && conn.addEventListener) {
+        conn.addEventListener('change', function () {
+          if (userMode === 'auto') {
+            var rec = detectAutoQuality();
+            if (rec !== activeQuality) switchTo(rec);
+          }
+        });
+      }
+    } else if (qualityBtn) {
+      qualityBtn.style.display = 'none';
+    }
 
     /* ── Helpers ── */
     function fmt(s) {
@@ -633,12 +856,12 @@
     volSlider.addEventListener('input', function () {
       vid.volume     = parseFloat(volSlider.value);
       vid.muted      = vid.volume === 0;
-      volBtn.textContent = (vid.muted || vid.volume === 0) ? '🔇' : '🔊';
+      volBtn.innerHTML = (vid.muted || vid.volume === 0) ? '<span class="ms ms-white">volume_off</span>' : '<span class="ms ms-white">volume_up</span>';
     });
     volBtn.addEventListener('click', function () {
       vid.muted          = !vid.muted;
       volSlider.value    = vid.muted ? 0 : vid.volume;
-      volBtn.textContent = vid.muted ? '🔇' : '🔊';
+      volBtn.innerHTML = vid.muted ? '<span class="ms ms-white">volume_off</span>' : '<span class="ms ms-white">volume_up</span>';
     });
 
     /* ── Fullscreen ── */
@@ -647,7 +870,7 @@
       else document.exitFullscreen();
     });
     document.addEventListener('fullscreenchange', function () {
-      fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+      fsBtn.innerHTML = document.fullscreenElement ? '<span class="ms ms-white">fullscreen_exit</span>' : '<span class="ms ms-white">fullscreen</span>';
     });
 
     /* ── Teclado ── */
@@ -661,7 +884,10 @@
     });
 
     /* ── Velocidade ── */
-    function closeMenus() { speedMenu.classList.remove('open'); }
+    function closeMenus() {
+      speedMenu.classList.remove('open');
+      if (qualityMenu) qualityMenu.classList.remove('open');
+    }
     speedBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       var open = !speedMenu.classList.contains('open');

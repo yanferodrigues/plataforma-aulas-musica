@@ -41,21 +41,35 @@
 
   <!-- PRELOADER -->
   <div id="preloader">
-    <div class="pl-staff">
-      <div class="pl-line"></div>
-      <div class="pl-line"></div>
-      <div class="pl-line"></div>
-      <div class="pl-line"></div>
-      <div class="pl-line"></div>
-      <div class="pl-notes">
-        <span class="pl-note">♩</span>
-        <span class="pl-note">♪</span>
-        <span class="pl-note">♫</span>
-        <span class="pl-note">♬</span>
+    <div class="pl-stage">
+      <div class="pl-glow"></div>
+
+      <svg class="pl-ring" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <linearGradient id="pl-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"  stop-color="#7038F8"/>
+            <stop offset="50%" stop-color="#AC8BFF"/>
+            <stop offset="100%" stop-color="#7038F8"/>
+          </linearGradient>
+          <filter id="pl-soft" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="1.4"/>
+          </filter>
+        </defs>
+        <circle class="pl-ring-bg" cx="100" cy="100" r="92"/>
+        <circle class="pl-ring-fg" cx="100" cy="100" r="92"/>
+      </svg>
+
+      <div class="pl-orbit">
+        <span class="pl-dot"></span>
+      </div>
+
+      <div class="pl-logo-wrap">
+        <img src="{% static 'assets/logo-musilab.png' %}" alt="GROW ON GUITAR" class="pl-logo-img" />
       </div>
     </div>
-    <img src="{% static 'assets/logo-musilab.png' %}" alt="GROW ON GUITAR" class="pl-logo-img" />
+
     <span class="pl-brand">GROW ON <em>GUITAR</em></span>
+    <span class="pl-tagline">Carregando experiência…</span>
   </div>
 
   <!-- NAVIGATION -->
@@ -173,7 +187,7 @@
 
       <div class="features-grid">
         <div class="feat-card">
-          <div class="feat-icon">🎵</div>
+          <div class="feat-icon"><span class="ms ms-fill ms-xl">music_note</span></div>
           <h3 class="feat-title">Módulos Estruturados</h3>
           <p class="feat-desc">
             Aulas organizadas em módulos com progressão lógica — do
@@ -181,7 +195,7 @@
           </p>
         </div>
         <div class="feat-card">
-          <div class="feat-icon">🎬</div>
+          <div class="feat-icon"><span class="ms ms-fill ms-xl">play_circle</span></div>
           <h3 class="feat-title">Vídeo em Alta Qualidade</h3>
           <p class="feat-desc">
             Gravações profissionais com múltiplos ângulos, partituras
@@ -189,7 +203,7 @@
           </p>
         </div>
         <div class="feat-card">
-          <div class="feat-icon">📚</div>
+          <div class="feat-icon"><span class="ms ms-fill ms-xl">menu_book</span></div>
           <h3 class="feat-title">Material Complementar</h3>
           <p class="feat-desc">
             PDFs, tablaturas, áudios de referência e exercícios práticos
@@ -197,7 +211,7 @@
           </p>
         </div>
         <div class="feat-card">
-          <div class="feat-icon">📈</div>
+          <div class="feat-icon"><span class="ms ms-fill ms-xl">trending_up</span></div>
           <h3 class="feat-title">Acompanhe seu Progresso</h3>
           <p class="feat-desc">
             Painel visual com seu histórico de aulas, taxa de conclusão
@@ -205,7 +219,7 @@
           </p>
         </div>
         <div class="feat-card">
-          <div class="feat-icon">💬</div>
+          <div class="feat-icon"><span class="ms ms-fill ms-xl">forum</span></div>
           <h3 class="feat-title">Q&amp;A em Cada Aula</h3>
           <p class="feat-desc">
             Envie dúvidas diretamente em cada aula e receba respostas
@@ -213,7 +227,7 @@
           </p>
         </div>
         <div class="feat-card">
-          <div class="feat-icon">🎯</div>
+          <div class="feat-icon"><span class="ms ms-fill ms-xl">track_changes</span></div>
           <h3 class="feat-title">Exercícios Práticos</h3>
           <p class="feat-desc">
             Atividades por nível — fácil, médio e difícil — para fixar
@@ -539,19 +553,21 @@
         <div>
           <p class="footer-col-title">Legal</p>
           <ul class="footer-col-links">
-            <li><a href="#">Termos de Uso</a></li>
-            <li><a href="#">Privacidade</a></li>
-            <li><a href="#">Cookies</a></li>
+            <li><a href="#" data-open-legal="terms">Termos de Uso</a></li>
+            <li><a href="#" data-open-legal="privacy">Privacidade</a></li>
+            <li><a href="#" data-open-legal="privacy">Cookies</a></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
         <span>© 2025 GROW ON GUITAR — Aulas de Música &amp; Produção. Todos os direitos reservados.</span>
-        <span>Feito com ♪ no Brasil</span>
+        <span>Feito com <span class="ms ms-fill ms-sm">music_note</span> no Brasil</span>
       </div>
     </div>
   </footer>
+
+  {% include 'partials/legal_modal.html' %}
 
   <!-- SCRIPTS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>

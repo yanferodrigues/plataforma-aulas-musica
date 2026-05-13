@@ -148,7 +148,7 @@
 
   <!-- Nova pergunta -->
   <div class="qa-new-form">
-    <p class="qa-new-title">💬 Faça uma pergunta</p>
+    <p class="qa-new-title"><span class="ms ms-fill">forum</span> Faça uma pergunta</p>
     <form method="post">
       {% csrf_token %}
       <input type="hidden" name="action" value="question" />
@@ -186,7 +186,7 @@
       {% if request.user.is_superuser %}
       <form method="post" action="{% url 'courses:delete_question' module.pk lesson.pk q.pk %}" onsubmit="return confirm('Apagar esta pergunta e todas as suas respostas?');">
         {% csrf_token %}
-        <button type="submit" class="qa-delete-btn" title="Apagar pergunta">✕</button>
+        <button type="submit" class="qa-delete-btn" title="Apagar pergunta"><span class="ms ms-sm ms-danger">close</span></button>
       </form>
       {% endif %}
     </div>
@@ -218,7 +218,7 @@
           {% if request.user.is_superuser %}
           <form method="post" action="{% url 'courses:delete_answer' module.pk lesson.pk ans.pk %}" onsubmit="return confirm('Apagar esta resposta?');">
             {% csrf_token %}
-            <button type="submit" class="qa-delete-btn" title="Apagar resposta">✕</button>
+            <button type="submit" class="qa-delete-btn" title="Apagar resposta"><span class="ms ms-sm ms-danger">close</span></button>
           </form>
           {% endif %}
         </div>
@@ -256,7 +256,7 @@
 
   {% else %}
   <div class="qa-empty">
-    <p>🎵</p>
+    <p><span class="ms ms-fill ms-2xl">music_note</span></p>
     <p style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Nenhuma pergunta ainda</p>
     <p style="font-size:14px;">Seja o primeiro a perguntar sobre esta aula!</p>
   </div>

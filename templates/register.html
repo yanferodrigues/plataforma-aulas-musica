@@ -57,7 +57,7 @@
           <div class="auth-alerts">
             {% for message in messages %}
               <div class="auth-alert auth-alert--{{ message.tags }}">
-                <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% elif 'success' in message.tags %}✓{% else %}!{% endif %}</span>
+                <span class="auth-alert-icon">{% if 'error' in message.tags %}<span class="ms ms-sm ms-danger">close</span>{% elif 'success' in message.tags %}<span class="ms ms-sm ms-success">check</span>{% else %}<span class="ms ms-sm ms-warn">priority_high</span>{% endif %}</span>
                 <span class="auth-alert-text">{{ message }}</span>
                 <button type="button" class="auth-alert-close" aria-label="Fechar">×</button>
               </div>
@@ -90,14 +90,14 @@
           <div class="form-group pw-wrap">
             <input type="password" id="password" name="password" class="form-input" placeholder="senha" autocomplete="new-password" />
             <label for="password" class="form-label">Senha</label>
-            <button type="button" class="pw-toggle" aria-label="Mostrar senha">👁</button>
+            <button type="button" class="pw-toggle" aria-label="Mostrar senha"><span class="ms ms-muted">visibility</span></button>
             <span class="form-hint">Mínimo 8 caracteres.</span>
           </div>
 
           <div class="form-group pw-wrap">
             <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="confirmar" autocomplete="new-password" />
             <label for="confirm_password" class="form-label">Confirmar Senha</label>
-            <button type="button" class="pw-toggle" aria-label="Mostrar senha">👁</button>
+            <button type="button" class="pw-toggle" aria-label="Mostrar senha"><span class="ms ms-muted">visibility</span></button>
             <span class="form-hint">As senhas não coincidem.</span>
           </div>
 
@@ -109,9 +109,9 @@
             />
             <label for="terms" style="font-size:13px;color:var(--text-secondary);line-height:1.6;cursor:pointer;">
               Concordo com os
-              <a href="#" style="color:var(--brand);text-decoration:none;">Termos de Uso</a>
+              <a href="#" data-open-legal="terms" style="color:var(--brand);text-decoration:none;">Termos de Uso</a>
               e a
-              <a href="#" style="color:var(--brand);text-decoration:none;">Política de Privacidade</a>.
+              <a href="#" data-open-legal="privacy" style="color:var(--brand);text-decoration:none;">Política de Privacidade</a>.
             </label>
           </div>
 
@@ -138,6 +138,8 @@
     </div>
 
   </div>
+
+  {% include 'partials/legal_modal.html' %}
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="{% static 'assets/auth.js' %}"></script>

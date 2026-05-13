@@ -48,7 +48,7 @@ function initPasswordToggles() {
       if (!input) return;
       const visible = input.type === 'text';
       input.type  = visible ? 'password' : 'text';
-      btn.textContent = visible ? '👁' : '🙈';
+      btn.innerHTML = visible ? '<span class="ms ms-muted">visibility</span>' : '<span class="ms ms-muted">visibility_off</span>';
     });
   });
 }

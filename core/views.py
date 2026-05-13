@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db import IntegrityError
 from courses.models import Module, Lesson, Material, Exercise
 from achievements.models import Achievement
+from core import transcode
 
 
 
@@ -129,25 +130,42 @@ def studio_lesson_save(request, pk=None):
         'is_active': request.POST.get('is_active') == 'on',
     }
 
+    video_fields = ('video_file', 'video_file_360p', 'video_file_480p',
+                    'video_file_720p', 'video_file_1080p')
+
     try:
         if pk:
             obj = get_object_or_404(Lesson, pk=pk)
             was_active = obj.is_active
             for k, v in data.items():
                 setattr(obj, k, v)
-            if 'video_file' in request.FILES:
-                obj.video_file = request.FILES['video_file']
+            for vf in video_fields:
+                if vf in request.FILES:
+                    setattr(obj, vf, request.FILES[vf])
             obj.save()
             messages.success(request, f'Aula "{obj.title}" atualizada.')
             if not was_active and obj.is_active:
                 _notify_new_lesson(obj)
+            if transcode.has_missing_qualities(obj):
+                if transcode.ffmpeg_available():
+                    transcode.trigger_async(obj.pk)
+                    messages.info(request, 'Gerando versões adaptativas do vídeo em segundo plano.')
+                else:
+                    messages.warning(request, 'ffmpeg não encontrado — qualidades adaptativas não serão geradas. Instale o ffmpeg para habilitar.')
         else:
-            if 'video_file' in request.FILES:
-                data['video_file'] = request.FILES['video_file']
+            for vf in video_fields:
+                if vf in request.FILES:
+                    data[vf] = request.FILES[vf]
             obj = Lesson.objects.create(**data)
             messages.success(request, f'Aula "{obj.title}" criada.')
             if obj.is_active:
                 _notify_new_lesson(obj)
+            if transcode.has_missing_qualities(obj):
+                if transcode.ffmpeg_available():
+                    transcode.trigger_async(obj.pk)
+                    messages.info(request, 'Gerando versões adaptativas do vídeo em segundo plano.')
+                else:
+                    messages.warning(request, 'ffmpeg não encontrado — qualidades adaptativas não serão geradas. Instale o ffmpeg para habilitar.')
     except IntegrityError:
         messages.error(request, f'Já existe uma aula com a ordem {data["order"]} neste módulo. Escolha um número diferente.')
 
@@ -173,7 +191,7 @@ def studio_achievement_save(request, pk=None):
     data = {
         'title': request.POST.get('title', '').strip(),
         'description': request.POST.get('description', '').strip(),
-        'icon': request.POST.get('icon', '🏆').strip(),
+        'icon': request.POST.get('icon', 'emoji_events').strip(),
         'condition_type': request.POST.get('condition_type', 'first_lesson'),
         'condition_value': int(request.POST.get('condition_value') or 1),
         'is_active': request.POST.get('is_active') == 'on',

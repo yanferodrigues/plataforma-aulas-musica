@@ -56,7 +56,7 @@
           <div class="auth-alerts">
             {% for message in messages %}
               <div class="auth-alert auth-alert--{{ message.tags }}">
-                <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% elif 'success' in message.tags %}✓{% else %}!{% endif %}</span>
+                <span class="auth-alert-icon">{% if 'error' in message.tags %}<span class="ms ms-sm ms-danger">close</span>{% elif 'success' in message.tags %}<span class="ms ms-sm ms-success">check</span>{% else %}<span class="ms ms-sm ms-warn">priority_high</span>{% endif %}</span>
                 <span class="auth-alert-text">{{ message }}</span>
                 <button type="button" class="auth-alert-close" aria-label="Fechar">×</button>
               </div>
@@ -90,7 +90,7 @@
               autocomplete="current-password"
             />
             <label for="password" class="form-label">Senha</label>
-            <button type="button" class="pw-toggle" aria-label="Mostrar senha">👁</button>
+            <button type="button" class="pw-toggle" aria-label="Mostrar senha"><span class="ms ms-muted">visibility</span></button>
             <span class="form-hint">Informe sua senha.</span>
           </div>
 

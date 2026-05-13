@@ -68,7 +68,7 @@ function initSidebarMobile() {
   /* Create hamburger button if viewport is mobile */
   if (window.innerWidth <= 1100) {
     const btn = document.createElement('button');
-    btn.innerHTML = '☰';
+    btn.innerHTML = '<span class="ms">menu</span>';
     btn.setAttribute('aria-label', 'Abrir menu');
     Object.assign(btn.style, {
       position: 'fixed', top: '14px', left: '14px',

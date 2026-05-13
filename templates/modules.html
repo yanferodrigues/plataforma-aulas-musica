@@ -47,7 +47,7 @@
       {% if request.user.is_superuser %}
       <p class="db-nav-section-label">Admin</p>
       <a href="{% url 'core:studio' %}" class="db-nav-link">
-        <span class="db-nav-icon">🎛️</span> Studio
+        <span class="db-nav-icon ms">tune</span> Studio
       </a>
       {% endif %}
 
@@ -131,9 +131,9 @@
             </div>
             <p class="db-mod-desc">{{ item.module.description }}</p>
             <div class="db-mod-meta">
-              <span class="db-meta-chip"><span>🎬</span> {{ item.module.total_lessons }} aula{{ item.module.total_lessons|pluralize:"s" }}</span>
+              <span class="db-meta-chip"><span class="ms ms-sm">play_circle</span> {{ item.module.total_lessons }} aula{{ item.module.total_lessons|pluralize:"s" }}</span>
               <span class="db-meta-chip"><span>⏱</span> {{ item.duration_display }}</span>
-              <span class="db-meta-chip"><span>📶</span> {{ item.module.get_level_display }}</span>
+              <span class="db-meta-chip"><span class="ms ms-sm">signal_cellular_alt</span> {{ item.module.get_level_display }}</span>
             </div>
             <div class="db-mod-progress-wrap">
               <div class="db-progress-label"><span>Progresso</span><span>{{ item.percentage }}%</span></div>

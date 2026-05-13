@@ -47,7 +47,7 @@
       {% if request.user.is_superuser %}
       <p class="db-nav-section-label">Admin</p>
       <a href="{% url 'core:studio' %}" class="db-nav-link">
-        <span class="db-nav-icon">🎛️</span> Studio
+        <span class="db-nav-icon ms">tune</span> Studio
       </a>
       {% endif %}
 
@@ -97,19 +97,19 @@
           <div class="stat-card-label">Total de horas</div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-icon">🎬</div>
+          <div class="stat-card-icon"><span class="ms ms-fill ms-lg">play_circle</span></div>
           <div class="stat-card-value">{{ completed_lessons }}</div>
           <div class="stat-card-sub">de {{ total_lessons }} aulas</div>
           <div class="stat-card-label">Aulas concluídas</div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-icon">📚</div>
+          <div class="stat-card-icon"><span class="ms ms-fill ms-lg">menu_book</span></div>
           <div class="stat-card-value">{{ completed_modules }}</div>
           <div class="stat-card-sub">de {{ total_modules }} módulos</div>
           <div class="stat-card-label">Módulos completos</div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-icon">🔥</div>
+          <div class="stat-card-icon"><span class="ms ms-fill ms-lg" style="color:#ff6b35;">local_fire_department</span></div>
           <div class="stat-card-value">{{ streak }}</div>
           <div class="stat-card-sub">dias consecutivos</div>
           <div class="stat-card-label">Sequência atual</div>

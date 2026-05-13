@@ -47,7 +47,7 @@
       {% if request.user.is_superuser %}
       <p class="db-nav-section-label">Admin</p>
       <a href="{% url 'core:studio' %}" class="db-nav-link">
-        <span class="db-nav-icon">🎛️</span> Studio
+        <span class="db-nav-icon ms">tune</span> Studio
       </a>
       {% endif %}
 
@@ -108,12 +108,12 @@
 
       <!-- Unlocked -->
       {% if unlocked %}
-      <p class="achv-section-title">Desbloqueadas ✨</p>
+      <p class="achv-section-title">Desbloqueadas <span class="ms ms-fill ms-sm">auto_awesome</span></p>
       <div class="achv-grid">
         {% for a in unlocked %}
         <div class="achv-card unlocked">
           <span class="achv-unlocked-tag">OBTIDA</span>
-          <div class="achv-icon unlocked-icon">{{ a.icon }}</div>
+          <div class="achv-icon unlocked-icon"><span class="ms ms-fill ms-2xl">{{ a.icon }}</span></div>
           <p class="achv-title">{{ a.title }}</p>
           <p class="achv-desc">{{ a.description }}</p>
         </div>
@@ -123,11 +123,11 @@
 
       <!-- Locked -->
       {% if locked %}
-      <p class="achv-section-title">Bloqueadas 🔒</p>
+      <p class="achv-section-title">Bloqueadas <span class="ms ms-fill ms-sm ms-muted">lock</span></p>
       <div class="achv-grid">
         {% for a in locked %}
         <div class="achv-card locked">
-          <div class="achv-icon locked-icon">{{ a.icon }}</div>
+          <div class="achv-icon locked-icon"><span class="ms ms-2xl ms-muted">{{ a.icon }}</span></div>
           <p class="achv-title">{{ a.title }}</p>
           <p class="achv-desc">{{ a.description }}</p>
         </div>

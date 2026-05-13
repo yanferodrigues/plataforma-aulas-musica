@@ -12,4 +12,5 @@ urlpatterns = [
     path('modules/<int:module_pk>/lessons/<int:pk>/comunidade/pergunta/<int:question_pk>/apagar/', views.delete_question, name='delete_question'),
     path('modules/<int:module_pk>/lessons/<int:pk>/comunidade/resposta/<int:answer_pk>/apagar/', views.delete_answer, name='delete_answer'),
     path('lessons/<int:pk>/video/', views.video_serve, name='video_serve'),
+    path('lessons/<int:pk>/video/<str:quality>/', views.video_serve, name='video_serve_quality'),
 ]

@@ -46,7 +46,7 @@
       {% if request.user.is_superuser %}
       <p class="db-nav-section-label">Admin</p>
       <a href="{% url 'core:studio' %}" class="db-nav-link">
-        <span class="db-nav-icon">🎛️</span> Studio
+        <span class="db-nav-icon ms">tune</span> Studio
       </a>
       {% endif %}
 
@@ -111,7 +111,7 @@
         </div>
         {% empty %}
         <div style="text-align:center;color:var(--text-secondary);font-size:14px;margin-top:40px;">
-          Nenhuma mensagem ainda. Diga olá! 👋
+          Nenhuma mensagem ainda. Diga olá! <span class="ms ms-fill" style="color:#f5a524;">waving_hand</span>
         </div>
         {% endfor %}
       </div>
@@ -120,7 +120,7 @@
       <form id="chat-form" class="chat-input-bar" autocomplete="off">
         {% csrf_token %}
         <input type="text" id="chat-input" placeholder="Digite uma mensagem…" autocomplete="off" />
-        <button type="submit" class="chat-send-btn" aria-label="Enviar">➤</button>
+        <button type="submit" class="chat-send-btn" aria-label="Enviar"><span class="ms ms-fill ms-white">send</span></button>
       </form>
 
     </div><!-- /chat-room-layout -->

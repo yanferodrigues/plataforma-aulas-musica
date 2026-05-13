@@ -190,6 +190,14 @@ def lesson_detail(request, module_pk, pk):
     }
 
     current_lp = lp_map.get(lesson.pk)
+
+    available_qualities = _lesson_available_qualities(lesson)
+    quality_urls = {
+        q: reverse('courses:video_serve_quality', args=[lesson.pk, q])
+        for q in available_qualities
+    }
+    has_any_video = bool(lesson.video_file) or bool(available_qualities)
+
     context = {
         'module': module,
         'lesson': lesson,
@@ -203,7 +211,9 @@ def lesson_detail(request, module_pk, pk):
         'materials': lesson.materials.all(),
         'exercises': lesson.exercises.all(),
         'questions': lesson.questions.select_related('user').prefetch_related('answers__user').all(),
-        'video_file_url': reverse('courses:video_serve', args=[lesson.pk]) if lesson.video_file else None,
+        'video_file_url': reverse('courses:video_serve', args=[lesson.pk]) if has_any_video else None,
+        'available_qualities': available_qualities,
+        'quality_urls_json': json.dumps(quality_urls),
         'embed_url': _embed_url(lesson.video_url),
         'youtube_id': _youtube_id(lesson.video_url),
         'video_url': lesson.video_url,
@@ -284,16 +294,45 @@ def delete_answer(request, module_pk, pk, answer_pk):
     return redirect('courses:lesson_qa', module_pk=module_pk, pk=pk)
 
 
+QUALITY_FIELD_MAP = {
+    '360p':  'video_file_360p',
+    '480p':  'video_file_480p',
+    '720p':  'video_file_720p',
+    '1080p': 'video_file_1080p',
+}
+
+
+def _lesson_available_qualities(lesson):
+    """Lista de qualidades com arquivo enviado, em ordem crescente."""
+    out = []
+    for label, field in QUALITY_FIELD_MAP.items():
+        f = getattr(lesson, field, None)
+        if f:
+            out.append(label)
+    return out
+
+
 @login_required(login_url='accounts:login')
-def video_serve(request, pk):
-    """Serve vídeo com suporte completo a HTTP Range Requests (RFC 7233)."""
+def video_serve(request, pk, quality=None):
+    """Serve vídeo com suporte completo a HTTP Range Requests (RFC 7233).
+
+    Se `quality` for fornecido e o arquivo daquela qualidade existir,
+    serve aquela versão. Caso contrário, faz fallback para o video_file original.
+    """
     lesson = get_object_or_404(Lesson, pk=pk, is_active=True)
-    if not lesson.video_file:
+
+    video_field = None
+    if quality and quality in QUALITY_FIELD_MAP:
+        video_field = getattr(lesson, QUALITY_FIELD_MAP[quality], None) or None
+    if not video_field:
+        video_field = lesson.video_file
+
+    if not video_field:
         raise Http404('Nenhum arquivo de vídeo para esta aula.')
 
-    file_path   = lesson.video_file.path
+    file_path   = video_field.path
     file_size   = os.path.getsize(file_path)
-    content_type, _ = mimetypes.guess_type(lesson.video_file.name)
+    content_type, _ = mimetypes.guess_type(video_field.name)
     content_type = content_type or 'video/mp4'
 
     range_header = request.META.get('HTTP_RANGE', '').strip()

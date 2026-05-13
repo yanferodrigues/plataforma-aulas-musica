@@ -268,38 +268,38 @@
       <p class="db-nav-section-label">Studio <span class="studio-badge">ADMIN</span></p>
 
       <button class="db-nav-link st-tab-btn active" data-tab="overview" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">🎛️</span> Visão Geral
+        <span class="db-nav-icon ms">tune</span> Visão Geral
       </button>
       <button class="db-nav-link st-tab-btn" data-tab="modules" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">📦</span> Módulos
+        <span class="db-nav-icon ms">inventory_2</span> Módulos
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_modules }}</span>
       </button>
       <button class="db-nav-link st-tab-btn" data-tab="lessons" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">🎬</span> Aulas
+        <span class="db-nav-icon ms">play_circle</span> Aulas
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_lessons }}</span>
       </button>
       <button class="db-nav-link st-tab-btn" data-tab="achievements" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">🏆</span> Conquistas
+        <span class="db-nav-icon ms">emoji_events</span> Conquistas
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_achievements }}</span>
       </button>
       <button class="db-nav-link st-tab-btn" data-tab="materials" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">📎</span> Materiais
+        <span class="db-nav-icon ms">attach_file</span> Materiais
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_materials }}</span>
       </button>
       <button class="db-nav-link st-tab-btn" data-tab="exercises" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">🎯</span> Exercícios
+        <span class="db-nav-icon ms">track_changes</span> Exercícios
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_exercises }}</span>
       </button>
       <button class="db-nav-link st-tab-btn" data-tab="users" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-        <span class="db-nav-icon">👥</span> Usuários
+        <span class="db-nav-icon ms">group</span> Usuários
         <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">{{ total_users }}</span>
       </button>
       <p class="db-nav-section-label" style="margin-top:24px;">Navegação</p>
       <a href="{% url 'courses:dashboard' %}" class="db-nav-link">
-        <span class="db-nav-icon">🏠</span> Dashboard
+        <span class="db-nav-icon ms">home</span> Dashboard
       </a>
       <a href="{% url 'accounts:logout' %}" class="db-nav-link">
-        <span class="db-nav-icon">🚪</span> Sair
+        <span class="db-nav-icon ms">logout</span> Sair
       </a>
     </nav>
 
@@ -327,7 +327,7 @@
       <div style="padding: 0 32px 0;">
         {% for message in messages %}
           <div class="auth-alert auth-alert--{{ message.tags }}" style="margin-bottom:10px;">
-            <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% else %}✓{% endif %}</span>
+            <span class="auth-alert-icon">{% if 'error' in message.tags %}<span class="ms ms-sm ms-danger">close</span>{% else %}<span class="ms ms-sm ms-success">check</span>{% endif %}</span>
             <span class="auth-alert-text">{{ message }}</span>
             <button type="button" class="auth-alert-close" onclick="this.closest('.auth-alert').remove()">×</button>
           </div>
@@ -407,7 +407,7 @@
           <h2>Módulos</h2>
           <div class="st-head-actions">
             <div class="st-search">
-              <span style="color:var(--text-secondary);">🔍</span>
+              <span class="ms ms-sm ms-muted">search</span>
               <input type="text" placeholder="Buscar módulo…" oninput="filterTable('modules-body', this.value)" />
             </div>
             <button class="st-btn-new" onclick="openModal('modal-module')">
@@ -467,7 +467,7 @@
           <h2>Aulas</h2>
           <div class="st-head-actions">
             <div class="st-search">
-              <span style="color:var(--text-secondary);">🔍</span>
+              <span class="ms ms-sm ms-muted">search</span>
               <input type="text" placeholder="Buscar aula…" oninput="filterTable('lessons-body', this.value)" />
             </div>
             <button class="st-btn-new" onclick="openModal('modal-lesson')">
@@ -533,7 +533,7 @@
           <h2>Conquistas</h2>
           <div class="st-head-actions">
             <div class="st-search">
-              <span style="color:var(--text-secondary);">🔍</span>
+              <span class="ms ms-sm ms-muted">search</span>
               <input type="text" placeholder="Buscar conquista…" oninput="filterTable('achievements-body', this.value)" />
             </div>
             <button class="st-btn-new" onclick="openModal('modal-achievement')">
@@ -558,7 +558,7 @@
             <tbody id="achievements-body">
               {% for a in achievements %}
               <tr>
-                <td style="font-size:22px;">{{ a.icon }}</td>
+                <td><span class="ms ms-fill ms-lg">{{ a.icon }}</span></td>
                 <td style="font-weight:500;">{{ a.title }}</td>
                 <td style="color:var(--text-secondary);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.description }}</td>
                 <td style="font-size:12px;color:var(--text-secondary);">{{ a.get_condition_type_display }}</td>
@@ -593,7 +593,7 @@
           <h2>Usuários</h2>
           <div class="st-head-actions">
             <div class="st-search">
-              <span style="color:var(--text-secondary);">🔍</span>
+              <span class="ms ms-sm ms-muted">search</span>
               <input type="text" placeholder="Buscar usuário…" oninput="filterTable('users-body', this.value)" />
             </div>
           </div>
@@ -661,7 +661,7 @@
           <h2>Materiais</h2>
           <div class="st-head-actions">
             <div class="st-search">
-              <span style="color:var(--text-secondary);">🔍</span>
+              <span class="ms ms-sm ms-muted">search</span>
               <input type="text" placeholder="Buscar material…" oninput="filterTable('materials-body', this.value)" />
             </div>
             <button class="st-btn-new" onclick="openModal_material_create()">
@@ -713,7 +713,7 @@
           <h2>Exercícios</h2>
           <div class="st-head-actions">
             <div class="st-search">
-              <span style="color:var(--text-secondary);">🔍</span>
+              <span class="ms ms-sm ms-muted">search</span>
               <input type="text" placeholder="Buscar exercício…" oninput="filterTable('exercises-body', this.value)" />
             </div>
             <button class="st-btn-new" onclick="openModal_exercise_create()">
@@ -859,8 +859,36 @@
       </div>
 
       <div class="st-field">
-        <label>Arquivo de Vídeo <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">(MP4 — tem prioridade sobre URL)</span></label>
+        <label>Arquivo de Vídeo — Original <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">(MP4 — tem prioridade sobre URL; usado como fallback)</span></label>
         <input type="file" name="video_file" id="l-video_file" accept="video/*" />
+      </div>
+
+      <div style="background:rgba(112,56,248,.06);border:1px solid rgba(112,56,248,.18);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:18px;">
+        <p style="font-size:12px;font-weight:600;color:var(--brand);margin:0 0 4px;letter-spacing:.5px;text-transform:uppercase;">Versões adaptativas (opcional)</p>
+        <p style="font-size:11px;color:var(--text-secondary);margin:0 0 12px;line-height:1.6;">
+          Envie o mesmo vídeo em resoluções diferentes. O player troca automaticamente de acordo com a velocidade da internet do aluno.
+        </p>
+
+        <div class="st-field-row" style="gap:10px;margin-bottom:8px;">
+          <div class="st-field" style="margin-bottom:0;">
+            <label style="font-size:11px;">360p (~500kbps)</label>
+            <input type="file" name="video_file_360p" id="l-video_file_360p" accept="video/*" />
+          </div>
+          <div class="st-field" style="margin-bottom:0;">
+            <label style="font-size:11px;">480p (~1Mbps)</label>
+            <input type="file" name="video_file_480p" id="l-video_file_480p" accept="video/*" />
+          </div>
+        </div>
+        <div class="st-field-row" style="gap:10px;margin-bottom:0;">
+          <div class="st-field" style="margin-bottom:0;">
+            <label style="font-size:11px;">720p (~2.5Mbps)</label>
+            <input type="file" name="video_file_720p" id="l-video_file_720p" accept="video/*" />
+          </div>
+          <div class="st-field" style="margin-bottom:0;">
+            <label style="font-size:11px;">1080p (~5Mbps)</label>
+            <input type="file" name="video_file_1080p" id="l-video_file_1080p" accept="video/*" />
+          </div>
+        </div>
       </div>
 
       <div class="st-field">
@@ -909,8 +937,9 @@
 
       <div class="st-field-row">
         <div class="st-field">
-          <label>Ícone (emoji) *</label>
-          <input type="text" name="icon" id="a-icon" maxlength="10" placeholder="🏆" required />
+          <label>Ícone (Material Symbol) *</label>
+          <input type="text" name="icon" id="a-icon" maxlength="40" placeholder="emoji_events" required />
+          <small style="color:var(--text-secondary);font-size:11px;">Ex: emoji_events, military_tech, local_fire_department · <a href="https://fonts.google.com/icons" target="_blank" style="color:var(--brand);">ver lista</a></small>
         </div>
         <div class="st-field" id="a-condition_value-wrap">
           <label>Valor da condição *</label>
@@ -1214,6 +1243,10 @@ function openModal_lesson_create() {
   document.getElementById('l-duration').value = '0';
   document.getElementById('l-title').value = '';
   document.getElementById('l-video_file').value = '';
+  document.getElementById('l-video_file_360p').value = '';
+  document.getElementById('l-video_file_480p').value = '';
+  document.getElementById('l-video_file_720p').value = '';
+  document.getElementById('l-video_file_1080p').value = '';
   document.getElementById('l-video_url').value = '';
   document.getElementById('l-description').value = '';
   document.getElementById('l-objectives').value = '';
@@ -1247,7 +1280,7 @@ const CREATE_ACH_URL = "{% url 'core:studio_achievement_create' %}";
 function openModal_ach_create() {
   document.getElementById('modal-achievement-title').textContent = 'Nova Conquista';
   document.getElementById('form-achievement').action = CREATE_ACH_URL;
-  document.getElementById('a-icon').value = '🏆';
+  document.getElementById('a-icon').value = 'emoji_events';
   document.getElementById('a-title').value = '';
   document.getElementById('a-description').value = '';
   document.getElementById('a-condition_type').value = 'first_lesson';

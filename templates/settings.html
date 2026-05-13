@@ -47,7 +47,7 @@
       {% if request.user.is_superuser %}
       <p class="db-nav-section-label">Admin</p>
       <a href="{% url 'core:studio' %}" class="db-nav-link">
-        <span class="db-nav-icon">🎛️</span> Studio
+        <span class="db-nav-icon ms">tune</span> Studio
       </a>
       {% endif %}
 
@@ -92,7 +92,7 @@
       <div class="auth-alerts" style="margin-bottom:20px;">
         {% for message in messages %}
         <div class="auth-alert auth-alert--{% if 'error' in message.tags %}error{% else %}success{% endif %}">
-          <span class="auth-alert-icon">{% if 'error' in message.tags %}✕{% else %}✓{% endif %}</span>
+          <span class="auth-alert-icon">{% if 'error' in message.tags %}<span class="ms ms-sm ms-danger">close</span>{% else %}<span class="ms ms-sm ms-success">check</span>{% endif %}</span>
           <span class="auth-alert-text">{{ message }}</span>
         </div>
         {% endfor %}
